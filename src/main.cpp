@@ -1,46 +1,12 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include "robot.hpp"
+#include "berth.hpp"
+#include "boat.hpp"
+#include "global_vars.hpp"
 
 using namespace std;
-
-const int n = 200;
-const int robot_num = 10;
-const int berth_num = 10;
-const int N = 210;
-
-struct Robot {
-    int x, y, goods;
-    int status;
-    int mbx, mby;
-    Robot() {}
-    Robot(int startX, int startY) {
-        x = startX;
-        y = startY;
-    }
-}robot[robot_num + 10];
-
-struct Berth {
-    int x;
-    int y;
-    int transport_time;
-    int loading_speed;
-    Berth() {}
-    Berth(int x, int y, int transport_time, int loading_speed) {
-        this->x = x;
-        this->y = y;
-        this->transport_time = transport_time;
-        this->loading_speed = loading_speed;
-    }
-}berth[berth_num + 10];
-
-struct Boat {
-    int num, pos, status;
-}boat[10];
-
-int money, boat_capacity, id;
-char ch[N][N];
-int gds[N][N];
 
 void Init() {
     for (int i = 1; i <= n; i++)
