@@ -30,8 +30,6 @@ public:
     void makeDecision() {
         robotDecision();
         shipDecision();
-        cout << "OK" << endl;
-        cout.flush();
     }
 
     void shipDecision() {
@@ -51,8 +49,9 @@ public:
 
     void robotDecision() {
         for (int i = 0; i < robot_num; i++) {
-            if (goods[robot[i].x][robot[i].y] > 0) {
+            if (goods[robot[i].x][robot[i].y] > 0 && robot[i].goods == 0) {
                 cout << "get " << i << endl;
+                goods[robot[i].x][robot[i].y] = 0;
             }
             else if (robot[i].goods > 0) {
                 if (inBert(robot[i].x, robot[i].y)) {
@@ -66,7 +65,6 @@ public:
                 }
             }
             else if (robot[i].goods == 0) {
-                cout << "move " << i << " " << rand() % 4 << endl;
                 Node target = getNearestGoods(robot[i].x, robot[i].y);
                 if (target.firstStepDir != -1) { // 确保找到了有效的移动方向
                     cout << "move " << i << " " << target.firstStepDir << endl;
