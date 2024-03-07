@@ -39,7 +39,7 @@ public:
                 if (boat[i].pos == -1) {
                     cout << "ship " << i << " " << i << endl;
                 }
-                else if (boat[i].num == boat_capacity) {
+                else if (boat[i].num == 5) {
                     cout << "go " << i << endl;
                 }
             }
@@ -91,7 +91,7 @@ public:
             for (int i = 0; i < 4; i++) {
                 int nx = now.x + dx[i];
                 int ny = now.y + dy[i];
-                if (nx < 1 || nx > n || ny < 1 || ny > n || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny]) continue;
+                if (nx < 0 || nx >= n || ny < 0 || ny >= n || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny]) continue;
                 vis[nx][ny] = true;
                 int firstStepDir = (now.firstStepDir == -1) ? i : now.firstStepDir;
                 q.push(Node(nx, ny, firstStepDir)); // 保持第一步方向不变

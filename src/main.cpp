@@ -10,8 +10,8 @@
 using namespace std;
 
 void Init() {
-    for (int i = 1; i <= n; i++) {
-        cin >> (map[i] + 1);
+    for (int i = 0; i < n; i++) {
+        cin >> map[i];
     }
     for (int i = 0; i < berth_num; i++) {
         int id;
