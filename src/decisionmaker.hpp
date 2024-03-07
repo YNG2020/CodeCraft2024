@@ -78,7 +78,9 @@ public:
         queue<Node> q;
         q.push(Node(x, y));
         memset(vis, 0, sizeof(vis));
-        vis[x][y] = true;
+        for (int i = 0; i < robot_num; i++) {
+            vis[robot[i].x][robot[i].y] = true;
+        }
 
         while (!q.empty()) {
             Node now = q.front();
