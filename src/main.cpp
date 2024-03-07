@@ -1,11 +1,11 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include "robot.hpp"
-#include "berth.hpp"
-#include "boat.hpp"
-#include "global_vars.hpp"
-#include "decisionmaker.hpp"
+#include "robot.h"
+#include "berth.h"
+#include "boat.h"
+#include "global_vars.h"
+#include "decisionmaker.h"
 
 using namespace std;
 

@@ -1,9 +1,9 @@
-#ifndef GLOBAL_VARS_HPP
-#define GLOBAL_VARS_HPP
+#ifndef GLOBAL_VARS_H
+#define GLOBAL_VARS_H
 
-#include "robot.hpp"
-#include "berth.hpp"
-#include "boat.hpp"
+#include "robot.h"
+#include "berth.h"
+#include "boat.h"
 
 const int n = 200;
 const int robot_num = 10;
@@ -21,4 +21,4 @@ int goods[N][N];
 int dx[4] = {0, 0, -1, 1};
 int dy[4] = {1, -1, 0, 0};
 
-#endif // GLOBAL_VARS_HPP
+#endif // GLOBAL_VARS_H

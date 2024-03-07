@@ -1,5 +1,5 @@
-#ifndef ROBOT_HPP
-#define ROBOT_HPP
+#ifndef ROBOT_H
+#define ROBOT_H
 
 class Robot {
 public:
@@ -14,4 +14,4 @@ public:
     }
 };
 
-#endif // ROBOT_HPP
+#endif // ROBOT_H

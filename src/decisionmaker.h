@@ -1,6 +1,6 @@
-#ifndef DECISION_MAKER_HPP
-#define DECISION_MAKER_HPP
-#include "global_vars.hpp"
+#ifndef DECISION_MAKER_H
+#define DECISION_MAKER_H
+#include "global_vars.h"
 #include <iostream>
 #include <cstring>
 #include <queue>

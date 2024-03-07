@@ -1,5 +1,5 @@
-#ifndef BOAT_HPP
-#define BOAT_HPP
+#ifndef BOAT_H
+#define BOAT_H
 
 class Boat {
 public:
@@ -8,4 +8,4 @@ public:
     Boat() {}
 };
 
-#endif // BOAT_HPP
+#endif // BOAT_H

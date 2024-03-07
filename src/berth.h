@@ -1,5 +1,5 @@
-#ifndef BERTH_HPP
-#define BERTH_HPP
+#ifndef BERTH_H
+#define BERTH_H
 
 class Berth {
 public:
@@ -16,4 +16,4 @@ public:
     }
 };
 
-#endif // BERTH_HPP
+#endif // BERTH_H
