@@ -16,7 +16,7 @@ private:
 
     bool vis[N+5][N+5];
 
-    bool inBert(int x, int y) {
+    bool inBerth(int x, int y) {
         for (int i = 0; i < berth_num; i++) {
             if (x >= berth[i].x && x < berth[i].x + 4 &&
                 y >= berth[i].y && y < berth[i].y + 4) {
@@ -24,6 +24,16 @@ private:
             }
         }
         return false;
+    }
+
+    int getBerthId(int x, int y) {
+        for (int i = 0; i < berth_num; i++) {
+            if (x >= berth[i].x && x < berth[i].x + 4 &&
+                y >= berth[i].y && y < berth[i].y + 4) {
+                return i;
+            }
+        }
+        return -1;
     }
 
 public:
@@ -34,13 +44,19 @@ public:
 
     void shipDecision() {
         for (int i = 0; i < boat_num; i++) {
+            int berthId = boat[i].pos;
+            int loadNum = berth[berthId].load();
+            boat[i].num += loadNum;
+        }
+        for (int i = 0; i < boat_num; i++) {
             if (boat[i].status == 0) continue;
             if (boat[i].status == 1) {
                 if (boat[i].pos == -1) {
                     cout << "ship " << i << " " << i << endl;
                 }
-                else if (boat[i].num == 5) {
-                    cout << "go " << i << endl;
+                else {
+                    if (boat[i].num >= 100)
+                        cout << "go " << i << endl;
                 }
             }
             
@@ -54,8 +70,9 @@ public:
                 goods[robot[i].x][robot[i].y] = 0;
             }
             else if (robot[i].goods > 0) {
-                if (inBert(robot[i].x, robot[i].y)) {
+                if (inBerth(robot[i].x, robot[i].y)) {
                     cout << "pull " << i << endl;
+                    berth[i].goodsNum++;
                 }
                 else {
                     Node target = getNearestBerth(robot[i].x, robot[i].y);
@@ -114,14 +131,14 @@ public:
             Node now = q.front();
             q.pop();
 
-            if (inBert(now.x, now.y)) {
+            if (inBerth(now.x, now.y)) {
                 return now; // 返回包含第一步方向的节点
             }
 
             for (int i = 0; i < 4; i++) {
                 int nx = now.x + dx[i];
                 int ny = now.y + dy[i];
-                if (nx < 1 || nx > n || ny < 1 || ny > n || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny]) continue;
+                if (nx < 0 || nx >= n || ny < 0 || ny >= n || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny]) continue;
                 vis[nx][ny] = true;
                 int firstStepDir = (now.firstStepDir == -1) ? i : now.firstStepDir;
                 q.push(Node(nx, ny, firstStepDir)); // 保持第一步方向不变
