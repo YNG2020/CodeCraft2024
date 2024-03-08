@@ -72,22 +72,34 @@ public:
             else if (robot[i].goods > 0) {
                 if (inBerth(robot[i].x, robot[i].y)) {
                     cout << "pull " << i << endl;
-                    berth[i].goodsNum++;
+                    berth[getBerthId(robot[i].x, robot[i].y)].goodsNum++;
                 }
                 else {
                     Node target = getNearestBerth(robot[i].x, robot[i].y);
-                    if (target.firstStepDir != -1) { // 确保找到了有效的移动方向
+                    if (target.firstStepDir != -1 && !willCollide(i, target.firstStepDir)) { // 确保找到了有效的移动方向且不会发生碰撞
                         cout << "move " << i << " " << target.firstStepDir << endl;
                     }
                 }
             }
             else if (robot[i].goods == 0) {
                 Node target = getNearestGoods(robot[i].x, robot[i].y);
-                if (target.firstStepDir != -1) { // 确保找到了有效的移动方向
+                if (target.firstStepDir != -1 && !willCollide(i, target.firstStepDir)) { // 确保找到了有效的移动方向且不会发生碰撞
                     cout << "move " << i << " " << target.firstStepDir << endl;
                 }
             }
         }
+    }
+
+    bool willCollide(int robotId, int direction) {
+        int nx = robot[robotId].x + dx[direction];
+        int ny = robot[robotId].y + dy[direction];
+        // 检查目标位置是否有其他机器人
+        for (int i = 0; i < robot_num; i++) {
+            if (i != robotId && robot[i].x == nx && robot[i].y == ny) {
+                return true; // 发现潜在碰撞
+            }
+        }
+        return false; // 无碰撞风险
     }
 
     // 查找最近的货物
