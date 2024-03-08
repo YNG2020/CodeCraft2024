@@ -1,54 +1,27 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include "robot.h"
+#include "berth.h"
+#include "boat.h"
+#include "global_vars.h"
+#include "decisionmaker.h"
 
 using namespace std;
 
-const int n = 200;
-const int robot_num = 10;
-const int berth_num = 10;
-const int N = 210;
-
-struct Robot {
-    int x, y, goods;
-    int status;
-    int mbx, mby;
-    Robot() {}
-    Robot(int startX, int startY) {
-        x = startX;
-        y = startY;
-    }
-}robot[robot_num + 10];
-
-struct Berth {
-    int x;
-    int y;
-    int transport_time;
-    int loading_speed;
-    Berth() {}
-    Berth(int x, int y, int transport_time, int loading_speed) {
-        this->x = x;
-        this->y = y;
-        this->transport_time = transport_time;
-        this->loading_speed = loading_speed;
-    }
-}berth[berth_num + 10];
-
-struct Boat {
-    int num, pos, status;
-}boat[10];
-
-int money, boat_capacity, id;
-char ch[N][N];
-int gds[N][N];
-
 void Init() {
-    for (int i = 1; i <= n; i++)
-        cin >> (ch[i] + 1);
+    for (int i = 0; i < n; i++) {
+        cin >> map[i];
+    }
     for (int i = 0; i < berth_num; i++) {
         int id;
         cin >> id;
         cin >> berth[id].x >> berth[id].y >> berth[id].transport_time >> berth[id].loading_speed;
+    }
+    for (int i = 0; i < boat_num; i++) {
+        boat[i].num = 0;
+        boat[i].status = 1;
+        boat[i].pos = -1;
     }
     cin >> boat_capacity;
     string okk;
@@ -64,10 +37,10 @@ int Input() {
     for (int i = 1; i <= num; i++) {
         int x, y, val;
         cin >> x >> y >> val;
+        goods[x][y] = val;
     }
     for (int i = 0; i < robot_num; i++) {
-        int sts;
-        cin >> robot[i].goods >> robot[i].x >> robot[i].y >> sts;
+        cin >> robot[i].goods >> robot[i].x >> robot[i].y >> robot[i].status;
     }
     for (int i = 0; i < 5; i++)
         cin >> boat[i].status >> boat[i].pos;
@@ -77,12 +50,12 @@ int Input() {
 }
 
 int main() {
-    srand(time(nullptr)); // Seed for random number generation
+    srand((unsigned int)time(nullptr)); // Seed for random number generation
+    DecisionMaker decisionMaker;
     Init();
     for (int zhen = 1; zhen <= 15000; zhen++) {
         int id = Input();
-        for (int i = 0; i < robot_num; i++)
-            cout << "move " << i << " " << rand() % 4 << endl;
+        decisionMaker.makeDecision();
         cout << "OK" << endl;
         cout.flush();
     }
