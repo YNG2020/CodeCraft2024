@@ -11,14 +11,14 @@ const int berth_num = 10;
 const int boat_num = 5;
 const int N = 210;
 
-Robot robot[robot_num];
-Berth berth[berth_num];
-Boat boat[boat_num];
+extern Robot robot[robot_num];
+extern Berth berth[berth_num];
+extern Boat boat[boat_num];
 
-int money, boat_capacity, id;
-char map[N][N];
-int goods[N][N];
-int dx[4] = {0, 0, -1, 1};
-int dy[4] = {1, -1, 0, 0};
+extern int money, boat_capacity, id;
+extern char map[N][N];
+extern int goods[N][N];
+extern int dx[4];
+extern int dy[4];
 
 #endif // GLOBAL_VARS_H
