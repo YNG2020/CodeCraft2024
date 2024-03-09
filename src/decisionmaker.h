@@ -5,7 +5,6 @@
 #include <cstring>
 #include <queue>
 using namespace std;
-vector <int> priority(robot_num, 0);
 
 class DecisionMaker {
 private:
@@ -14,7 +13,7 @@ private:
         Node(int xx, int yy, int fsd = -1) : x(xx), y(yy), firstStepDir(fsd) {}
     };
 
-
+    vector<int> priority;
     bool vis[N+5][N+5];
 
     bool inBerth(int x, int y) {
@@ -38,6 +37,8 @@ private:
     }
 
 public:
+    DecisionMaker() : priority(robot_num, 0) {}
+
     void makeDecision() {
         robotDecision();
         shipDecision();
