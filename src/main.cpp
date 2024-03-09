@@ -41,6 +41,8 @@ int Input() {
     }
     for (int i = 0; i < robot_num; i++) {
         cin >> robot[i].goods >> robot[i].x >> robot[i].y >> robot[i].status;
+        robot[i].nextX = robot[i].x;
+        robot[i].nextY = robot[i].y;
     }
     for (int i = 0; i < 5; i++)
         cin >> boat[i].status >> boat[i].pos;

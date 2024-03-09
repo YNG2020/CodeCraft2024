@@ -5,6 +5,7 @@
 #include <cstring>
 #include <queue>
 using namespace std;
+vector <int> priority(robot_num, 0);
 
 class DecisionMaker {
 private:
@@ -68,26 +69,49 @@ public:
             if (goods[robot[i].x][robot[i].y] > 0 && robot[i].goods == 0) {
                 cout << "get " << i << endl;
                 goods[robot[i].x][robot[i].y] = 0;
+                robot[i].goods = 1;     // 立刻更新为持有货物的状态
             }
-            else if (robot[i].goods > 0) {
+            if (robot[i].goods > 0) {
                 if (inBerth(robot[i].x, robot[i].y)) {
                     cout << "pull " << i << endl;
                     berth[getBerthId(robot[i].x, robot[i].y)].goodsNum++;
+                    robot[i].goods = 0;
                 }
                 else {
                     Node target = getNearestBerth(robot[i].x, robot[i].y);
-                    if (target.firstStepDir != -1 && !willCollide(i, target.firstStepDir)) { // 确保找到了有效的移动方向且不会发生碰撞
-                        cout << "move " << i << " " << target.firstStepDir << endl;
+                    if (target.firstStepDir == -1) {
+                        robot[i].nextX = robot[i].x;
+                        robot[i].nextY = robot[i].y;
+                        robot[i].nextDir = -1;  // 这种情况自己先不去主动移动
                     }
+                    else {
+                        robot[i].nextX += dx[target.firstStepDir];
+                        robot[i].nextY += dy[target.firstStepDir];
+                        robot[i].nextDir = target.firstStepDir;
+                    }
+                    //if (target.firstStepDir != -1 && !willCollide(i, target.firstStepDir)) { // 确保找到了有效的移动方向且不会发生碰撞
+                    //    cout << "move " << i << " " << target.firstStepDir << endl;
+                    //}
                 }
             }
-            else if (robot[i].goods == 0) {
+            if (robot[i].goods == 0) {
                 Node target = getNearestGoods(robot[i].x, robot[i].y);
-                if (target.firstStepDir != -1 && !willCollide(i, target.firstStepDir)) { // 确保找到了有效的移动方向且不会发生碰撞
-                    cout << "move " << i << " " << target.firstStepDir << endl;
+                if (target.firstStepDir == -1) {
+                    robot[i].nextX = robot[i].x;
+                    robot[i].nextY = robot[i].y;
+                    robot[i].nextDir = -1;  // 这种情况自己先不去主动移动
                 }
+                else {
+                    robot[i].nextX += dx[target.firstStepDir];
+                    robot[i].nextY += dy[target.firstStepDir];
+                    robot[i].nextDir = target.firstStepDir;
+                }
+                //if (target.firstStepDir != -1 && !willCollide(i, target.firstStepDir)) { // 确保找到了有效的移动方向且不会发生碰撞
+                //    cout << "move " << i << " " << target.firstStepDir << endl;
+                //}
             }
         }
+        moveControl();
     }
 
     bool willCollide(int robotId, int direction) {
@@ -158,6 +182,101 @@ public:
         }
 
         return Node(-1, -1, -1); // 如果没有找到泊位，返回一个无效节点
+    }
+
+    // 统一管理对robot的移动指令
+    void moveControl() {
+
+        char oriMap[robot_num]; // 保存被robot修改的地图信息
+        vector<bool> block(robot_num, false);
+        vector<bool> isChangePath(robot_num, false);
+        calPriority();
+        // 计算每一个机器人的移动优先级
+        for (int i = 0; i < robot_num; ++i) {   // 先从优先级最大的机器人开始
+            for (int j = 0; j < robot_num; ++j) {
+                if (i == j) // 自己不对自己进行避让
+                    continue;
+                if (robot[priority[i]].nextX == robot[priority[j]].nextX && robot[priority[i]].nextY == robot[priority[j]].nextY ||
+                    robot[priority[i]].nextX == robot[priority[j]].x && robot[priority[i]].nextY == robot[priority[j]].y) { // 预计会发生碰撞
+                    if (priority[i] > priority[j]) {
+                        oriMap[priority[j]] = map[robot[priority[j]].x][robot[priority[j]].y];
+                        map[robot[priority[j]].x][robot[priority[j]].y] = '#';
+                        robot[priority[j]].nextX = robot[priority[j]].x;
+                        robot[priority[j]].nextY = robot[priority[j]].y;
+                        block[priority[j]] = true;
+                        isChangePath[priority[i]] = true;
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < robot_num; ++i) {
+            if (block[i])
+                continue;
+            if (isChangePath[i]) {
+                if (robot[i].goods > 0) {
+                    Node target = getNearestGoods(robot[i].x, robot[i].y);
+
+                    if (target.firstStepDir == -1) {
+                        robot[i].nextX = robot[i].x;
+                        robot[i].nextY = robot[i].y;
+                        robot[i].nextDir = -1;  // 这种情况自己先不去主动移动
+                        continue;
+                    }
+                    else {
+                        robot[i].nextX += dx[target.firstStepDir];
+                        robot[i].nextY += dy[target.firstStepDir];
+                        robot[i].nextDir = target.firstStepDir;
+                    }
+                    cout << "move " << i << " " << robot[i].nextDir << endl;
+                    continue;
+                }
+                else {
+                    Node target = getNearestBerth(robot[i].x, robot[i].y);
+
+                    if (target.firstStepDir == -1) {
+                        robot[i].nextX = robot[i].x;
+                        robot[i].nextY = robot[i].y;
+                        robot[i].nextDir = -1;  // 这种情况自己先不去主动移动
+                        continue;
+                    }
+                    else {
+                        robot[i].nextX += dx[target.firstStepDir];
+                        robot[i].nextY += dy[target.firstStepDir];
+                        robot[i].nextDir = target.firstStepDir;
+                    }
+                    cout << "move " << i << " " << robot[i].nextDir << endl;
+                    continue;
+                }
+            }
+            else {
+                if (robot[i].nextDir == -1)
+                    continue;
+                cout << "move " << i << " " << robot[i].nextDir << endl;
+            }
+
+        }
+
+        for (int i = 0; i < robot_num; ++i) {
+            if (block[i]) {
+                map[robot[i].x][robot[i].y] = oriMap[i];  // 恢复这一个格子
+            }
+        }
+
+    }
+
+    // 计算移动优先级
+    void calPriority() {
+        //for (int i = 0; i < robot_num; ++i) {
+        //    priorityFactor[i][0] = i;   // 第一列放编号
+        //    priorityFactor[i][1] = robot[i].goodsVal;   // 第二列放货物的价值
+        //}
+        for (int i = 0; i < 10; ++i) {  // 目前仅以编号作为唯一判据，可不受突发情况影响
+            priority[i] = i;
+        }
+        //// 使用 lambda 表达式定义比较函数并对索引进行排序
+        //std::sort(priority.begin(), priority.end(), [&](int a, int b) {
+        //    return priorityFactor[a][0] != priorityFactor[b][0] ? priorityFactor[a][0] < priorityFactor[b][0] : priorityFactor[a][1] < priorityFactor[b][1];
+        //});
     }
 
 };

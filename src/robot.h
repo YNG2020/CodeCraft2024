@@ -6,6 +6,7 @@ public:
     int x, y, goods;
     int status;
     int mbx, mby;
+    int nextX, nextY, nextDir;
 
     Robot() {}
     Robot(int startX, int startY) {
