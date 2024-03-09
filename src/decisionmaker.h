@@ -9,8 +9,9 @@ using namespace std;
 class DecisionMaker {
 private:
     struct Node {
-        int x, y, firstStepDir;
-        Node(int xx, int yy, int fsd = -1) : x(xx), y(yy), firstStepDir(fsd) {}
+        int x, y;
+        vector<int> path; // 用于存储路径的vector
+        Node(int xx, int yy, vector<int> p = {}) : x(xx), y(yy), path(p) {}
     };
 
     vector<int> priority;

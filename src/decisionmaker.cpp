@@ -48,7 +48,7 @@ DecisionMaker::Node DecisionMaker::getNearestGoods(int x, int y) {
         q.pop();
 
         if (goods[now.x][now.y] > 0) {
-            return now; // 返回包含第一步方向的节点
+            return now; // 返回包含路径的节点
         }
 
         for (int i = 0; i < 4; i++) {
@@ -56,12 +56,13 @@ DecisionMaker::Node DecisionMaker::getNearestGoods(int x, int y) {
             int ny = now.y + dy[i];
             if (nx < 0 || nx >= n || ny < 0 || ny >= n || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny]) continue;
             vis[nx][ny] = true;
-            int firstStepDir = (now.firstStepDir == -1) ? i : now.firstStepDir;
-            q.push(Node(nx, ny, firstStepDir)); // 保持第一步方向不变
+            vector<int> newPath = now.path; // 复制当前路径
+            newPath.push_back(i); // 添加新的移动方向
+            q.push(Node(nx, ny, newPath)); // 使用更新后的路径
         }
     }
 
-    return Node(-1, -1, -1); // 如果没有找到目标，返回一个无效节点
+    return Node(-1, -1); // 如果没有找到目标，返回一个无效节点
 }
 
 DecisionMaker::Node DecisionMaker::getNearestBerth(int x, int y) {
@@ -83,12 +84,13 @@ DecisionMaker::Node DecisionMaker::getNearestBerth(int x, int y) {
             int ny = now.y + dy[i];
             if (nx < 0 || nx >= n || ny < 0 || ny >= n || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny]) continue;
             vis[nx][ny] = true;
-            int firstStepDir = (now.firstStepDir == -1) ? i : now.firstStepDir;
-            q.push(Node(nx, ny, firstStepDir)); // 保持第一步方向不变
+            vector<int> newPath = now.path; // 复制当前路径
+            newPath.push_back(i); // 添加新的移动方向
+            q.push(Node(nx, ny, newPath)); // 使用更新后的路径
         }
     }
 
-    return Node(-1, -1, -1); // 如果没有找到泊位，返回一个无效节点
+    return Node(-1, -1); // 如果没有找到泊位，返回一个无效节点
 }
 
 void DecisionMaker::moveControl() {
@@ -121,16 +123,16 @@ void DecisionMaker::moveControl() {
             if (robot[i].goods > 0) {
                 Node target = getNearestGoods(robot[i].x, robot[i].y);
 
-                if (target.firstStepDir == -1) {
+                if (target.path.empty()) {
                     robot[i].nextX = robot[i].x;
                     robot[i].nextY = robot[i].y;
                     robot[i].nextDir = -1;  // 这种情况自己先不去主动移动
                     continue;
                 }
                 else {
-                    robot[i].nextX += dx[target.firstStepDir];
-                    robot[i].nextY += dy[target.firstStepDir];
-                    robot[i].nextDir = target.firstStepDir;
+                    robot[i].nextX += dx[target.path[0]];
+                    robot[i].nextY += dy[target.path[0]];
+                    robot[i].nextDir = target.path[0];
                 }
                 cout << "move " << i << " " << robot[i].nextDir << endl;
                 continue;
@@ -138,16 +140,16 @@ void DecisionMaker::moveControl() {
             else {
                 Node target = getNearestBerth(robot[i].x, robot[i].y);
 
-                if (target.firstStepDir == -1) {
+                if (target.path.empty()) {
                     robot[i].nextX = robot[i].x;
                     robot[i].nextY = robot[i].y;
                     robot[i].nextDir = -1;  // 这种情况自己先不去主动移动
                     continue;
                 }
                 else {
-                    robot[i].nextX += dx[target.firstStepDir];
-                    robot[i].nextY += dy[target.firstStepDir];
-                    robot[i].nextDir = target.firstStepDir;
+                    robot[i].nextX += dx[target.path[0]];
+                    robot[i].nextY += dy[target.path[0]];
+                    robot[i].nextDir = target.path[0];
                 }
                 cout << "move " << i << " " << robot[i].nextDir << endl;
                 continue;
@@ -223,15 +225,15 @@ void DecisionMaker::robotDecision() {
             }
             else {
                 Node target = getNearestBerth(robot[i].x, robot[i].y);
-                if (target.firstStepDir == -1) {
+                if (target.path.empty()) {
                     robot[i].nextX = robot[i].x;
                     robot[i].nextY = robot[i].y;
                     robot[i].nextDir = -1;  // 这种情况自己先不去主动移动
                 }
                 else {
-                    robot[i].nextX += dx[target.firstStepDir];
-                    robot[i].nextY += dy[target.firstStepDir];
-                    robot[i].nextDir = target.firstStepDir;
+                    robot[i].nextX += dx[target.path[0]];
+                    robot[i].nextY += dy[target.path[0]];
+                    robot[i].nextDir = target.path[0];
                 }
                 //if (target.firstStepDir != -1 && !willCollide(i, target.firstStepDir)) { // 确保找到了有效的移动方向且不会发生碰撞
                 //    cout << "move " << i << " " << target.firstStepDir << endl;
@@ -240,15 +242,15 @@ void DecisionMaker::robotDecision() {
         }
         if (robot[i].goods == 0) {
             Node target = getNearestGoods(robot[i].x, robot[i].y);
-            if (target.firstStepDir == -1) {
+            if (target.path.empty()) {
                 robot[i].nextX = robot[i].x;
                 robot[i].nextY = robot[i].y;
                 robot[i].nextDir = -1;  // 这种情况自己先不去主动移动
             }
             else {
-                robot[i].nextX += dx[target.firstStepDir];
-                robot[i].nextY += dy[target.firstStepDir];
-                robot[i].nextDir = target.firstStepDir;
+                robot[i].nextX += dx[target.path[0]];
+                robot[i].nextY += dy[target.path[0]];
+                robot[i].nextDir = target.path[0];
             }
             //if (target.firstStepDir != -1 && !willCollide(i, target.firstStepDir)) { // 确保找到了有效的移动方向且不会发生碰撞
             //    cout << "move " << i << " " << target.firstStepDir << endl;
