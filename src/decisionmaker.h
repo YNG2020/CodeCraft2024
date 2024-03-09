@@ -9,8 +9,9 @@ using namespace std;
 class DecisionMaker {
 private:
     struct Node {
-        int x, y, firstStepDir;
-        Node(int xx, int yy, int fsd = -1) : x(xx), y(yy), firstStepDir(fsd) {}
+        int x, y;
+        Node* parent; // 指向父节点的指针
+        Node(int xx, int yy, Node* p = nullptr) : x(xx), y(yy), parent(p) {}
     };
 
     vector<int> priority;
@@ -19,8 +20,8 @@ private:
     bool inBerth(int x, int y);
     int getBerthId(int x, int y);
     bool willCollide(int robotId, int direction);
-    Node getNearestGoods(int x, int y);
-    Node getNearestBerth(int x, int y);
+    vector<int> getNearestGoods(int x, int y);
+    vector<int> getNearestBerth(int x, int y);
     void moveControl();
     void calPriority();
 
