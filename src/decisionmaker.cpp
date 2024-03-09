@@ -38,6 +38,7 @@ bool DecisionMaker::willCollide(int robotId, int direction) {
 
 vector<int> DecisionMaker::getNearestGoods(int x, int y) {
     queue<Node*> q;
+    vector<Node*> rest;
     q.push(new Node(x, y));
     memset(vis, 0, sizeof(vis));
     for (int i = 0; i < robot_num; i++) {
@@ -62,6 +63,7 @@ vector<int> DecisionMaker::getNearestGoods(int x, int y) {
             vis[nx][ny] = true;
             q.push(new Node(nx, ny, now)); // 使用父节点指针
         }
+        rest.push_back(now);
     }
 
     vector<int> path;
@@ -81,11 +83,16 @@ vector<int> DecisionMaker::getNearestGoods(int x, int y) {
         delete q.front();
         q.pop();
     }
+    while (!rest.empty()) {
+        delete rest.back();
+        rest.pop_back();
+    }
     return path;
 }
 
 vector<int> DecisionMaker::getNearestBerth(int x, int y) {
     queue<Node*> q;
+    vector<Node*> rest;
     q.push(new Node(x, y));
     memset(vis, 0, sizeof(vis));
     for (int i = 0; i < robot_num; i++) {
@@ -110,6 +117,7 @@ vector<int> DecisionMaker::getNearestBerth(int x, int y) {
             vis[nx][ny] = true;
             q.push(new Node(nx, ny, now)); // 使用父节点指针
         }
+        rest.push_back(now);
     }
 
     vector<int> path;
@@ -128,6 +136,10 @@ vector<int> DecisionMaker::getNearestBerth(int x, int y) {
     while (!q.empty()) {
         delete q.front();
         q.pop();
+    }
+    while (!rest.empty()) {
+        delete rest.back();
+        rest.pop_back();
     }
     return path;
 }
