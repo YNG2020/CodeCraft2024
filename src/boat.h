@@ -1,10 +1,11 @@
 #ifndef BOAT_H
 #define BOAT_H
 
-class Boat {
+class Boat
+{
 public:
     int num, pos, status;
-
+    int capacity;
     Boat() {}
 };
 

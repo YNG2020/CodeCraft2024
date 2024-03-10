@@ -3,9 +3,10 @@
 Robot robot[robot_num];
 Berth berth[berth_num];
 Boat boat[boat_num];
+vector<vector<std::pair<int, int>>> goodsState(1000, vector<std::pair<int, int>>(11, std::pair<int, int>()));
 
-int money, boat_capacity, id;
+int money, boat_capacity, id, frame;
 char map[N][N];
-int goods[N][N];
+int goodsInMap[N][N];
 int dx[4] = {0, 0, -1, 1};
 int dy[4] = {1, -1, 0, 0};
