@@ -8,5 +8,5 @@ public:
         x = point.x;
         y = point.y;
     }
-    double x, y;
+    int x, y;
 };
