@@ -8,6 +8,7 @@
 #include "global_vars.h"
 #include "decision_maker.h"
 #include <string>
+#include <ctime>
 
 using namespace std;
 std::ifstream myCin;
@@ -15,10 +16,11 @@ bool Debug = false;
 
 void Init()
 {
+    std::srand(1234); // 这里的1234可以是任何你喜欢的整数
     if (Debug)
         myCin.open("output.txt");
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < mapSize; i++)
     {
         if (Debug)
             myCin >> map[i];
@@ -99,9 +101,9 @@ int Input()
     for (int i = 0; i < robot_num; i++)
     {
         if (Debug)
-            myCin >> robot[i].goods >> robot[i].x >> robot[i].y >> robot[i].status;
+            myCin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].status;
         else
-            cin >> robot[i].goods >> robot[i].x >> robot[i].y >> robot[i].status;
+            cin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].status;
     }
     for (int i = 0; i < 5; i++)
         if (Debug)

@@ -7,7 +7,7 @@
 #include <vector>
 #include <utility> // for std::pair
 
-const int n = 200;
+const int mapSize = 200;
 const int robot_num = 10;
 const int berth_num = 10;
 const int boat_num = 5;
