@@ -23,6 +23,7 @@ public:
     BOT_MOVE_STATE botMoveState;
     BOT_TARGET_STATE botTarState;
     BOT_PATH_STATE botPathState;
+    BOT_AVOID_STATE botAvoidState;
 
     Robot() {}
     Robot(int startX, int startY) {

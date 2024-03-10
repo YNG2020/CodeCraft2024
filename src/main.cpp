@@ -40,10 +40,11 @@ void Init() {
         boat[i].status = 1;
         boat[i].pos = -1;
     }
-    for (int i = 0; i < robot_num; ++i) {   //
+    for (int i = 0; i < robot_num; ++i) {
         robot[i].botMoveState = WAITING;
         robot[i].botTarState = NO_TARGET;
         robot[i].botPathState = NO_PATH;
+        robot[i].botAvoidState = NO_AVOIDING;
     }
     if (Debug)
         myCin >> boat_capacity;
@@ -90,8 +91,6 @@ int Input() {
             myCin >> robot[i].goods >> robot[i].x >> robot[i].y >> robot[i].status;
         else
             cin >> robot[i].goods >> robot[i].x >> robot[i].y >> robot[i].status;
-        robot[i].nextX = robot[i].x;
-        robot[i].nextY = robot[i].y;
     }
     for (int i = 0; i < 5; i++)
         if (Debug)

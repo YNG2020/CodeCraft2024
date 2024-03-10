@@ -177,13 +177,13 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point>& pathPoint, vect
 
 void DecisionMaker::moveControl() {
 
-    if (frame == 2535)
-        int a = 1;
-
     char oriMap[robot_num]; // 保存被robot修改的地图信息
     vector<bool> block(robot_num, false);
     vector<bool> isChangePath(robot_num, false);
     calPriority();  // 计算每一个机器人的移动优先级
+
+    if (frame == 2586)
+        int a = 1;
     
     for (int i = 0; i < robot_num; ++i) {
         for (int j = 0; j < robot_num; ++j) {
@@ -204,9 +204,19 @@ void DecisionMaker::moveControl() {
     }
     
     for (int i = 0; i < robot_num; ++i) {
-        if (block[i])
-            continue;
+
         Robot& bot = robot[i];
+        if (block[i]) {
+            bot.botAvoidState = AVOIDING;
+            if (bot.idxInPth + 1 < bot.pathPoint.size()) {  // 更新堵塞检测缓冲区
+                bot.nextX = bot.pathPoint[bot.idxInPth + 1].x;
+                bot.nextY = bot.pathPoint[bot.idxInPth + 1].y;
+            }
+            continue;
+        }
+        else {
+            bot.botAvoidState = NO_AVOIDING;
+        }
         if (isChangePath[i]) {
             if (bot.goods > 0) {    // 原本是要去港口的
                 bool findPathFlag = getNearestBerth(bot.x, bot.y, bot.pathPoint, bot.pathDir, i);
@@ -359,6 +369,10 @@ void DecisionMaker::robotDecision() {
                     bot.botTarState = NO_TARGET;
                     bot.tarX = -1;
                     bot.tarY = -1;
+                    if (bot.pathPoint.size() > 1) {
+                        bot.nextX = bot.pathPoint[1].x;
+                        bot.nextY = bot.pathPoint[1].y;
+                    }
                 }
             }
             else {      // 持有货物
@@ -382,6 +396,10 @@ void DecisionMaker::robotDecision() {
                     bot.botTarState = NO_TARGET;
                     bot.tarX = -1;
                     bot.tarY = -1;
+                    if (bot.pathPoint.size() > 1) {
+                        bot.nextX = bot.pathPoint[1].x;
+                        bot.nextY = bot.pathPoint[1].y;
+                    }
                 }
             }
         }
@@ -391,9 +409,6 @@ void DecisionMaker::robotDecision() {
 }
 
 void DecisionMaker::refreshState(int botID) {
-
-    if (frame == 2535 && botID == 7)
-        int a = 1;
 
     Robot& bot = robot[botID];
     if (((bot.x != bot.lastX) || ((bot.y != bot.lastY)))) {   // 发现变更了位置
