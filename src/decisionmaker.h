@@ -1,6 +1,6 @@
 #ifndef DECISION_MAKER_H
 #define DECISION_MAKER_H
-#include "Point.h"
+#include "global_vars.h"
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -15,13 +15,13 @@ private:
     };
 
     vector<int> priority;
-    bool vis[210][210];
+    bool vis[N][N];
 
     bool inBerth(int x, int y);
     int getBerthId(int x, int y);
     bool willCollide(int robotId, int direction);
-    bool getNearestGoods(int x, int y, vector<Point>& pathPoint, vector<int>& pathDir, int botID);
-    bool getNearestBerth(int x, int y, vector<Point>& pathPoint, vector<int>& pathDir, int botID);
+    vector<int> getNearestGoods(int x, int y);
+    vector<int> getNearestBerth(int x, int y);
     void moveControl();
     void calPriority();
 
@@ -30,7 +30,6 @@ public:
     void makeDecision();
     void shipDecision();
     void robotDecision();
-    void refreshState(int botID);
 };
 
 #endif // DECISION_MAKER_H
