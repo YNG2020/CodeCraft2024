@@ -6,7 +6,7 @@
 #include "berth.h"
 #include "boat.h"
 #include "global_vars.h"
-#include "decisionmaker.h"
+#include "decision_maker.h"
 #include <string>
 
 using namespace std;
