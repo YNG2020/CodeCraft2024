@@ -188,9 +188,6 @@ void DecisionMaker::moveControl()
     vector<bool> isChangePath(robot_num, false);
     calPriority(); // 计算每一个机器人的移动优先级
 
-    if (frame == 2586)
-        int a = 1;
-
     for (int i = 0; i < robot_num; ++i)
     {
         for (int j = 0; j < robot_num; ++j)

@@ -16,7 +16,7 @@ bool Debug = false;
 void Init()
 {
     if (Debug)
-        myCin.open("output.txt"); // ���ļ�
+        myCin.open("output.txt");
 
     for (int i = 0; i < n; i++)
     {
@@ -77,7 +77,7 @@ int Input()
         myCin >> num;
     else
         cin >> num;
-    // ����ǰ���ȸ��»�����Ϣ
+    // 输入前，先更新货物信息
     int tmpFrame = (frame - 1) % 1000;
     int tmpNum = goodsState[tmpFrame][10].first;
     for (int i = 0; i < tmpNum; ++i)
@@ -94,7 +94,7 @@ int Input()
             cin >> x >> y >> val;
         goodsInMap[x][y] = val;
         goodsState[(frame - 1) % 1000][i - 1] = make_pair(x, y);
-        goodsState[(frame - 1) % 1000][10] = make_pair(num, 0); // ���һ�����ڴ洢�ж��ٸ�����
+        goodsState[(frame - 1) % 1000][10] = make_pair(num, 0); // 最后一列用于存储有多少个货物
     }
     for (int i = 0; i < robot_num; i++)
     {
