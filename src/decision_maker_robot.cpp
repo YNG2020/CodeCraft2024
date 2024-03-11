@@ -290,7 +290,7 @@ void DecisionMaker::refreshState(int botID)
     {                                // 货物消失，及时更新自身状态
         bot.carryGoods = 0;               // 手动更新为不持有货物的状态
         bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
-        bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
+        bot.botMoveState = WAITING;
     }
 }
 
@@ -308,10 +308,7 @@ void DecisionMaker::moveControl()
         {
             if (i == j) // 自己不对自己进行避让
                 continue;
-            //if (robot[priority[i]].nextX == robot[priority[j]].nextX && robot[priority[i]].nextY == robot[priority[j]].nextY ||
-            //    robot[priority[i]].nextX == robot[priority[j]].curX && robot[priority[i]].nextY == robot[priority[j]].curY)
-            if (robot[priority[i]].jamDetectBuffer[1] == robot[priority[j]].jamDetectBuffer[1] ||
-                robot[priority[i]].jamDetectBuffer[1] == robot[priority[j]].jamDetectBuffer[0])
+            if (jamDetect(priority[i], priority[j]))
             { // 预计会发生碰撞
                 if (priority[i] > priority[j])
                 {
@@ -443,11 +440,6 @@ void DecisionMaker::refreshJamBuffer(int botID)
         {
             bot.jamDetectBuffer[i] = bot.jamDetectBuffer[i - 1];
         }
-        if (bot.pathPoint.size() > 1)
-        {
-            bot.nextX = bot.pathPoint[bot.idxInPth + 1].x;
-            bot.nextY = bot.pathPoint[bot.idxInPth + 1].y;
-        }
     }
     else
     {   // 没路，缓冲区全都存储为自己本身所在的位置
@@ -455,8 +447,25 @@ void DecisionMaker::refreshJamBuffer(int botID)
         {
             bot.jamDetectBuffer[i] = bot.curX * mapSize + bot.curY;
         }
-        bot.nextX = bot.curX;
-        bot.nextY = bot.curY;
     }
 
+}
+
+// 对每对robot进行堵塞检测
+bool DecisionMaker::jamDetect(int botID1, int botID2) {
+
+    Robot& bot1 = robot[botID1], bot2 = robot[botID2];
+    for (int i = 0; i < robot[botID1].jamDetectBufferLen - 1; ++i)
+    {    // 只需逐对检测是否有可能发生冲突即可
+        if (bot1.jamDetectBuffer[i + 1] == bot2.jamDetectBuffer[i + 1]) // 二者下一个目标位置都相同
+            return true;
+        if (bot2.status == 0 || bot2.botPathState == NO_PATH)   
+        {   // bot2不动 
+            if (bot1.jamDetectBuffer[i + 1] == bot2.jamDetectBuffer[i]) // bto1撞到bot2停下的位置上
+                return true;
+        }
+        if (bot1.jamDetectBuffer[i + 1] == bot2.jamDetectBuffer[i] && bot1.jamDetectBuffer[i] == bot2.jamDetectBuffer[i + 1])   // 对撞
+            return true;
+    }
+    return false;
 }

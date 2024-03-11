@@ -6,7 +6,7 @@
 /// bot层的移动状态,   
 /// </summary>
 enum BOT_MOVE_STATE {
-	WAITING,		// 等待中(用以可能出现的原地等待情况)
+	WAITING,		// 手动更新为原地等待的状态（等路径分配）
 	ARRIVEGOODS,	// 抵达货物所在地
 	ARRIVEBERTH,	// 抵达港口所在地
 	TOGOODS,		// 奔赴货物所在地

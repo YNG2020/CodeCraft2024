@@ -12,7 +12,6 @@ public:
     int curX, curY;     // 当前位置
     int carryGoods;     // 是否携带货物
     int status;         // 0表示恢复状态，1表示正常运行状态
-    int nextX, nextY;   // 下一个位置
     int tarX, tarY;     // 目标位置
     int lastX, lastY;   // 上一个位置
     int goodsVal;       // 货物价值
