@@ -9,26 +9,27 @@ using std::vector;
 
 class Robot {
 public:
-    int x, y, goods;
-    int status;
-    int mbx, mby;
-    int nextX, nextY;  // 下一个位置
-    int tarX, tarY; // 目标位置
+    int curX, curY;     // 当前位置
+    int carryGoods;     // 是否携带货物
+    int status;         // 0表示恢复状态，1表示正常运行状态
+    int tarX, tarY;     // 目标位置
     int lastX, lastY;   // 上一个位置
-    int goodsVal;   // 货物价值
-
+    int goodsVal;       // 货物价值
     int idxInPth = 0;   // 当前走到路径的第几个点
+    const int jamDetectBufferLen = 2;   // 堵塞检测缓冲区的长度
+
     vector<Point> pathPoint;    // 存储路径点序列
-    vector<int> pathDir;    // 存储路径方向序列
-    BOT_MOVE_STATE botMoveState;
-    BOT_TARGET_STATE botTarState;
-    BOT_PATH_STATE botPathState;
-    BOT_AVOID_STATE botAvoidState;
+    vector<int> pathDir;        // 存储路径方向序列
+    BOT_MOVE_STATE botMoveState;    // robot的移动状态
+    BOT_TARGET_STATE botTarState;   // robot的是否有目标状态（货物目标或泊位目标）
+    BOT_PATH_STATE botPathState;    // robot的是否是否找到移动路径状态
+    BOT_AVOID_STATE botAvoidState;  // robot的是否正在避让状态
+    int jamDetectBuffer[2];   // 堵塞检测缓冲区，存储的是robot的路径的点在map的序号（二维化一维）
 
     Robot() {}
     Robot(int startX, int startY) {
-        x = startX;
-        y = startY;
+        curX = startX;
+        curY = startY;
     }
 };
 

@@ -6,11 +6,11 @@
 /// bot层的移动状态,   
 /// </summary>
 enum BOT_MOVE_STATE {
-	WAITING,		// 等待中(用以可能出现的原地等待情况)
+	WAITING,		// 手动更新为原地等待的状态（等路径分配）
 	ARRIVEGOODS,	// 抵达货物所在地
 	ARRIVEBERTH,	// 抵达港口所在地
 	TOGOODS,		// 奔赴货物所在地
-	TOBERTH			// 奔赴港口所在地
+	TOBERTH			// 奔赴泊位所在地
 };
 
 /// <summary>
@@ -18,7 +18,8 @@ enum BOT_MOVE_STATE {
 /// </summary>
 enum BOT_AVOID_STATE {
 	AVOIDING,		// 碰撞避免中(用以可能出现的碰撞避免情况)
-	NO_AVOIDING,		// 等待中(用以可能出现的原地等待情况)
+	AVOIDED,		// 避让完成，停止不动
+	NO_AVOIDING,	// 解除了避让状态
 };
 
 /// <summary>

@@ -28,6 +28,8 @@ private:
     void calPriority();
     void ship_init();
     void berth_select(int boat_id);
+    void refreshJamBuffer(int botID);
+    bool jamDetect(int botID1, int botID2);
 
 public:
     DecisionMaker();

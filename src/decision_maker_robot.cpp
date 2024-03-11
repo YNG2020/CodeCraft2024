@@ -5,12 +5,12 @@
 
 bool DecisionMaker::willCollide(int robotId, int direction)
 {
-    int nx = robot[robotId].x + dx[direction];
-    int ny = robot[robotId].y + dy[direction];
+    int nx = robot[robotId].curX + dx[direction];
+    int ny = robot[robotId].curY + dy[direction];
     // 检查目标位置是否有其他机器人
     for (int i = 0; i < robot_num; i++)
     {
-        if (i != robotId && robot[i].x == nx && robot[i].y == ny)
+        if (i != robotId && robot[i].curX == nx && robot[i].curY == ny)
         {
             return true; // 发现潜在碰撞
         }
@@ -26,7 +26,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
     memset(vis, 0, sizeof(vis));
     for (int i = 0; i < robot_num; i++)
     {
-        vis[robot[i].x][robot[i].y] = true;
+        vis[robot[i].curX][robot[i].curY] = true;
     }
 
     Node *target = nullptr; // 用于存储找到的目标节点
@@ -49,7 +49,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= n || ny < 0 || ny >= n || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (nx < 0 || nx >= mapSize || ny < 0 || ny >= mapSize || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             q.push(new Node(nx, ny, now)); // 使用父节点指针
@@ -108,7 +108,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
     memset(vis, 0, sizeof(vis));
     for (int i = 0; i < robot_num; i++)
     {
-        vis[robot[i].x][robot[i].y] = true;
+        vis[robot[i].curX][robot[i].curY] = true;
     }
 
     Node *target = nullptr; // 用于存储找到的目标节点
@@ -129,7 +129,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= n || ny < 0 || ny >= n || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (nx < 0 || nx >= mapSize || ny < 0 || ny >= mapSize || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             q.push(new Node(nx, ny, now)); // 使用父节点指针
@@ -192,8 +192,8 @@ void DecisionMaker::robotDecision()
         if (bot.botMoveState == ARRIVEGOODS)
         {
             cout << "get " << i << endl;
-            goodsInMap[bot.x][bot.y] = 0;
-            bot.goods = 1;               // 手动更新为持有货物的状态
+            goodsInMap[bot.curX][bot.curY] = 0;
+            bot.carryGoods = 1;               // 手动更新为持有货物的状态
             bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
             bot.lastX = -1;
@@ -202,8 +202,8 @@ void DecisionMaker::robotDecision()
         if (bot.botMoveState == ARRIVEBERTH)
         {
             cout << "pull " << i << endl;
-            berth[getBerthId(bot.x, bot.y)].goodsNum++;
-            bot.goods = 0;               // 手动更新为不持有货物的状态
+            berth[getBerthId(bot.curX, bot.curY)].goodsNum++;
+            bot.carryGoods = 0;               // 手动更新为不持有货物的状态
             bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
             bot.lastX = -1;
@@ -212,24 +212,20 @@ void DecisionMaker::robotDecision()
 
         if (bot.botTarState == NO_TARGET || bot.botPathState == NO_PATH)
         { // 没有目标，分配目标（目前通过寻路在分配目标，需要改进），之前没找到路，更新路（适用于中途变更路径，但失败的情况）
-            if (bot.goods == 0)
+            if (bot.carryGoods == 0)
             { // 未持有货物
-                bool findPathFlag = getNearestGoods(bot.x, bot.y, bot.pathPoint, bot.pathDir, i);
+                bool findPathFlag = getNearestGoods(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i);
                 if (findPathFlag)
                 { // 找到路，则更新一些状态变量
                     bot.idxInPth = 0;
                     bot.botMoveState = TOGOODS;
                     bot.botPathState = HAVE_PATH;
                     bot.botTarState = HAVE_TARGET;
-                    bot.lastX = bot.x;
-                    bot.lastY = bot.y;
+                    bot.lastX = bot.curX;
+                    bot.lastY = bot.curY;
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
                     bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
-                    if (bot.pathPoint.size() > 1)
-                    {
-                        bot.nextX = bot.pathPoint[1].x;
-                        bot.nextY = bot.pathPoint[1].y;
-                    }
+                    refreshJamBuffer(i);
                 }
                 else
                 { // 没找到路，也更新一些状态变量
@@ -238,30 +234,22 @@ void DecisionMaker::robotDecision()
                     bot.botTarState = NO_TARGET;
                     bot.tarX = -1;
                     bot.tarY = -1;
-                    if (bot.pathPoint.size() > 1)
-                    {
-                        bot.nextX = bot.pathPoint[1].x;
-                        bot.nextY = bot.pathPoint[1].y;
-                    }
+                    refreshJamBuffer(i);
                 }
             }
             else
             { // 持有货物
-                bool findPathFlag = getNearestBerth(bot.x, bot.y, bot.pathPoint, bot.pathDir, i);
+                bool findPathFlag = getNearestBerth(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i);
                 if (findPathFlag)
                 {
                     bot.botMoveState = TOBERTH;
                     bot.botPathState = HAVE_PATH;
                     bot.botTarState = HAVE_TARGET;
-                    bot.lastX = bot.x;
-                    bot.lastY = bot.y;
+                    bot.lastX = bot.curX;
+                    bot.lastY = bot.curY;
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
                     bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
-                    if (bot.pathPoint.size() > 1)
-                    {
-                        bot.nextX = bot.pathPoint[1].x;
-                        bot.nextY = bot.pathPoint[1].y;
-                    }
+                    refreshJamBuffer(i);
                 }
                 else
                 {
@@ -270,11 +258,7 @@ void DecisionMaker::robotDecision()
                     bot.botTarState = NO_TARGET;
                     bot.tarX = -1;
                     bot.tarY = -1;
-                    if (bot.pathPoint.size() > 1)
-                    {
-                        bot.nextX = bot.pathPoint[1].x;
-                        bot.nextY = bot.pathPoint[1].y;
-                    }
+                    refreshJamBuffer(i);
                 }
             }
         }
@@ -286,31 +270,27 @@ void DecisionMaker::refreshState(int botID)
 {
 
     Robot& bot = robot[botID];
-    if (((bot.x != bot.lastX) || ((bot.y != bot.lastY))))
+    if (((bot.curX != bot.lastX) || ((bot.curY != bot.lastY))))
     { // 发现变更了位置
         ++bot.idxInPth;
-        if (bot.idxInPth + 1 < bot.pathPoint.size())
-        { // 更新堵塞检测缓冲区
-            bot.nextX = bot.pathPoint[bot.idxInPth + 1].x;
-            bot.nextY = bot.pathPoint[bot.idxInPth + 1].y;
-        }
-        bot.lastX = bot.x;
-        bot.lastY = bot.y;
+        refreshJamBuffer(botID);
+        bot.lastX = bot.curX;
+        bot.lastY = bot.curY;
     }
 
-    if ((goodsInMap[bot.x][bot.y] > 0 || goodsInMap[bot.x][bot.y] == -(botID + 1)) && bot.goods == 0)
+    if ((goodsInMap[bot.curX][bot.curY] > 0 || goodsInMap[bot.curX][bot.curY] == -(botID + 1)) && bot.carryGoods == 0)
     { // 自己本身没有货物，且遇上了货物（自己的目标或无主货物）
         bot.botMoveState = ARRIVEGOODS;
     }
-    if (inBerth(bot.x, bot.y) && bot.goods > 0)
+    if (inBerth(bot.curX, bot.curY) && bot.carryGoods > 0)
     { // 自己本身有货物，且抵达到泊位，不必考虑这个货物是否就是目标泊位
         bot.botMoveState = ARRIVEBERTH;
     }
     if (bot.botMoveState == TOGOODS && goodsInMap[bot.tarX][bot.tarY] == 0)
     {                                // 货物消失，及时更新自身状态
-        bot.goods = 0;               // 手动更新为不持有货物的状态
+        bot.carryGoods = 0;               // 手动更新为不持有货物的状态
         bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
-        bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
+        bot.botMoveState = WAITING;
     }
 }
 
@@ -328,15 +308,12 @@ void DecisionMaker::moveControl()
         {
             if (i == j) // 自己不对自己进行避让
                 continue;
-            if (robot[priority[i]].nextX == robot[priority[j]].nextX && robot[priority[i]].nextY == robot[priority[j]].nextY ||
-                robot[priority[i]].nextX == robot[priority[j]].x && robot[priority[i]].nextY == robot[priority[j]].y)
+            if (jamDetect(priority[i], priority[j]))
             { // 预计会发生碰撞
                 if (priority[i] > priority[j])
                 {
-                    oriMap[priority[j]] = map[robot[priority[j]].x][robot[priority[j]].y];
-                    map[robot[priority[j]].x][robot[priority[j]].y] = '#';
-                    robot[priority[j]].nextX = robot[priority[j]].x;
-                    robot[priority[j]].nextY = robot[priority[j]].y;
+                    oriMap[priority[j]] = map[robot[priority[j]].curX][robot[priority[j]].curY];
+                    map[robot[priority[j]].curX][robot[priority[j]].curY] = '#';
                     block[priority[j]] = true;
                     isChangePath[priority[i]] = true;
                 }
@@ -350,12 +327,8 @@ void DecisionMaker::moveControl()
         Robot& bot = robot[i];
         if (block[i])
         {
-            bot.botAvoidState = AVOIDING;
-            if (bot.idxInPth + 1 < bot.pathPoint.size())
-            { // 更新堵塞检测缓冲区
-                bot.nextX = bot.pathPoint[bot.idxInPth + 1].x;
-                bot.nextY = bot.pathPoint[bot.idxInPth + 1].y;
-            }
+            bot.botAvoidState = AVOIDED;
+            refreshJamBuffer(i);
             continue;
         }
         else
@@ -364,17 +337,18 @@ void DecisionMaker::moveControl()
         }
         if (isChangePath[i])
         {
-            if (bot.goods > 0)
+            if (bot.carryGoods > 0)
             { // 原本是要去港口的
-                bool findPathFlag = getNearestBerth(bot.x, bot.y, bot.pathPoint, bot.pathDir, i);
+                bool findPathFlag = getNearestBerth(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i);
                 if (findPathFlag)
                 { // 找到路，则更新一些状态变量
-                    cout << "move " << i << " " << bot.pathDir[bot.idxInPth] << endl;
+                    if (bot.pathDir.size() > 0)
+                        cout << "move " << i << " " << bot.pathDir[bot.idxInPth] << endl;
                     bot.botMoveState = TOBERTH;
                     bot.botPathState = HAVE_PATH;
                     bot.botTarState = HAVE_TARGET;
-                    bot.lastX = bot.x;
-                    bot.lastY = bot.y;
+                    bot.lastX = bot.curX;
+                    bot.lastY = bot.curY;
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
                     bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
                 }
@@ -391,16 +365,17 @@ void DecisionMaker::moveControl()
             }
             else
             { // 原本是要取货物的
-                bool findPathFlag = getNearestGoods(bot.x, bot.y, bot.pathPoint, bot.pathDir, i);
+                bool findPathFlag = getNearestGoods(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i);
 
                 if (findPathFlag)
                 { // 找到路，则更新一些状态变量
-                    cout << "move " << i << " " << bot.pathDir[bot.idxInPth] << endl;
+                    if (bot.pathDir.size() > 0)
+                        cout << "move " << i << " " << bot.pathDir[bot.idxInPth] << endl;
                     bot.botMoveState = TOGOODS;
                     bot.botPathState = HAVE_PATH;
                     bot.botTarState = HAVE_TARGET;
-                    bot.lastX = bot.x;
-                    bot.lastY = bot.y;
+                    bot.lastX = bot.curX;
+                    bot.lastY = bot.curY;
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
                     bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
                 }
@@ -420,7 +395,8 @@ void DecisionMaker::moveControl()
         {
             if (bot.botPathState == NO_PATH)
                 continue;
-            cout << "move " << i << " " << bot.pathDir[bot.idxInPth] << endl;
+            if (bot.pathDir.size() > 0)
+                cout << "move " << i << " " << bot.pathDir[bot.idxInPth] << endl;
         }
     }
 
@@ -428,7 +404,7 @@ void DecisionMaker::moveControl()
     {
         if (block[i])
         {
-            map[robot[i].x][robot[i].y] = oriMap[i]; // 恢复这一个格子
+            map[robot[i].curX][robot[i].curY] = oriMap[i]; // 恢复这一个格子
         }
     }
 }
@@ -447,4 +423,49 @@ void DecisionMaker::calPriority()
     // std::sort(priority.begin(), priority.end(), [&](int a, int b) {
     //     return priorityFactor[a][0] != priorityFactor[b][0] ? priorityFactor[a][0] < priorityFactor[b][0] : priorityFactor[a][1] < priorityFactor[b][1];
     // });
+}
+
+// 更新堵塞检测缓冲区
+void DecisionMaker::refreshJamBuffer(int botID)
+{
+    Robot& bot = robot[botID];
+    int i = 0;
+    if (bot.botPathState == HAVE_PATH)
+    {   // 有路，可以正常更新缓冲区
+        for (; i < bot.jamDetectBufferLen && (bot.idxInPth + i) < bot.pathPoint.size(); ++i)
+        {
+            bot.jamDetectBuffer[i] = bot.pathPoint[bot.idxInPth + i].x * mapSize + bot.pathPoint[bot.idxInPth + i].y;
+        }
+        for (; i < bot.jamDetectBufferLen; ++i)
+        {
+            bot.jamDetectBuffer[i] = bot.jamDetectBuffer[i - 1];
+        }
+    }
+    else
+    {   // 没路，缓冲区全都存储为自己本身所在的位置
+        for (; i < bot.jamDetectBufferLen; ++i)
+        {
+            bot.jamDetectBuffer[i] = bot.curX * mapSize + bot.curY;
+        }
+    }
+
+}
+
+// 对每对robot进行堵塞检测
+bool DecisionMaker::jamDetect(int botID1, int botID2) {
+
+    Robot& bot1 = robot[botID1], bot2 = robot[botID2];
+    for (int i = 0; i < robot[botID1].jamDetectBufferLen - 1; ++i)
+    {    // 只需逐对检测是否有可能发生冲突即可
+        if (bot1.jamDetectBuffer[i + 1] == bot2.jamDetectBuffer[i + 1]) // 二者下一个目标位置都相同
+            return true;
+        if (bot2.status == 0 || bot2.botPathState == NO_PATH)   
+        {   // bot2不动 
+            if (bot1.jamDetectBuffer[i + 1] == bot2.jamDetectBuffer[i]) // bto1撞到bot2停下的位置上
+                return true;
+        }
+        if (bot1.jamDetectBuffer[i + 1] == bot2.jamDetectBuffer[i] && bot1.jamDetectBuffer[i] == bot2.jamDetectBuffer[i + 1])   // 对撞
+            return true;
+    }
+    return false;
 }
