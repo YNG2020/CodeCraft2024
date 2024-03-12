@@ -24,13 +24,19 @@ private:
     bool willCollide(int robotId, int direction);
     bool getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID);
     bool getNearestBerth(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID);
+    bool getAvoidPath(int botID1, int botID2);
+    bool getToTarPath(int botID);
     void moveControl();
-    void calPriority();
+    void setPriority();
     void ship_init();
     void berth_select(int boat_id);
     void refreshJamBuffer(int botID);
     bool jamDetect(int botID1, int botID2);
-
+    bool unJamDetect(int botID1, int botID2);
+    
+    void jamControl();
+    void jamResolve(int botID1, int botID2);
+    void unJam();
 public:
     DecisionMaker();
     void makeDecision();

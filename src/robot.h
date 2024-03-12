@@ -17,6 +17,9 @@ public:
     int goodsVal;       // 货物价值
     int idxInPth = 0;   // 当前走到路径的第几个点
     const int jamDetectBufferLen = 2;   // 堵塞检测缓冲区的长度
+    int avoidPriority;  // 自身当前的避让优先级
+    int avoidBotID;     // 当前正在避让的robot的ID，没有避让的robot时，值为-1，当前仅允许robot同时只能有一个避让robot
+    int tmpTarX, tmpTarY;   // 中途点，作为避让路径的终点
 
     vector<Point> pathPoint;    // 存储路径点序列
     vector<int> pathDir;        // 存储路径方向序列

@@ -17,7 +17,7 @@ enum BOT_MOVE_STATE {
 /// bot层的避让状态,   
 /// </summary>
 enum BOT_AVOID_STATE {
-	AVOIDING,		// 碰撞避免中(用以可能出现的碰撞避免情况)
+	AVOIDING,		// 碰撞避免中
 	AVOIDED,		// 避让完成，停止不动
 	NO_AVOIDING,	// 解除了避让状态
 };
