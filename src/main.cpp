@@ -105,6 +105,8 @@ int Input()
             myCin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].status;
         else
             cin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].status;
+        if (robot[i].status == 0)
+            int a = 1;
     }
     for (int i = 0; i < 5; i++)
         if (Debug)
