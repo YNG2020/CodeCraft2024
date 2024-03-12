@@ -196,6 +196,12 @@ void DecisionMaker::robotDecision()
             bot.carryGoods = 1;               // 手动更新为持有货物的状态
             bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
+            if (goodsInMap[bot.curX][bot.curY] > 0) {   // 说明取走的是无主货物
+                goodsInMap[bot.curX][bot.curY] = 0;
+                goodsInMap[bot.tarX][bot.tarY] = bot.goodsVal;
+            }
+            else
+                goodsInMap[bot.curX][bot.curX] = 0;
             bot.lastX = -1;
             bot.lastY = -1;
         }
