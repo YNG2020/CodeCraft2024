@@ -418,9 +418,6 @@ bool DecisionMaker::jamDetect(int botID1, int botID2)
         // 只需逐对检测是否有可能发生冲突即可
         if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i + 1]) // 二者下一个目标位置都相同 
             jamFlag = true;
-        //else if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i] && // bto1撞到robot[botID2]停下的位置上
-        //    (robot[botID2].status == 0 || robot[botID2].botPathState == NO_PATH || robot[botID2].botAvoidState == AVOIDED))
-        //    jamFlag = true;
         else if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i] && robot[botID1].jamDetectBuffer[i] == robot[botID2].jamDetectBuffer[i + 1])   // 对撞
             jamFlag = true;
 
@@ -432,6 +429,8 @@ bool DecisionMaker::jamDetect(int botID1, int botID2)
 bool DecisionMaker::unJamDetect(int botID1, int botID2)
 {
     bool jamFlag = false;   // 标识可能发生的堵塞情况
+    if (robot[botID2].jamDetectBuffer[1] == robot[botID1].jamDetectBuffer[0]) // bto2撞到robot[botID1]停下的位置上
+        jamFlag = true;
     for (int i = 0; i < robot[botID1].jamDetectBufferLen - 1; ++i)
     {
         if (robot[botID2].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i])
@@ -450,8 +449,6 @@ bool DecisionMaker::unJamDetect(int botID1, int botID2)
         }
         // 只需逐对检测是否有可能发生冲突即可
         if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i + 1]) // 二者下一个目标位置都相同 
-            jamFlag = true;
-        else if (robot[botID2].jamDetectBuffer[i + 1] == robot[botID1].jamDetectBuffer[i]) // bto2撞到robot[botID1]停下的位置上
             jamFlag = true;
         else if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i] && robot[botID1].jamDetectBuffer[i] == robot[botID2].jamDetectBuffer[i + 1])   // 对撞
             jamFlag = true;
