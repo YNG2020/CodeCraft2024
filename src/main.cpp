@@ -13,7 +13,7 @@
 using namespace std;
 std::ifstream myCin;
 bool Debug = false;
-
+ 
 void Init()
 {
     std::srand(1234); // 这里的1234可以是任何你喜欢的整数
@@ -47,6 +47,7 @@ void Init()
         robot[i].botTarState = NO_TARGET;
         robot[i].botPathState = NO_PATH;
         robot[i].botAvoidState = NO_AVOIDING;
+        robot[i].avoidBotID = -1;
     }
     if (Debug)
         myCin >> boat_capacity;

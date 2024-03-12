@@ -12,6 +12,7 @@ const int robot_num = 10;
 const int berth_num = 10;
 const int boat_num = 5;
 const int N = 210;
+const int distExRecoverBot = 25;      // 将处于恢复状态的机器人排除在路径搜索范围的最小距离
 
 extern Robot robot[robot_num];
 extern Berth berth[berth_num];
