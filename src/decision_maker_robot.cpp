@@ -333,24 +333,24 @@ void DecisionMaker::moveControl()
         }
     }
 
-
 }
 
 // 更新robot的避让优先级
 void DecisionMaker::setPriority()
 {
-    // for (int i = 0; i < robot_num; ++i) {
-    //     priorityFactor[i][0] = i;   // 第一列放编号
-    //     priorityFactor[i][1] = robot[i].goodsVal;   // 第二列放货物的价值
-    // }
+     //for (int i = 0; i < robot_num; ++i) {
+     //    priorityFactor[i][0] = i;   // 第一列放编号
+     //    priorityFactor[i][1] = robot[i].goodsVal;   // 第二列放货物的价值
+     //}
     for (int i = 0; i < 10; ++i)
-    { // 目前仅以编号作为唯一判据，可不受突发情况影响
-        robot[i].avoidPriority = i;
+    {
+        //robot[i].avoidPriority = i;
+        robot[i].avoidPriority = -robot[i].goodsVal;
     }
-    //// 使用 lambda 表达式定义比较函数并对索引进行排序
-    // std::sort(priority.begin(), priority.end(), [&](int a, int b) {
-    //     return priorityFactor[a][0] != priorityFactor[b][0] ? priorityFactor[a][0] < priorityFactor[b][0] : priorityFactor[a][1] < priorityFactor[b][1];
-    // });
+    // 使用 lambda 表达式定义比较函数并对索引进行排序
+     //std::sort(priority.begin(), priority.end(), [&](int a, int b) {
+     //    return priorityFactor[a][0] != priorityFactor[b][0] ? priorityFactor[a][0] < priorityFactor[b][0] : priorityFactor[a][1] < priorityFactor[b][1];
+     //});
 }
 
 // 更新堵塞检测缓冲区
@@ -383,6 +383,8 @@ void DecisionMaker::refreshJamBuffer(int botID)
 bool DecisionMaker::jamDetect(int botID1, int botID2)
 {
     if (botID1 == botID2)
+        return false;
+    if ((robot[botID1].status == 0 || robot[botID1].botAvoidState == AVOIDED) && (robot[botID2].status == 0 || robot[botID2].botAvoidState == AVOIDED)) // 此刻双方都不动
         return false;
     if (robot[botID2].status == 0 || robot[botID2].botPathState == NO_PATH || robot[botID2].botAvoidState == AVOIDED)   // // 此刻robto[botID2]停止不动
         if (robot[botID1].jamDetectBuffer[1] == (robot[botID2].curX * mapSize + robot[botID2].curY))
@@ -426,6 +428,37 @@ bool DecisionMaker::jamDetect(int botID1, int botID2)
     return jamFlag;
 }
 
+// 对robot1和robot2进行是否可以接触避让状态的检测，默认此刻botID1正在避让botID2
+bool DecisionMaker::unJamDetect(int botID1, int botID2)
+{
+    bool jamFlag = false;   // 标识可能发生的堵塞情况
+    for (int i = 0; i < robot[botID1].jamDetectBufferLen - 1; ++i)
+    {
+        if (robot[botID2].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i])
+        {
+            if (robot[botID2].jamDetectBuffer[i + 1] == (robot[botID2].tarX * mapSize + robot[botID2].tarY))
+                break;  // 这是路径检测缓冲区的有效长度，此刻与之后无须检测            
+            if (robot[botID2].jamDetectBuffer[i + 1] == (robot[botID2].tmpTarX * mapSize + robot[botID2].tmpTarY))
+                break;  // 这是路径检测缓冲区的有效长度，此刻与之后无须检测 
+        }
+        if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID1].jamDetectBuffer[i])
+        {
+            if (robot[botID1].jamDetectBuffer[i + 1] == (robot[botID1].tarX * mapSize + robot[botID1].tarY))
+                break;  // 这是路径检测缓冲区的有效长度，此刻与之后无须检测             
+            if (robot[botID1].jamDetectBuffer[i + 1] == (robot[botID1].tmpTarX * mapSize + robot[botID1].tmpTarY))
+                break;  // 这是路径检测缓冲区的有效长度，此刻与之后无须检测 
+        }
+        // 只需逐对检测是否有可能发生冲突即可
+        if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i + 1]) // 二者下一个目标位置都相同 
+            jamFlag = true;
+        else if (robot[botID2].jamDetectBuffer[i + 1] == robot[botID1].jamDetectBuffer[i]) // bto2撞到robot[botID1]停下的位置上
+            jamFlag = true;
+        else if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i] && robot[botID1].jamDetectBuffer[i] == robot[botID2].jamDetectBuffer[i + 1])   // 对撞
+            jamFlag = true;
+    }
+    return jamFlag;
+}
+
 // 堵塞控制
 void DecisionMaker::jamControl()
 {   
@@ -457,7 +490,7 @@ void DecisionMaker::jamControl()
                     botID2 = i;
                 }
                 if (robot[botID2].avoidBotID == -1 || robot[botID2].avoidBotID == botID1)
-                {    // robot_j没有避让对象
+                {    // robot_2没有避让对象，或避让对象就是botID1
                     jamResolve(botID1, botID2);
                 }
                 else
@@ -469,10 +502,23 @@ void DecisionMaker::jamControl()
     }
 }
 
-// 堵塞消解，默认是botID2去寻找避让botID1的路径
+// 堵塞消解，默认是botID2去寻找避让botID1的路径，且默认botID2没有避让对象
 void DecisionMaker::jamResolve(int botID1, int botID2)
 {
-    bool findPathFlag = getAvoidPath(botID1, botID2);
+    bool findPathFlag;
+    if (robot[botID1].botMoveState == AVOIDED)  
+    {   // 此时botID2不可能也出于AVOIDED的状态，因为此时jamDetect将返回false的结果
+        findPathFlag = getToTarPath(botID2);    // botID2直接不进行避让动作，而是找路去既定目标
+        if (findPathFlag)
+        {
+            robot[botID2].avoidBotID = -1;
+            robot[botID2].botAvoidState = NO_AVOIDING;
+            robot[botID2].botPathState = HAVE_PATH;
+            refreshJamBuffer(botID2);   // 修改了路径，需要更新碰撞检测缓冲区
+        }
+    }
+
+    findPathFlag = getAvoidPath(botID1, botID2);
     if (findPathFlag)
     {   // 成功找到路，及时更新状态变量
         robot[botID2].avoidBotID = botID1;
@@ -681,7 +727,7 @@ void DecisionMaker::unJam()
         }
         if (robot[i].botAvoidState == AVOIDED)
         {   // 正处于避让结束，原地等待的状态
-            if (!jamDetect(i, robot[i].avoidBotID))
+            if (!unJamDetect(i, robot[i].avoidBotID))
             {
                 robot[i].botAvoidState = NO_AVOIDING;
                 robot[i].avoidBotID = -1;
@@ -703,7 +749,9 @@ bool DecisionMaker::getToTarPath(int botID)
     memset(vis, 0, sizeof(vis));
     for (int i = 0; i < robot_num; i++)
     {
-        if (robot[i].status == 0)
+        if (robot[i].status == 0 && (abs(robot[i].curX - x) + abs(robot[i].curY - y) < distExRecoverBot))
+            vis[robot[i].curX][robot[i].curY] = true;
+        if (robot[i].botAvoidState == AVOIDED)
             vis[robot[i].curX][robot[i].curY] = true;
     }
     vis[x][y] = true;

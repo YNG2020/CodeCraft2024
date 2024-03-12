@@ -32,6 +32,7 @@ private:
     void berth_select(int boat_id);
     void refreshJamBuffer(int botID);
     bool jamDetect(int botID1, int botID2);
+    bool unJamDetect(int botID1, int botID2);
     
     void jamControl();
     void jamResolve(int botID1, int botID2);
