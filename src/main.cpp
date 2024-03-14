@@ -83,7 +83,7 @@ int Input()
     {
         goodsInMap[goodsState[tmpFrame][i].first][goodsState[tmpFrame][i].second] = 0;
     }
-
+    goods_num += num;
     for (int i = 1; i <= num; i++)
     {
         int x, y, val;
@@ -121,6 +121,8 @@ int main()
 {
     srand((unsigned int)time(nullptr)); // Seed for random number generation
     DecisionMaker decisionMaker;
+    ofstream outputFile("data.csv");
+    outputFile << "goods_num, pick_goods_num, ship_goods_num" << endl;
     Init();
     for (frame = 1; frame <= 15000; frame++)
     {
@@ -128,7 +130,9 @@ int main()
         decisionMaker.makeDecision();
         cout << "OK" << endl;
         cout.flush();
+        outputFile << goods_num << ", " << pick_goods_num << ", " << ship_goods_num << endl;
     }
+    outputFile.close();
     return 0;
 }
 

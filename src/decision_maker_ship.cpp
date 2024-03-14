@@ -14,6 +14,7 @@ void DecisionMaker::shipDecision()
         if (berthID != -1 && frame == 15000 - berth[berthID].transportTime)
         {
             cout << "go " << boatID << endl;
+            ship_goods_num += boat[boatID].numBoatGoods;
             continue;
         }
         switch (boat[boatID].boatStatus)
@@ -33,6 +34,7 @@ void DecisionMaker::shipDecision()
                 if (boat[boatID].numBoatGoods == boat[boatID].capacity)
                 {   // 如果装满了，去虚拟点
                     cout << "go " << boatID << endl;
+                    ship_goods_num += boat[boatID].numBoatGoods;
                     berth[boat[boatID].tarPos].boatIDInBerth = -1;  // 更新泊位被占用的情况
                     berth[boat[boatID].tarPos].boatIDToBerth = -1;  // 更新泊位被指向的情况
                 }

@@ -227,6 +227,7 @@ void DecisionMaker::robotDecision()
             }
             else
                 goodsInMap[bot.tarX][bot.tarY] = 0;
+            pick_goods_num++;
             bot.lastX = -1;
             bot.lastY = -1;
         }
