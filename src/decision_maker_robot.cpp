@@ -54,15 +54,16 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
                 cnt++;
             }
             else { // 尝试寻找性价比更高的货物
-                if ((double)goodsInMap[now->x][now->y] / (double)(abs(now->x - x) + abs(now->y - y)) > propotion) {
-                    propotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                int newPropotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                if (newPropotion > propotion) {
+                    propotion = newPropotion;
                     target = now;
                 }
             }
         }
         if (cnt > 0) {
             cnt++;
-            if (cnt == 100) { // 最多额外搜索100轮
+            if (cnt == 1000) { // 最多额外搜索1000轮
                 break;
             }
         }
