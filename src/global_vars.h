@@ -21,6 +21,7 @@ extern Boat boat[boat_num];
 extern int money, boat_capacity, id, frame;
 extern char map[N][N];
 extern int goodsInMap[N][N];
+extern int nearBerthDis[N][N]; // 记录每个点到最近的泊位的距离
 extern int dx[4];
 extern int dy[4];
 extern vector<std::vector<std::pair<int, int>>> goodsState;	// 记录第i帧时的货物位置信息

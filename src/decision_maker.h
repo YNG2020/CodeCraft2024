@@ -11,9 +11,9 @@ class DecisionMaker
 private:
     struct Node
     {
-        int x, y;
+        int x, y, dis;
         Node *parent; // 指向父节点的指针
-        Node(int xx, int yy, Node *p = nullptr) : x(xx), y(yy), parent(p) {}
+        Node(int xx, int yy, Node *p = nullptr, int d = 0) : x(xx), y(yy), parent(p), dis(d) {}
     };
 
     vector<int> priority;
@@ -43,6 +43,7 @@ public:
     void robotDecision();
     void refreshRobotState(int botID);
     //void refreshBoatState(int boatID);
+    void getNearBerthDis(int x, int y); // 计算点到最近的泊位的距离
 };
 
 #endif // DECISION_MAKER_H

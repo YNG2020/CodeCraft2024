@@ -18,6 +18,7 @@ void boatInit();
 using namespace std;
 std::ifstream myCin;
 bool Debug = false;
+DecisionMaker decisionMaker;
 
  
 void Init()
@@ -94,6 +95,8 @@ int Input()
         goodsInMap[x][y] = val;
         goodsState[(frame - 1) % 1000][i - 1] = make_pair(x, y);
         goodsState[(frame - 1) % 1000][10] = make_pair(num, 0); // 最后一列用于存储有多少个货物
+        if (nearBerthDis[x][y] == 0)
+            decisionMaker.getNearBerthDis(x, y);
     }
     for (int i = 0; i < robot_num; i++)
     {
@@ -120,7 +123,6 @@ int Input()
 int main()
 {
     srand((unsigned int)time(nullptr)); // Seed for random number generation
-    DecisionMaker decisionMaker;
     ofstream outputFile("data.csv");
     outputFile << "goods_num, pick_goods_num, ship_goods_num" << endl;
     Init();

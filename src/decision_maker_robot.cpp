@@ -22,6 +22,8 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
 {
     queue<Node *> q;
     vector<Node *> rest;
+    double propotion = 0;
+    int cnt = 0;
     q.push(new Node(x, y));
     memset(vis, 0, sizeof(vis));
     for (int i = 0; i < robot_num; i++)
@@ -40,13 +42,29 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         Node *now = q.front();
         q.pop();
 
-        if (goodsInMap[now->x][now->y] > 0 || goodsInMap[now->x][now->y] == -(botID + 1))
+        if (goodsInMap[now->x][now->y] == -(botID + 1))
         {
             target = now;                                       // 找到目标或找到自身目标
-            robot[botID].goodsVal = goodsInMap[now->x][now->y]; // 先存储
-            robot[botID].idxInPth = 0;                          // 更新路径点序列
-            goodsInMap[now->x][now->y] = -(botID + 1);          // 打上标记
             break;
+        }
+        if (goodsInMap[now->x][now->y] > 0) {
+            if (cnt == 0) { // 第一次找到货物
+                propotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                target = now;
+                cnt++;
+            }
+            else { // 尝试寻找性价比更高的货物
+                if ((double)goodsInMap[now->x][now->y] / (double)(abs(now->x - x) + abs(now->y - y)) > propotion) {
+                    propotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                    target = now;
+                }
+            }
+        }
+        if (cnt > 0) {
+            cnt++;
+            if (cnt == 100) { // 最多额外搜索100轮
+                break;
+            }
         }
 
         for (int i = 0; i < 4; i++)
@@ -56,13 +74,16 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
             if (nx < 0 || nx >= mapSize || ny < 0 || ny >= mapSize || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
-            q.push(new Node(nx, ny, now)); // 使用父节点指针
+            q.push(new Node(nx, ny, now, now->dis + 1)); // 使用父节点指针
         }
         rest.push_back(now);
     }
 
     if (target == nullptr) // 找不到路直接返回
         return false;
+    robot[botID].goodsVal = goodsInMap[target->x][target->y]; // 先存储
+    robot[botID].idxInPth = 0;                          // 更新路径点序列
+    goodsInMap[target->x][target->y] = -(botID + 1);          // 打上标记
 
     vector<int>().swap(pathDir); // 清空
     if (target != nullptr)
