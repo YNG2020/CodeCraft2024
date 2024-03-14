@@ -25,7 +25,7 @@ void DecisionMaker::shipDecision()
             if (boat[boatID].tarPos == -1)
             {   // 在虚拟点，上一次运输已完成。选择泊位航向，货物量置0
                 boat[boatID].numBoatGoods = 0;
-                berth_select(boatID, 0);     
+                berth_select(boatID, -1);  // 这里需要手动置oriLocation参数，因为还没发出ship指令
             }
             else
             {   
@@ -40,13 +40,22 @@ void DecisionMaker::shipDecision()
                 }
                 else
                 {   // 没有满则继续装
-                    //berth_select(boatID, 1);
-                    boat[boatID].numBoatGoods += berth[berthID].load(boat[boatID].capacity - boat[boatID].numBoatGoods);
+                    int loadNum = berth[berthID].load(boat[boatID].capacity - boat[boatID].numBoatGoods);
+                    boat[boatID].numBoatGoods += loadNum;
+                    int newBerth = boat[boatID].tarPos;
+                    if (loadNum == 0)   // 跑去别的泊位去装货
+                        newBerth = berth_select(boatID, boat[boatID].tarPos);
+                    if (newBerth != boat[boatID].tarPos)
+                    {
+                        berth[boat[boatID].tarPos].boatIDInBerth = -1;  // 更新泊位被占用的情况
+                        berth[boat[boatID].tarPos].boatIDToBerth = -1;  // 更新泊位被指向的情况
+                        berth[newBerth].boatIDToBerth = boatID;  // 更新泊位被指向的情况
+                    }
                 }
             }
             break;
         case 2: // 在泊位外等待的状态
-            berth_select(boatID, 1);
+            berth_select(boatID, boat[boatID].tarPos);
             break;
         default:
             break;
@@ -55,7 +64,7 @@ void DecisionMaker::shipDecision()
     }
 }
 
-void DecisionMaker::berth_select(int boat_id, int oriLocation)
+int DecisionMaker::berth_select(int boat_id, int oriLocation)
 {
 
     // 为当前的boat选择泊位ID，目的是平均到每一帧的收益最大
@@ -78,10 +87,15 @@ void DecisionMaker::berth_select(int boat_id, int oriLocation)
         //    continue;
 
         moveTimeToVir = berth[berthID].transportTime;
-        if (oriLocation == 0)   // 说明boat是从虚拟点过来的
+        if (oriLocation == -1)   // 说明boat是从虚拟点过来的
             moveTimeToBerth = berth[berthID].transportTime;
-        else // 从泊位过来
-            moveTimeToBerth = moveTimeFromBerth;
+        else 
+        {   // 从泊位过来
+            if (berthID == oriLocation) // 从原有泊位来
+                moveTimeToBerth = 0;
+            else    // 从别的泊位来
+                moveTimeToBerth = moveTimeFromBerth;
+        }
 
         numRemainGoods = berth[berthID].numBerthGoods;
         numAddGoods = moveTimeToBerth / berth[berthID].timeOfGoodsToBerth;
@@ -102,9 +116,7 @@ void DecisionMaker::berth_select(int boat_id, int oriLocation)
         if (oriLocation == 0)   // 说明boat是从虚拟点过来的
             timeToGetMoney = moveTimeToVir + moveTimeToVir + loadGoodsTime;
         else // 从泊位过来
-            timeToGetMoney = moveTimeFromBerth + moveTimeToVir + loadGoodsTime;
-
-        //timeToGetMoney = -(berth[berthID].numBerthGoods + 800 / berth[berthID].timeOfGoodsToBerth);
+            timeToGetMoney = moveTimeToBerth + moveTimeToVir + loadGoodsTime;
 
         if ((timeToGetMoney < minTime) && berth[berthID].boatIDToBerth == -1)
         {
@@ -112,6 +124,10 @@ void DecisionMaker::berth_select(int boat_id, int oriLocation)
             minIdx = berthID;
         }
     }
+    if (minIdx == oriLocation)
+        return minIdx;
+
     berth[minIdx].boatIDToBerth = boat_id;
     cout << "ship " << boat_id << " " << minIdx << endl;
+    return minIdx;
 }
