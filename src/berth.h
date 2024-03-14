@@ -4,16 +4,20 @@
 class Berth
 {
 public:
-    int x, y;
-    int transport_time;
-    int loading_speed;
-    int goodsNum;
+    int x, y;           // 泊位的左上角的位置
+    int transportTime;  // 轮船运输到虚拟点的时间
+    int loadingSpeed;   // 每帧可以装载的货物数
+    int numBerthGoods;  // 泊位当前拥有的货物量
+    int boatIDInBerth;  // 当前停泊在该泊位的船的ID
+    int boatIDToBerth;  // 当前目标泊位为该泊位的船的ID
+    double timeOfGoodsToBerth;   // 期望的robot把货物运送到berth的时间（帧/个），需要动态维护
+    int lastTimeGetGoods;
 
-    int load(int boat_capacity_remain)
+    int load(int boatCapacityRemain)
     {
-        int loadNum = goodsNum > loading_speed ? loading_speed : goodsNum;
-        loadNum = loadNum > boat_capacity_remain ? boat_capacity_remain : loadNum;
-        goodsNum -= loadNum;
+        int loadNum = numBerthGoods > loadingSpeed ? loadingSpeed : numBerthGoods;
+        loadNum = loadNum > boatCapacityRemain ? boatCapacityRemain : loadNum;
+        numBerthGoods -= loadNum;
         return loadNum;
     }
 
@@ -22,9 +26,9 @@ public:
     {
         x = newX;
         y = newY;
-        transport_time = newTransportTime;
-        loading_speed = newLoadingSpeed;
-        goodsNum;
+        transportTime = newTransportTime;
+        loadingSpeed = newLoadingSpeed;
+        numBerthGoods = 0;
     }
 };
 

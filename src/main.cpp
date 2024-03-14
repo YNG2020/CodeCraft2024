@@ -9,10 +9,16 @@
 #include "decision_maker.h"
 #include <string>
 #include <ctime>
+#include <algorithm>
+
+void robotInit();
+void berthInit();
+void boatInit();
 
 using namespace std;
 std::ifstream myCin;
 bool Debug = false;
+
  
 void Init()
 {
@@ -33,33 +39,23 @@ void Init()
         if (Debug)
         {
             myCin >> id;
-            myCin >> berth[id].x >> berth[id].y >> berth[id].transport_time >> berth[id].loading_speed;
+            myCin >> berth[id].x >> berth[id].y >> berth[id].transportTime >> berth[id].loadingSpeed;
         }
         else
         {
             cin >> id;
-            cin >> berth[id].x >> berth[id].y >> berth[id].transport_time >> berth[id].loading_speed;
+            cin >> berth[id].x >> berth[id].y >> berth[id].transportTime >> berth[id].loadingSpeed;
         }
-    }
-    for (int i = 0; i < robot_num; ++i)
-    {
-        robot[i].botMoveState = WAITING;
-        robot[i].botTarState = NO_TARGET;
-        robot[i].botPathState = NO_PATH;
-        robot[i].botAvoidState = NO_AVOIDING;
-        robot[i].avoidBotID = -1;
     }
     if (Debug)
         myCin >> boat_capacity;
     else
         cin >> boat_capacity;
-    for (int i = 0; i < boat_num; i++)
-    {
-        boat[i].num = 0;
-        boat[i].status = 1;
-        boat[i].pos = -1;
-        boat[i].capacity = boat_capacity;
-    }
+    
+    robotInit();
+    berthInit();
+    boatInit();
+
     string okk;
     if (Debug)
         myCin >> okk;
@@ -102,17 +98,17 @@ int Input()
     for (int i = 0; i < robot_num; i++)
     {
         if (Debug)
-            myCin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].status;
+            myCin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].robotStatus;
         else
-            cin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].status;
-        if (robot[i].status == 0)
+            cin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].robotStatus;
+        if (robot[i].robotStatus == 0)
             int a = 1;
     }
     for (int i = 0; i < 5; i++)
         if (Debug)
-            myCin >> boat[i].status >> boat[i].pos;
+            myCin >> boat[i].boatStatus >> boat[i].tarPos;
         else
-            cin >> boat[i].status >> boat[i].pos;
+            cin >> boat[i].boatStatus >> boat[i].tarPos;
     string okk;
     if (Debug)
         myCin >> okk;
@@ -134,4 +130,42 @@ int main()
         cout.flush();
     }
     return 0;
+}
+
+// robot参数的初始化
+void robotInit()
+{
+    for (int i = 0; i < robot_num; ++i)
+    {   
+        robot[i].botMoveState = WAITING;
+        robot[i].botTarState = NO_TARGET;
+        robot[i].botPathState = NO_PATH;
+        robot[i].botAvoidState = NO_AVOIDING;
+        robot[i].avoidBotID = -1;
+    }
+}
+
+// berth参数的初始化
+void berthInit()
+{
+    for (int i = 0; i < berth_num; ++i)
+    {   
+        berth[i].numBerthGoods = 0;
+        berth[i].boatIDInBerth = -1;
+        berth[i].boatIDToBerth = -1;
+        berth[i].timeOfGoodsToBerth = 100.0;    // 这个值先初始化为100.0先
+        berth[i].lastTimeGetGoods = 0;
+    }
+}
+
+// boat参数的初始化
+void boatInit()
+{
+    for (int i = 0; i < boat_num; ++i)
+    {   
+        boat[i].numBoatGoods = 0;
+        boat[i].boatStatus = 1;
+        boat[i].tarPos = -1;
+        boat[i].capacity = boat_capacity;
+    }
 }
