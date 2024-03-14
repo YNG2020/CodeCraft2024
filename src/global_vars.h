@@ -12,8 +12,8 @@ const int robot_num = 10;
 const int berth_num = 10;
 const int boat_num = 5;
 const int N = 210;
-const int distExRecoverBot = 25;      // ½«´¦ÓÚ»Ö¸´×´Ì¬µÄ»úÆ÷ÈËÅÅ³ıÔÚÂ·¾¶ËÑË÷·¶Î§µÄ×îĞ¡¾àÀë
-
+const int distExRecoverBot = 25; // ï¿½ï¿½ï¿½ï¿½ï¿½Ú»Ö¸ï¿½×´Ì¬ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å³ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î§ï¿½ï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½
+const int GoodsValueMax = 200;
 extern Robot robot[robot_num];
 extern Berth berth[berth_num];
 extern Boat boat[boat_num];
@@ -21,13 +21,13 @@ extern Boat boat[boat_num];
 extern int money, boat_capacity, id, frame;
 extern char map[N][N];
 extern int goodsInMap[N][N];
-extern int goodsLeftTime[N][N];	// ¼ÇÂ¼»õÎïµÄÊ£Óà´æÔÚÊ±¼ä
-extern int nearBerthDis[N][N]; // ¼ÇÂ¼Ã¿¸öµãµ½×î½üµÄ²´Î»µÄ¾àÀë
+extern int goodsLeftTime[N][N]; // ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+extern int nearBerthDis[N][N];  // ï¿½ï¿½Â¼Ã¿ï¿½ï¿½ï¿½ãµ½ï¿½ï¿½ï¿½ï¿½Ä²ï¿½Î»ï¿½Ä¾ï¿½ï¿½ï¿½
 extern int dx[4];
 extern int dy[4];
-extern vector<std::vector<std::pair<int, int>>> goodsState;	// ¼ÇÂ¼µÚiÖ¡Ê±µÄ»õÎïÎ»ÖÃĞÅÏ¢
-extern int goods_num;       // ·ÖÎöÓÃ£¬µØÍ¼Éú³ÉµÄ»õÎï×ÜÁ¿
-extern int pick_goods_num;  // ·ÖÎöÓÃ£¬»úÆ÷ÈË¼ñÆğµÄ»õÎï×ÜÁ¿
-extern int ship_goods_num;  // ·ÖÎöÓÃ£¬´¬ÔË×ßµÄ»õÎï×ÜÁ¿
+extern vector<std::vector<std::pair<int, int>>> goodsState; // ï¿½ï¿½Â¼ï¿½ï¿½iÖ¡Ê±ï¿½Ä»ï¿½ï¿½ï¿½Î»ï¿½ï¿½ï¿½ï¿½Ï¢
+extern int goods_num;                                       // ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½Í¼ï¿½ï¿½ï¿½ÉµÄ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+extern int pick_goods_num;                                  // ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¼ï¿½ï¿½ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+extern int ship_goods_num;                                  // ï¿½ï¿½ï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ßµÄ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 #endif // GLOBAL_VARS_H

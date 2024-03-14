@@ -1,26 +1,53 @@
 #ifndef BERTH_H
 #define BERTH_H
-
+#include <queue>
+using std::queue;
 class Berth
 {
 public:
-    int x, y;           // ²´Î»µÄ×óÉÏ½ÇµÄÎ»ÖÃ
-    int transportTime;  // ÂÖ´¬ÔËÊäµ½ĞéÄâµãµÄÊ±¼ä
-    int loadingSpeed;   // Ã¿Ö¡¿ÉÒÔ×°ÔØµÄ»õÎïÊı
-    int numBerthGoods;  // ²´Î»µ±Ç°ÓµÓĞµÄ»õÎïÁ¿
-    int boatIDInBerth;  // µ±Ç°Í£²´ÔÚ¸Ã²´Î»µÄ´¬µÄID
-    int boatIDToBerth;  // µ±Ç°Ä¿±ê²´Î»Îª¸Ã²´Î»µÄ´¬µÄID
-    double timeOfGoodsToBerth;   // ÆÚÍûµÄrobot°Ñ»õÎïÔËËÍµ½berthµÄÊ±¼ä£¨Ö¡/¸ö£©£¬ĞèÒª¶¯Ì¬Î¬»¤
+    int x, y;                  // æ³Šä½çš„å·¦ä¸Šè§’çš„ä½ç½®
+    int transportTime;         // è½®èˆ¹è¿è¾“åˆ°è™šæ‹Ÿç‚¹çš„æ—¶é—´
+    int loadingSpeed;          // æ¯å¸§å¯ä»¥è£…è½½çš„è´§ç‰©æ•°
+    int numBerthGoods;         // æ³Šä½å½“å‰æ‹¥æœ‰çš„è´§ç‰©é‡
+    int boatIDInBerth;         // å½“å‰åœæ³Šåœ¨è¯¥æ³Šä½çš„èˆ¹çš„ID
+    int boatIDToBerth;         // å½“å‰ç›®æ ‡æ³Šä½ä¸ºè¯¥æ³Šä½çš„èˆ¹çš„ID
+    double timeOfGoodsToBerth; // æœŸæœ›çš„robotæŠŠè´§ç‰©è¿é€åˆ°berthçš„æ—¶é—´ï¼ˆå¸§/ä¸ªï¼‰ï¼Œéœ€è¦åŠ¨æ€ç»´æŠ¤
     int lastTimeGetGoods;
-
+    queue<int> berthGoodsValueList; // æ³Šä½è´§ç‰©ä»·å€¼é˜Ÿåˆ—ï¼Œä¸load(),pullåŒæ­¥æ›´æ–°
     int load(int boatCapacityRemain)
     {
         int loadNum = numBerthGoods > loadingSpeed ? loadingSpeed : numBerthGoods;
         loadNum = loadNum > boatCapacityRemain ? boatCapacityRemain : loadNum;
         numBerthGoods -= loadNum;
+        int i = 0;
+        while (i < loadNum) // loadä»¥åè´§ç‰©ä»·å€¼å‡ºé˜Ÿ
+        {
+            berthGoodsValueList.pop();
+            ++i;
+        }
         return loadNum;
     }
-
+    int getBerthGoodsValueOfNum(int num, int start, int GoodsValueMean) // è®¡ç®—ä»ä¸‹æ ‡startå¼€å§‹çš„numä¸ªè´§ç‰©çš„æ€»ä»·å€¼
+    {
+        queue<int> Temp = berthGoodsValueList;
+        int ans = 0;
+        while (start > 0)
+        {
+            Temp.pop();
+            start--;
+        }
+        for (int i = 0; i < num; ++i)
+        {
+            if (Temp.empty())
+                ans += GoodsValueMean; // æ²¡æœ‰è´§ï¼Œåˆ™åŠ ä¸Šç‰©å“ä»·å€¼æœŸæœ›
+            else
+            {
+                ans += Temp.front();
+                Temp.pop();
+            }
+        }
+        return ans;
+    }
     Berth() {}
     Berth(int newX, int newY, int newTransportTime, int newLoadingSpeed)
     {
