@@ -48,16 +48,20 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
             break;
         }
         if (goodsInMap[now->x][now->y] > 0) {
-            if (cnt == 0) { // 第一次找到货物
-                propotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
-                target = now;
-                cnt++;
-            }
-            else { // 尝试寻找性价比更高的货物
-                int newPropotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
-                if (newPropotion > propotion) {
-                    propotion = newPropotion;
+            if (now->dis < goodsLeftTime[now->x][now->y])
+            {   // 赶得及在货物消失之前把货物运走
+                if (cnt == 0) { // 第一次找到货物
+
+                    propotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
                     target = now;
+                    cnt++;
+                }
+                else { // 尝试寻找性价比更高的货物
+                    double newPropotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                    if (newPropotion > propotion) {
+                        propotion = newPropotion;
+                        target = now;
+                    }
                 }
             }
         }

@@ -21,6 +21,7 @@ extern Boat boat[boat_num];
 extern int money, boat_capacity, id, frame;
 extern char map[N][N];
 extern int goodsInMap[N][N];
+extern int goodsLeftTime[N][N];	// 记录货物的剩余存在时间
 extern int nearBerthDis[N][N]; // 记录每个点到最近的泊位的距离
 extern int dx[4];
 extern int dy[4];

@@ -83,6 +83,7 @@ int Input()
     for (int i = 0; i < tmpNum; ++i)
     {
         goodsInMap[goodsState[tmpFrame][i].first][goodsState[tmpFrame][i].second] = 0;
+        goodsLeftTime[goodsState[tmpFrame][i].first][goodsState[tmpFrame][i].second] = 0;
     }
     goods_num += num;
     for (int i = 1; i <= num; i++)
@@ -93,6 +94,7 @@ int Input()
         else
             cin >> x >> y >> val;
         goodsInMap[x][y] = val;
+        goodsLeftTime[x][y] = 1000;
         goodsState[(frame - 1) % 1000][i - 1] = make_pair(x, y);
         goodsState[(frame - 1) % 1000][10] = make_pair(num, 0); // 最后一列用于存储有多少个货物
         if (nearBerthDis[x][y] == 0)
@@ -123,8 +125,8 @@ int Input()
 int main()
 {
     srand((unsigned int)time(nullptr)); // Seed for random number generation
-    ofstream outputFile("data.csv");
-    outputFile << "goods_num, pick_goods_num, ship_goods_num" << endl;
+    //ofstream outputFile("data.csv");
+    //outputFile << "goods_num, pick_goods_num, ship_goods_num" << endl;
     Init();
     for (frame = 1; frame <= 15000; frame++)
     {
@@ -132,9 +134,17 @@ int main()
         decisionMaker.makeDecision();
         cout << "OK" << endl;
         cout.flush();
-        outputFile << goods_num << ", " << pick_goods_num << ", " << ship_goods_num << endl;
+        //outputFile << goods_num << ", " << pick_goods_num << ", " << ship_goods_num << endl;
+
+        for (int i = 0; i < 1000; ++i)
+        {   // 维护货物的剩余存在时间
+            int tmpNum = goodsState[i][10].first;
+            for (int j = 0; j < tmpNum; ++j)
+                --goodsLeftTime[goodsState[i][j].first][goodsState[i][j].second];
+        }
+
     }
-    outputFile.close();
+    //outputFile.close();
     return 0;
 }
 
