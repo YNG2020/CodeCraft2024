@@ -75,7 +75,7 @@ int DecisionMaker::berth_select(int boat_id, int oriLocation)
     double loadGoodsTime;                                                     // 实际的装货时间
     int numNeedGoods = (boat[boat_id].capacity - boat[boat_id].numBoatGoods); // robot剩余的要装的货物的数量
     int numRemainGoods;                                                       // berth此刻剩余的货物的数目
-    int numAddGoods;                                                          // 在boat驶向泊位期间，泊位增加的货物数
+    double numAddGoods;                                                       // 在boat驶向泊位期间，泊位增加的货物数
     // int minTime = 100000000;
     double MaxMeanGetValue = 0; // 平均每帧得到最大的价值，初始化为0
     int minIdx = 0;             // 存储将要被选择的泊位ID
@@ -83,9 +83,6 @@ int DecisionMaker::berth_select(int boat_id, int oriLocation)
     int Money;
     for (int berthID = 0; berthID < berth_num; ++berthID)
     {
-        // if (berthID == 1 || berthID == 4 || berthID == 6 || berthID == 8 || berthID == 9)
-        //     continue;
-
         moveTimeToVir = berth[berthID].transportTime;
         if (oriLocation == -1) // 说明boat是从虚拟点过来的
             moveTimeToBerth = berth[berthID].transportTime;

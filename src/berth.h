@@ -12,7 +12,9 @@ public:
     int boatIDInBerth;         // 当前停泊在该泊位的船的ID
     int boatIDToBerth;         // 当前目标泊位为该泊位的船的ID
     double timeOfGoodsToBerth; // 期望的robot把货物运送到berth的时间（帧/个），需要动态维护
-    int lastTimeGetGoods;
+    int lastTimeGetGoods;   // 上一次获得货物的时刻
+    int totGetGoodsGap; // 所有获得货物的时间间隔之和
+    int numGetGoods;    // 获得的货物的总量
     queue<int> berthGoodsValueList; // 泊位货物价值队列，与load(),pull同步更新
     int load(int boatCapacityRemain)
     {

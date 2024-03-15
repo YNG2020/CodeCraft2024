@@ -171,6 +171,8 @@ void berthInit()
         berth[i].boatIDToBerth = -1;
         berth[i].timeOfGoodsToBerth = 100.0;    // 这个值先初始化为100.0先
         berth[i].lastTimeGetGoods = 0;
+        berth[i].totGetGoodsGap = 0;
+        berth[i].numGetGoods = 0;
     }
 }
 

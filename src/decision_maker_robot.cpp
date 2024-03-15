@@ -165,15 +165,6 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
 
         if (inBerth(now->x, now->y))
         {
-
-            // int berthID = getBerthId(now->x, now->y);
-            // if (berthID == 0 || berthID == 2 || berthID == 3 || berthID == 5 || berthID == 7)
-            //{
-            //     target = now;              // 找到目标
-            //     robot[botID].idxInPth = 0; // 更新路径点序列
-            //     break;
-            // }
-
             target = now;              // 找到目标
             robot[botID].idxInPth = 0; // 更新路径点序列
             break;
@@ -270,8 +261,10 @@ void DecisionMaker::robotDecision()
             cout << "pull " << i << endl;
             berth[getBerthId(bot.curX, bot.curY)].numBerthGoods++;
             berth[getBerthId(bot.curX, bot.curY)].berthGoodsValueList.push(bot.goodsVal);
-            berth[getBerthId(bot.curX, bot.curY)].timeOfGoodsToBerth = 0.9 * berth[getBerthId(bot.curX, bot.curY)].timeOfGoodsToBerth + 0.1 * (frame - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
+            berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap += (frame - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
             berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods = frame;
+            berth[getBerthId(bot.curX, bot.curY)].numGetGoods += 1;
+            berth[getBerthId(bot.curX, bot.curY)].timeOfGoodsToBerth = 1 * berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap / berth[getBerthId(bot.curX, bot.curY)].numGetGoods + 0 * (frame - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
             bot.goodsVal = 0;            // 将目前所拥有的或准备拥有的货物价值清0
             bot.carryGoods = 0;          // 手动更新为不持有货物的状态
             bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
@@ -354,8 +347,6 @@ void DecisionMaker::refreshRobotState(int botID)
     }
     if (inBerth(bot.curX, bot.curY) && bot.carryGoods > 0)
     { // 自己本身有货物，且抵达到泊位，不必考虑这个货物是否就是目标泊位
-      // int berthID = getBerthId(bot.curX, bot.curY);
-      // if (berthID == 0 || berthID == 2 || berthID == 3 || berthID == 5 || berthID == 7)
         bot.botMoveState = ARRIVEBERTH;
     }
     if (bot.botMoveState == TOGOODS && goodsInMap[bot.tarX][bot.tarY] == 0)
