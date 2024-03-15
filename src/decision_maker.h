@@ -11,9 +11,9 @@ class DecisionMaker
 private:
     struct Node
     {
-        int x, y;
+        int x, y, dis;
         Node *parent; // 指向父节点的指针
-        Node(int xx, int yy, Node *p = nullptr) : x(xx), y(yy), parent(p) {}
+        Node(int xx, int yy, Node *p = nullptr, int d = 0) : x(xx), y(yy), parent(p), dis(d) {}
     };
 
     vector<int> priority;
@@ -28,8 +28,7 @@ private:
     bool getToTarPath(int botID);
     void moveControl();
     void setPriority();
-    void ship_init();
-    void berth_select(int boat_id);
+    void berth_select(int boat_id, int oriLocation);
     void refreshJamBuffer(int botID);
     bool jamDetect(int botID1, int botID2);
     bool unJamDetect(int botID1, int botID2);
@@ -42,7 +41,9 @@ public:
     void makeDecision();
     void shipDecision();
     void robotDecision();
-    void refreshState(int botID);
+    void refreshRobotState(int botID);
+    //void refreshBoatState(int boatID);
+    void getNearBerthDis(int x, int y); // 计算点到最近的泊位的距离
 };
 
 #endif // DECISION_MAKER_H

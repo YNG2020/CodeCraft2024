@@ -1,5 +1,13 @@
 #include "decision_maker.h"
 #include "global_vars.h"
+#include <cstring>
+
+namespace decision_maker_base {
+    struct DisNode {
+        int x, y, dis;
+        DisNode(int xx, int yy, int d) : x(xx), y(yy), dis(d) {}
+    };
+}
 
 DecisionMaker::DecisionMaker() : priority(robot_num, 0) {}
 
@@ -33,4 +41,31 @@ int DecisionMaker::getBerthId(int x, int y)
         }
     }
     return -1;
+}
+
+void DecisionMaker::getNearBerthDis(int x, int y)
+{
+    queue<decision_maker_base::DisNode> q;
+    memset(vis, 0, sizeof(vis));
+    q.push(decision_maker_base::DisNode(x, y, 0));
+    while (!q.empty())
+    {
+        decision_maker_base::DisNode now = q.front();
+        q.pop();
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = now.x + dx[i];
+            int ny = now.y + dy[i];
+            if (nx < 0 || nx >= mapSize || ny < 0 || ny >= mapSize || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+                continue;
+            vis[nx][ny] = true;
+            if (inBerth(nx, ny))
+            {
+                nearBerthDis[x][y] = now.dis;
+                // cerr << "nearBerthDis[" << x << "][" << y << "] = " << now.dis << endl;
+                return;
+            }
+            q.push(decision_maker_base::DisNode(nx, ny, now.dis + 1));
+        }
+    }
 }
