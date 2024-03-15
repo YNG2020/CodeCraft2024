@@ -27,26 +27,26 @@ public:
         }
         return loadNum;
     }
-    int getBerthGoodsValueOfNum(int num, int start, int GoodsValueMean) // 计算从下标start开始的num个货物的总价值
+    int getBerthGoodsValueOfNum(int num, int start, int GoodsValueMean) // 计算从下标start（从0开始）开始的num个货物的总价值
     {
-        queue<int> Temp = berthGoodsValueList;
-        int ans = 0;
-        while (start > 0)
-        {
-            Temp.pop();
-            start--;
+        queue<int> berthGoodsValueListCopy = berthGoodsValueList; //
+        int BerthGoodsValueOfNum = 0;
+        while (!berthGoodsValueListCopy.empty() && start > 0)
+        { // 如果从start开始计算货物，需要先让start个货物出队，接下来才是要计算的部分
+            berthGoodsValueListCopy.pop();
+            --start;
         }
         for (int i = 0; i < num; ++i)
         {
-            if (Temp.empty())
-                ans += GoodsValueMean; // 没有货，则加上物品价值期望
+            if (berthGoodsValueListCopy.empty())
+                BerthGoodsValueOfNum += GoodsValueMean; // 没有货，则加上物品价值期望
             else
             {
-                ans += Temp.front();
-                Temp.pop();
+                BerthGoodsValueOfNum += berthGoodsValueListCopy.front();
+                berthGoodsValueListCopy.pop();
             }
         }
-        return ans;
+        return BerthGoodsValueOfNum;
     }
     Berth() {}
     Berth(int newX, int newY, int newTransportTime, int newLoadingSpeed)
