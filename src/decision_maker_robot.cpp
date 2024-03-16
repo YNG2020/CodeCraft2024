@@ -359,8 +359,6 @@ void DecisionMaker::refreshRobotState(int botID)
 
 void DecisionMaker::moveControl()
 {
-    if (frame == 124)
-        int a = 1;
     jamControl();
     jamControl(); // 先这样吧（在同一帧内，前面的robot无法及时读取到后面的robot的可能已更新的堵塞检测缓冲区的信息，导致潜在的堵塞风险）
     for (int i = 0; i < robot_num; ++i)

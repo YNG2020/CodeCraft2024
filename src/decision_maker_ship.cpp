@@ -80,6 +80,7 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
     int minIdx = oriLocation;             // 存储将要被选择的泊位ID
     double timeToGetMoney;      // 到预计拿到资金的时间
     int Money;
+
     for (int berthID = 0; berthID < berth_num; ++berthID)
     {
         moveTimeToVir = berth[berthID].transportTime;
@@ -120,13 +121,12 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
         // 计算可获得的价值
         Money = berth[berthID].getBerthGoodsValueOfNum(numNeedGoods, 0, GoodsValueMax / 2);
         double MeanGetValue = (double)Money / (timeToGetMoney == 0 ? 1 : timeToGetMoney);
-        if ((MeanGetValue > MaxMeanGetValue) && berth[berthID].boatIDToBerth == -1) // 如果泊位有空位
+        if ((MeanGetValue > MaxMeanGetValue) && (berth[berthID].boatIDToBerth == -1 || berthID == oriLocation)) // 如果泊位有空位
         {
             MaxMeanGetValue = MeanGetValue;
             minIdx = berthID;
         }
     }
-
     if (minIdx == oriLocation)
         return minIdx;
 
