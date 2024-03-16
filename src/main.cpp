@@ -171,6 +171,9 @@ void berthInit()
         berth[i].lastTimeGetGoods = 0;
         berth[i].totGetGoodsGap = 0;
         berth[i].numGetGoods = 0;
+        berth[i].boatIDLastLeft = 0;
+        for (int j = 0; j < boat_num; ++j)
+            berth[i].boatLeftTime[j] = -1;
     }
 }
 

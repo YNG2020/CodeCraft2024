@@ -2,6 +2,7 @@
 #include "global_vars.h"
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -13,7 +14,7 @@ void DecisionMaker::shipDecision()
         // 最终装载时间到，直接去虚拟点（不管它目前是什么状态）
         if (berthID != -1 && (frame >= 15000 - berth[berthID].transportTime))
         {
-            cout << "go " << boatID << endl;
+            std::cout << "go " << boatID << endl;
             ship_goods_num += boat[boatID].numBoatGoods;
             continue;
         }
@@ -32,7 +33,7 @@ void DecisionMaker::shipDecision()
                 berth[boat[boatID].tarPos].boatIDInBerth = boatID;
                 if (boat[boatID].numBoatGoods == boat[boatID].capacity)
                 {   // 如果装满了，去虚拟点
-                    cout << "go " << boatID << endl;
+                    std::cout << "go " << boatID << endl;
                     ship_goods_num += boat[boatID].numBoatGoods;
                     berth[boat[boatID].tarPos].boatIDInBerth = -1; // 更新泊位被占用的情况
                     berth[boat[boatID].tarPos].boatIDToBerth = -1; // 更新泊位被指向的情况
@@ -54,7 +55,7 @@ void DecisionMaker::shipDecision()
             }
             break;
         case 2: // 在泊位外等待的状态
-            berth_select(boatID, boat[boatID].tarPos);
+            //berth_select(boatID, boat[boatID].tarPos);
             break;
         default:
             break;
@@ -80,6 +81,9 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
     int minIdx = oriLocation;             // 存储将要被选择的泊位ID
     double timeToGetMoney;      // 到预计拿到资金的时间
     int Money;
+    int leftTime = frame;   // 预计的robot选择该berth之后，离开该berth的时间
+    int gapTime = 0;    // 预计的泊位空闲的时间
+    int boatIDLastLeft; // 临时记录各个泊位预计的最后驶离的boat的ID
 
     for (int berthID = 0; berthID < berth_num; ++berthID)
     {
@@ -99,13 +103,30 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
                 }
             }
         }
-        numRemainGoods = berth[berthID].numBerthGoods;
-        numAddGoods = moveTimeToBerth / berth[berthID].timeOfGoodsToBerth;
-        loadGoodsTime1 = (double)numNeedGoods / (double)berth[berthID].loadingSpeed;
-        loadGoodsTime2 = ((double)numRemainGoods + (double)numAddGoods) / (double)berth[berthID].loadingSpeed + // 泊位上能以最高效率给boat装载货物的时间
-                         (numNeedGoods - (numRemainGoods + numAddGoods)) * berth[berthID].timeOfGoodsToBerth;   // 需要等robot给泊位送货物的时间
 
-        if (numRemainGoods + numAddGoods > numNeedGoods)
+        boatIDLastLeft = berth[berthID].boatIDLastLeft;
+        gapTime = frame + moveTimeToBerth + 1 - berth[berthID].boatLeftTime[boatIDLastLeft];
+        if (gapTime <= 0)   // 本应保证gapTime > 0
+            continue;
+
+        if (boatID == 1 && frame == 820)
+            int a = 1;
+
+        numAddGoods = gapTime / berth[berthID].timeOfGoodsToBerth;
+        loadGoodsTime1 = (double)numNeedGoods / (double)berth[berthID].loadingSpeed;
+        loadGoodsTime2 = (double)numAddGoods / (double)berth[berthID].loadingSpeed + // 泊位上能以最高效率给boat装载货物的时间
+            (numNeedGoods - numAddGoods) * berth[berthID].timeOfGoodsToBerth;   // 需要等robot给泊位送货物的时间
+
+
+        //numRemainGoods = berth[berthID].numBerthGoods;
+        //numAddGoods = moveTimeToBerth / berth[berthID].timeOfGoodsToBerth;
+        //loadGoodsTime1 = (double)numNeedGoods / (double)berth[berthID].loadingSpeed;
+        //loadGoodsTime2 = ((double)numRemainGoods + (double)numAddGoods) / (double)berth[berthID].loadingSpeed + // 泊位上能以最高效率给boat装载货物的时间
+        //    (numNeedGoods - (numRemainGoods + numAddGoods)) * berth[berthID].timeOfGoodsToBerth;   // 需要等robot给泊位送货物的时间
+
+
+        if (numAddGoods > numNeedGoods)
+        //if (numRemainGoods + numAddGoods > numNeedGoods)
         { // （泊位新增的货物 + 泊位剩余的货物） > boat剩下要装的货物的话，说明货物确实充足
             loadGoodsTime = loadGoodsTime1;
         }
@@ -121,16 +142,32 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
         // 计算可获得的价值
         Money = berth[berthID].getBerthGoodsValueOfNum(numNeedGoods, 0, GoodsValueMax / 2);
         double MeanGetValue = (double)Money / (timeToGetMoney == 0 ? 1 : timeToGetMoney);
-        if ((MeanGetValue > MaxMeanGetValue) && (berth[berthID].boatIDToBerth == -1 || berthID == oriLocation)) // 如果泊位有空位
+        //if ((MeanGetValue > MaxMeanGetValue) && (berth[berthID].boatIDToBerth == -1 || berthID == oriLocation)) // 如果泊位有空位
+        if ((MeanGetValue > MaxMeanGetValue))   // 取消泊位不被占据的限制
         {
             MaxMeanGetValue = MeanGetValue;
             minIdx = berthID;
+            leftTime = frame + moveTimeToBerth + 1; // 当前帧 + 驶向该泊位的时间 + 1
         }
     }
+
+    boatIDLastLeft = berth[minIdx].boatIDLastLeft;
+    
     if (minIdx == oriLocation)
+    {
+        berth[minIdx].boatLeftTime[boatID] += 1;
+        if (berth[minIdx].boatLeftTime[boatID] > berth[minIdx].boatLeftTime[boatIDLastLeft])
+            berth[minIdx].boatIDLastLeft = boatID;
         return minIdx;
+    }
+    
+    berth[minIdx].boatLeftTime[boatID] = leftTime;
+    if (berth[minIdx].boatLeftTime[boatID] > berth[minIdx].boatLeftTime[boatIDLastLeft])
+        berth[minIdx].boatIDLastLeft = boatID;
+
+
 
     berth[minIdx].boatIDToBerth = boatID;
-    cout << "ship " << boatID << " " << minIdx << endl;
+    std::cout << "ship " << boatID << " " << minIdx << endl;
     return minIdx;
 }
