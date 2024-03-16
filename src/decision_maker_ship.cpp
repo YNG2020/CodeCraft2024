@@ -11,7 +11,7 @@ void DecisionMaker::shipDecision()
     {
         int berthID = boat[boatID].tarPos;
         // 最终装载时间到，直接去虚拟点（不管它目前是什么状态）
-        if (berthID != -1 && frame == 15000 - berth[berthID].transportTime)
+        if (berthID != -1 && (frame >= 15000 - berth[berthID].transportTime))
         {
             cout << "go " << boatID << endl;
             ship_goods_num += boat[boatID].numBoatGoods;
@@ -22,17 +22,16 @@ void DecisionMaker::shipDecision()
         case 0: // 移动（运输）中
             break;
         case 1: // 装货状态或运输完成状态（在虚拟点）
-            if (boat[boatID].tarPos == -1)
+            if (berthID == -1)
             { // 在虚拟点，上一次运输已完成。选择泊位航向，货物量置0
                 boat[boatID].numBoatGoods = 0;
                 berth_select(boatID, -1); // 这里需要手动置oriLocation参数，因为还没发出ship指令
             }
             else
-            {
+            {   // 在泊位装货
                 berth[boat[boatID].tarPos].boatIDInBerth = boatID;
-                // 在泊位装货
                 if (boat[boatID].numBoatGoods == boat[boatID].capacity)
-                { // 如果装满了，去虚拟点
+                {   // 如果装满了，去虚拟点
                     cout << "go " << boatID << endl;
                     ship_goods_num += boat[boatID].numBoatGoods;
                     berth[boat[boatID].tarPos].boatIDInBerth = -1; // 更新泊位被占用的情况
@@ -63,7 +62,7 @@ void DecisionMaker::shipDecision()
     }
 }
 
-int DecisionMaker::berth_select(int boat_id, int oriLocation)
+int DecisionMaker::berth_select(int boatID, int oriLocation)
 {
 
     // 为当前的boat选择泊位ID，目的是平均到每一帧的收益最大
@@ -73,12 +72,12 @@ int DecisionMaker::berth_select(int boat_id, int oriLocation)
     double loadGoodsTime1;                                                    // 预计的装载货物的时间（装满的情况，假设泊位上的货物充足）
     double loadGoodsTime2;                                                    // 预计的装载货物的时间（装满的情况，假设泊位上的货物不充足）
     double loadGoodsTime;                                                     // 实际的装货时间
-    int numNeedGoods = (boat[boat_id].capacity - boat[boat_id].numBoatGoods); // robot剩余的要装的货物的数量
+    int numNeedGoods = (boat[boatID].capacity - boat[boatID].numBoatGoods); // robot剩余的要装的货物的数量
     int numRemainGoods;                                                       // berth此刻剩余的货物的数目
     double numAddGoods;                                                       // 在boat驶向泊位期间，泊位增加的货物数
     // int minTime = 100000000;
     double MaxMeanGetValue = 0; // 平均每帧得到最大的价值，初始化为0
-    int minIdx = 0;             // 存储将要被选择的泊位ID
+    int minIdx = oriLocation;             // 存储将要被选择的泊位ID
     double timeToGetMoney;      // 到预计拿到资金的时间
     int Money;
     for (int berthID = 0; berthID < berth_num; ++berthID)
@@ -91,7 +90,13 @@ int DecisionMaker::berth_select(int boat_id, int oriLocation)
             if (berthID == oriLocation) // 从原有泊位来
                 moveTimeToBerth = 0;
             else // 从别的泊位来
+            {
                 moveTimeToBerth = moveTimeFromBerth;
+                if (frame + moveTimeToBerth + berth[berthID].transportTime >= 15000)
+                {   // 这时候一定不选择转移，因为时间上来不及
+                    continue;
+                }
+            }
         }
         numRemainGoods = berth[berthID].numBerthGoods;
         numAddGoods = moveTimeToBerth / berth[berthID].timeOfGoodsToBerth;
@@ -121,10 +126,11 @@ int DecisionMaker::berth_select(int boat_id, int oriLocation)
             minIdx = berthID;
         }
     }
+
     if (minIdx == oriLocation)
         return minIdx;
 
-    berth[minIdx].boatIDToBerth = boat_id;
-    cout << "ship " << boat_id << " " << minIdx << endl;
+    berth[minIdx].boatIDToBerth = boatID;
+    cout << "ship " << boatID << " " << minIdx << endl;
     return minIdx;
 }
