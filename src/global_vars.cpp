@@ -3,7 +3,6 @@
 Robot robot[robot_num];
 Berth berth[berth_num];
 Boat boat[boat_num];
-vector<vector<std::pair<int, int>>> goodsState(1000, vector<std::pair<int, int>>(11, std::pair<int, int>()));
 
 int money, boat_capacity, id, frame;
 char map[N][N];
