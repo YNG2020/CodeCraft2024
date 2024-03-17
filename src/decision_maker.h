@@ -28,7 +28,7 @@ private:
     bool getToTarPath(int botID);
     void moveControl();
     void setPriority();
-    void berth_select(int boat_id, int oriLocation);
+    int berth_select(int boat_id, int oriLocation);
     void refreshJamBuffer(int botID);
     bool jamDetect(int botID1, int botID2);
     bool unJamDetect(int botID1, int botID2);

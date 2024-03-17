@@ -77,14 +77,6 @@ int Input()
         myCin >> num;
     else
         cin >> num;
-    // 输入前，先更新货物信息
-    int tmpFrame = (frame - 1) % 1000;
-    int tmpNum = goodsState[tmpFrame][10].first;
-    for (int i = 0; i < tmpNum; ++i)
-    {
-        goodsInMap[goodsState[tmpFrame][i].first][goodsState[tmpFrame][i].second] = 0;
-        goodsLeftTime[goodsState[tmpFrame][i].first][goodsState[tmpFrame][i].second] = 0;
-    }
     goods_num += num;
     for (int i = 1; i <= num; i++)
     {
@@ -95,8 +87,6 @@ int Input()
             cin >> x >> y >> val;
         goodsInMap[x][y] = val;
         goodsLeftTime[x][y] = 1000;
-        goodsState[(frame - 1) % 1000][i - 1] = make_pair(x, y);
-        goodsState[(frame - 1) % 1000][10] = make_pair(num, 0); // 最后一列用于存储有多少个货物
         if (nearBerthDis[x][y] == 0)
             decisionMaker.getNearBerthDis(x, y);
     }
@@ -106,10 +96,8 @@ int Input()
             myCin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].robotStatus;
         else
             cin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].robotStatus;
-        if (robot[i].robotStatus == 0)
-            int a = 1;
     }
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < boat_num; i++)
         if (Debug)
             myCin >> boat[i].boatStatus >> boat[i].tarPos;
         else
@@ -136,11 +124,16 @@ int main()
         cout.flush();
         //outputFile << goods_num << ", " << pick_goods_num << ", " << ship_goods_num << endl;
 
-        for (int i = 0; i < 1000; ++i)
+        for (int i = 0; i < mapSize; ++i)
         {   // 维护货物的剩余存在时间
-            int tmpNum = goodsState[i][10].first;
-            for (int j = 0; j < tmpNum; ++j)
-                --goodsLeftTime[goodsState[i][j].first][goodsState[i][j].second];
+            for (int j = 0; j < mapSize; ++j)
+            {
+                if (goodsInMap[i][j] != 0)   // 说明该位置有货物存在，该值等于0时，不必维护该信息
+                    --goodsLeftTime[i][j];
+                if (goodsLeftTime[i][j] == 0)   // 货物消失，货物价值归零
+                    goodsInMap[i][j] = 0;
+            }
+                
         }
 
     }
@@ -171,6 +164,8 @@ void berthInit()
         berth[i].boatIDToBerth = -1;
         berth[i].timeOfGoodsToBerth = 100.0;    // 这个值先初始化为100.0先
         berth[i].lastTimeGetGoods = 0;
+        berth[i].totGetGoodsGap = 0;
+        berth[i].numGetGoods = 0;
     }
 }
 
