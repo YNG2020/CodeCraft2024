@@ -113,8 +113,8 @@ int Input()
 int main()
 {
     srand((unsigned int)time(nullptr)); // Seed for random number generation
-    //ofstream outputFile("data.csv");
-    //outputFile << "goods_num, pick_goods_num, ship_goods_num" << endl;
+    ofstream outputFile("data.csv");
+    outputFile << "goods_num, pick_goods_num, ship_goods_num" << endl;
     Init();
     for (frame = 1; frame <= 15000; frame++)
     {
@@ -122,7 +122,7 @@ int main()
         decisionMaker.makeDecision();
         cout << "OK" << endl;
         cout.flush();
-        //outputFile << goods_num << ", " << pick_goods_num << ", " << ship_goods_num << endl;
+        outputFile << goods_num << ", " << pick_goods_num << ", " << ship_goods_num << endl;
 
         for (int i = 0; i < mapSize; ++i)
         {   // 维护货物的剩余存在时间
@@ -137,7 +137,7 @@ int main()
         }
 
     }
-    //outputFile.close();
+    outputFile.close();
     return 0;
 }
 
