@@ -2,6 +2,7 @@
 #include "global_vars.h"
 #include <algorithm>
 #include <cstring>
+#include <cmath>
 
 bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID)
 {
@@ -39,13 +40,13 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
                 if (cnt == 0)
                 { // 第一次找到货物
 
-                    propotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                    propotion = pow((double)goodsInMap[now->x][now->y], 2) / (now->dis + nearBerthDis[now->x][now->y]);
                     target = now;
                     cnt++;
                 }
                 else
                 { // 尝试寻找性价比更高的货物
-                    double newPropotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                    double newPropotion = pow((double)goodsInMap[now->x][now->y], 2) / (now->dis + nearBerthDis[now->x][now->y]);
                     if (newPropotion > propotion)
                     {
                         propotion = newPropotion;
