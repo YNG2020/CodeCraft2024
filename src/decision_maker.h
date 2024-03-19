@@ -21,7 +21,6 @@ private:
 
     bool inBerth(int x, int y);
     int getBerthId(int x, int y);
-    bool willCollide(int robotId, int direction);
     bool getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID);
     bool getNearestBerth(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID);
     bool getAvoidPath(int botID1, int botID2);
