@@ -4,7 +4,7 @@ Robot robot[robot_num];
 Berth berth[berth_num];
 Boat boat[boat_num];
 
-int money, boat_capacity, id, frame, blockNumRobot;
+int money, boat_capacity, id, frame;
 char map[N][N];
 int goodsInMap[N][N];
 int goodsLeftTime[N][N];

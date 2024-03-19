@@ -18,7 +18,7 @@ extern Robot robot[robot_num];
 extern Berth berth[berth_num];
 extern Boat boat[boat_num];
 
-extern int money, boat_capacity, id, frame, blockNumRobot;
+extern int money, boat_capacity, id, frame;
 extern char map[N][N];
 extern int goodsInMap[N][N];
 extern int goodsLeftTime[N][N]; // 记录货物的剩余存在时间
