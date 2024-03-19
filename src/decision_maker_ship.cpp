@@ -17,6 +17,8 @@ void DecisionMaker::shipDecision()
         {
             std::cout << "go " << boatID << endl;
             ship_goods_num += boat[boatID].numBoatGoods;
+            berth[boat[boatID].tarPos].boatIDInBerth = -1; // 更新泊位被占用的情况
+            berth[boat[boatID].tarPos].boatIDToBerth = -1; // 更新泊位被指向的情况
             continue;
         }
         switch (boat[boatID].boatStatus)

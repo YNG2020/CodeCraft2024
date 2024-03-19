@@ -3,21 +3,6 @@
 #include <algorithm>
 #include <cstring>
 
-bool DecisionMaker::willCollide(int robotId, int direction)
-{
-    int nx = robot[robotId].curX + dx[direction];
-    int ny = robot[robotId].curY + dy[direction];
-    // 检查目标位置是否有其他机器人
-    for (int i = 0; i < robot_num; i++)
-    {
-        if (i != robotId && robot[i].curX == nx && robot[i].curY == ny)
-        {
-            return true; // 发现潜在碰撞
-        }
-    }
-    return false; // 无碰撞风险
-}
-
 bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID)
 {
     queue<Node *> q;
