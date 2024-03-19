@@ -20,6 +20,7 @@ public:
     int avoidPriority;  // 自身当前的避让优先级
     int avoidBotID;     // 当前正在避让的robot的ID，没有避让的robot时，值为-1，当前仅允许robot同时只能有一个避让robot
     int tmpTarX, tmpTarY;   // 中途点，作为避让路径的终点
+    bool findToBerthFlag;
 
     vector<Point> pathPoint;    // 存储路径点序列
     vector<int> pathDir;        // 存储路径方向序列

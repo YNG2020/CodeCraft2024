@@ -16,6 +16,8 @@ void DecisionMaker::shipDecision()
         {
             cout << "go " << boatID << endl;
             ship_goods_num += boat[boatID].numBoatGoods;
+            berth[boat[boatID].tarPos].boatIDInBerth = -1; // 更新泊位被占用的情况
+            berth[boat[boatID].tarPos].boatIDToBerth = -1; // 更新泊位被指向的情况
             continue;
         }
         switch (boat[boatID].boatStatus)
@@ -114,11 +116,16 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
                 }
             }
         }
+        
+
         numRemainGoods = berth[berthID].numBerthGoods;
         numAddGoods = moveTimeToBerth / berth[berthID].timeOfGoodsToBerth;
         loadGoodsTime1 = (double)numNeedGoods / (double)berth[berthID].loadingSpeed;
         loadGoodsTime2 = ((double)numRemainGoods + (double)numAddGoods) / (double)berth[berthID].loadingSpeed + // 泊位上能以最高效率给boat装载货物的时间
                          (numNeedGoods - (numRemainGoods + numAddGoods)) * berth[berthID].timeOfGoodsToBerth;   // 需要等robot给泊位送货物的时间
+
+        if (berth[berthID].isBlcoked)
+            numAddGoods = 0;
 
         if (numRemainGoods + numAddGoods > numNeedGoods)
         { // （泊位新增的货物 + 泊位剩余的货物） > boat剩下要装的货物的话，说明货物确实充足

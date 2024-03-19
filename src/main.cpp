@@ -23,6 +23,7 @@ DecisionMaker decisionMaker;
  
 void Init()
 {
+    blockNumRobot = 0;
     std::srand(1234); // 这里的1234可以是任何你喜欢的整数
     if (Debug)
         myCin.open("output.txt");
@@ -151,6 +152,7 @@ void robotInit()
         robot[i].botPathState = NO_PATH;
         robot[i].botAvoidState = NO_AVOIDING;
         robot[i].avoidBotID = -1;
+        robot[i].findToBerthFlag = true;
     }
 }
 
@@ -166,6 +168,7 @@ void berthInit()
         berth[i].lastTimeGetGoods = 0;
         berth[i].totGetGoodsGap = 0;
         berth[i].numGetGoods = 0;
+        berth[i].isBlcoked = false;
     }
 }
 
