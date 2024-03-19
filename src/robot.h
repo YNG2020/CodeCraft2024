@@ -29,6 +29,7 @@ public:
     BOT_PATH_STATE botPathState;    // robot的是否是否找到移动路径状态
     BOT_AVOID_STATE botAvoidState;  // robot的是否正在避让状态
     int jamDetectBuffer[6];   // 堵塞检测缓冲区，存储的是robot的路径的点在map的序号（二维化一维）
+    bool availableBerth[10];
 
     Robot() {}
     Robot(int startX, int startY) {

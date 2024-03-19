@@ -153,6 +153,8 @@ void robotInit()
         robot[i].botAvoidState = NO_AVOIDING;
         robot[i].avoidBotID = -1;
         robot[i].findToBerthFlag = true;
+        for (int j = 0; j < berth_num; ++j)
+            robot[i].availableBerth[j] = false;
     }
 }
 
