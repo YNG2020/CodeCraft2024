@@ -76,8 +76,20 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         rest.push_back(now);
     }
 
-    if (target == nullptr) // 找不到路直接返回
+    if (target == nullptr) // 找不到路直接返回 
+    {
+        while (!rest.empty())
+        {
+            delete rest.back();
+            rest.pop_back();
+        }
+        while (!q.empty())
+        {
+            delete q.front();
+            q.pop();
+        }
         return false;
+    }
     robot[botID].goodsVal = goodsInMap[target->x][target->y]; // 先存储
     robot[botID].idxInPth = 0;                                // 更新路径点序列
     goodsInMap[target->x][target->y] = -(botID + 1);          // 打上标记
@@ -190,6 +202,16 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
     if (target == nullptr) // 找不到路直接返回
     {   
         robot[botID].findToBerthFlag = false;
+        while (!rest.empty())
+        {
+            delete rest.back();
+            rest.pop_back();
+        }
+        while (!q.empty())
+        {
+            delete q.front();
+            q.pop();
+        }
         return false;
     }
 
