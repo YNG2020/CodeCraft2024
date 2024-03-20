@@ -40,13 +40,13 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
                 if (cnt == 0)
                 { // 第一次找到货物
 
-                    propotion = pow((double)goodsInMap[now->x][now->y], 2) / (now->dis + nearBerthDis[now->x][now->y]);
+                    propotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
                     target = now;
                     cnt++;
                 }
                 else
                 { // 尝试寻找性价比更高的货物
-                    double newPropotion = pow((double)goodsInMap[now->x][now->y], 2) / (now->dis + nearBerthDis[now->x][now->y]);
+                    double newPropotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
                     if (newPropotion > propotion)
                     {
                         propotion = newPropotion;
@@ -280,6 +280,7 @@ void DecisionMaker::robotDecision()
             bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
             bot.botPathState = NO_PATH;
+            bot.idxInPth = 0;
             if (goodsInMap[bot.curX][bot.curY] > 0)
             { // 说明取走的是无主货物
                 goodsInMap[bot.curX][bot.curY] = 0;
@@ -305,6 +306,7 @@ void DecisionMaker::robotDecision()
             bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
             bot.botPathState = NO_PATH;
+            bot.idxInPth = 0;
             bot.lastX = -1;
             bot.lastY = -1;
         }
@@ -330,6 +332,9 @@ void DecisionMaker::robotDecision()
                     bot.botMoveState = WAITING;
                     bot.botPathState = NO_PATH;
                     bot.botTarState = NO_TARGET;
+                    bot.idxInPth = 0;
+                    vector<int>().swap(bot.pathDir); // 清空
+                    vector<Point>().swap(bot.pathPoint); // 清空
                     bot.tarX = -1;
                     bot.tarY = -1;
                     refreshJamBuffer(i);
@@ -354,6 +359,9 @@ void DecisionMaker::robotDecision()
                     bot.botMoveState = WAITING;
                     bot.botPathState = NO_PATH;
                     bot.botTarState = NO_TARGET;
+                    bot.idxInPth = 0;
+                    vector<int>().swap(bot.pathDir); // 清空
+                    vector<Point>().swap(bot.pathPoint); // 清空
                     bot.tarX = -1;
                     bot.tarY = -1;
                     refreshJamBuffer(i);
@@ -462,7 +470,8 @@ bool DecisionMaker::jamDetect(int botID1, int botID2)
 {
     if (botID1 == botID2)
         return false;
-    if ((robot[botID1].robotStatus == 0 || robot[botID1].botAvoidState == AVOIDED) && (robot[botID2].robotStatus == 0 || robot[botID2].botAvoidState == AVOIDED)) // 此刻双方都不动
+    if ((robot[botID1].robotStatus == 0 || robot[botID1].botPathState == NO_PATH || robot[botID1].botAvoidState == AVOIDED) &&
+        (robot[botID2].robotStatus == 0 || robot[botID2].botPathState == NO_PATH || robot[botID2].botAvoidState == AVOIDED)) // 此刻双方都不动
         return false;
     if (robot[botID2].robotStatus == 0 || robot[botID2].botPathState == NO_PATH || robot[botID2].botAvoidState == AVOIDED) // // 此刻robto[botID2]停止不动
         if (robot[botID1].jamDetectBuffer[1] == (robot[botID2].curX * mapSize + robot[botID2].curY))
@@ -551,15 +560,21 @@ void DecisionMaker::jamControl()
                     botID1 = botID2;
                     botID2 = tmp;
                 }
+                if (robot[botID1].botPathState == NO_PATH)
+                {   // 不可能二者同为该状态，否则在jamDetect的时候就pass掉，此时让没路的避让有路的
+                    int tmp = botID1;
+                    botID1 = botID2;
+                    botID2 = tmp;
+                }
                 if (robot[i].robotStatus == 0 && robot[j].robotStatus == 0)
                     continue;
                 else if (robot[i].robotStatus == 0)
-                {
+                {   // 意外情况
                     botID1 = i;
                     botID2 = j;
                 }
                 else if (robot[j].robotStatus == 0)
-                {
+                {   // 意外情况
                     botID1 = j;
                     botID2 = i;
                 }
@@ -589,6 +604,7 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
             robot[botID2].botAvoidState = NO_AVOIDING;
             robot[botID2].botPathState = HAVE_PATH;
             refreshJamBuffer(botID2); // 修改了路径，需要更新碰撞检测缓冲区
+            return;
         }
     }
 
@@ -622,6 +638,8 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
             if (robot[botID1].botMoveState == TOGOODS)
                 goodsInMap[robot[botID1].tarX][robot[botID1].tarY] = robot[botID1].goodsVal;
             robot[botID1].idxInPth = 0;
+            vector<int>().swap(robot[botID1].pathDir); // 清空
+            vector<Point>().swap(robot[botID1].pathPoint); // 清空
             refreshJamBuffer(botID1); // 修改了路径，需要更新碰撞检测缓冲区
             // 这个变量留给寻找新路的时候用
             // robot[botID1].avoidBotID = -1;
@@ -632,6 +650,8 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
             if (robot[botID2].botMoveState == TOGOODS)
                 goodsInMap[robot[botID2].tarX][robot[botID2].tarY] = robot[botID2].goodsVal;
             robot[botID2].idxInPth = 0;
+            vector<int>().swap(robot[botID2].pathDir); // 清空
+            vector<Point>().swap(robot[botID2].pathPoint); // 清空
             refreshJamBuffer(botID2); // 修改了路径，需要更新碰撞检测缓冲区
             // 这个变量留给寻找新路的时候用
             // robot[botID2].avoidBotID = -1;
@@ -789,8 +809,9 @@ void DecisionMaker::unJam()
                 { // 应该只用处理找不到的情况，找到路的话，状态变量似乎没有什么需要特地更新的
                     // 还是找不到路，则在当前帧不动，且放弃当前的目标货物（如果有），在下一帧中寻找新的目标，直到能找到为止
                     robot[i].botPathState = NO_PATH;
-                    robot[i].botTarState = NO_TARGET;
                     robot[i].botMoveState = WAITING;
+                    vector<int>().swap(robot[i].pathDir); // 清空
+                    vector<Point>().swap(robot[i].pathPoint); // 清空
                     if (robot[i].botMoveState == TOGOODS)
                         goodsInMap[robot[i].tarX][robot[i].tarY] = robot[i].goodsVal;
                     robot[i].idxInPth = 0;
@@ -814,6 +835,8 @@ void DecisionMaker::unJam()
 // robot[botID]寻找到robot[botID]的目标位置的路径
 bool DecisionMaker::getToTarPath(int botID)
 {
+    if (robot[botID].botTarState == NO_TARGET)
+        return false;
     queue<Node *> q;
     vector<Node *> rest;
     Robot &bot = robot[botID];
