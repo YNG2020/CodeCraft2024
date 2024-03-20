@@ -127,12 +127,17 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
             continue;
         if (gapTime <= 0)
             gapTime = 0;
-        if (frame > berth[berthID].boatLeftTime[boatIDLastLeft])    // 如果当前帧大于该泊位最后驶离的船所对应的帧数
+        if (frame > berth[berthID].boatLeftTime[boatIDLastLeft])    
+        {   // 如果当前帧大于该泊位最后驶离的船所对应的帧数，说明在当前船只抵达该泊位之前，没有别的船去该泊位装货
             numRemainGoods = berth[berthID].numBerthGoods;
+            numAddGoods = moveTimeToBerth / berth[berthID].timeOfGoodsToBerth;
+        }
         else
+        {
             numRemainGoods = 0;
-
-        numAddGoods = gapTime / berth[berthID].timeOfGoodsToBerth;
+            numAddGoods = gapTime / berth[berthID].timeOfGoodsToBerth;
+        }
+        
         loadGoodsTime1 = (double)numNeedGoods / (double)berth[berthID].loadingSpeed;
         loadGoodsTime2 = ((double)numRemainGoods + (double)numAddGoods) / (double)berth[berthID].loadingSpeed + // 泊位上能以最高效率给boat装载货物的时间
             (numNeedGoods - (numRemainGoods + numAddGoods)) * berth[berthID].timeOfGoodsToBerth;   // 需要等robot给泊位送货物的时间
