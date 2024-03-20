@@ -131,12 +131,12 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
 {
     bool haveBerthFlag = false;
     for (int i = 0; i < berth_num; ++i)
-        if (frame < 10000 || (!berth[i].isBlcoked && robot[botID].availableBerth[i]))
-        {   // 没被封锁或泊位路径可达
+        if (frame_id < 10000 || (!berth[i].isBlcoked && robot[botID].availableBerth[i]))
+        { // 没被封锁或泊位路径可达
             haveBerthFlag = true;
             break;
         }
-            
+
     if (!haveBerthFlag)
         return false;
 
@@ -162,9 +162,8 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
         Node *now = q.front();
         q.pop();
 
-        
         if (inBerth(now->x, now->y))
-        {   
+        {
             int berthID = getBerthId(now->x, now->y);
             robot[botID].availableBerth[berthID] = true;
             if (!berth[berthID].isBlcoked)
@@ -188,7 +187,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
     }
 
     if (target == nullptr) // 找不到路直接返回
-    {   
+    {
         robot[botID].findToBerthFlag = false;
         return false;
     }
@@ -241,7 +240,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
 void DecisionMaker::robotDecision()
 {
     for (int i = 0; i < berth_num; ++i)
-        if (frame + 2 * 500 + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
+        if (frame_id + 2 * 500 + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
             berth[i].isBlcoked = true;
         else
             berth[i].isBlcoked = false;
@@ -275,10 +274,10 @@ void DecisionMaker::robotDecision()
             cout << "pull " << i << endl;
             berth[getBerthId(bot.curX, bot.curY)].numBerthGoods++;
             berth[getBerthId(bot.curX, bot.curY)].berthGoodsValueList.push(bot.goodsVal);
-            berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap += (frame - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
-            berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods = frame;
+            berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap += (frame_id - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
+            berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods = frame_id;
             berth[getBerthId(bot.curX, bot.curY)].numGetGoods += 1;
-            berth[getBerthId(bot.curX, bot.curY)].timeOfGoodsToBerth = 1 * berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap / berth[getBerthId(bot.curX, bot.curY)].numGetGoods + 0 * (frame - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
+            berth[getBerthId(bot.curX, bot.curY)].timeOfGoodsToBerth = 1 * berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap / berth[getBerthId(bot.curX, bot.curY)].numGetGoods + 0 * (frame_id - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
             bot.goodsVal = 0;            // 将目前所拥有的或准备拥有的货物价值清0
             bot.carryGoods = 0;          // 手动更新为不持有货物的状态
             bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
@@ -355,7 +354,7 @@ void DecisionMaker::refreshRobotState(int botID)
         bot.lastY = bot.curY;
     }
 
-    if ((/*goodsInMap[bot.curX][bot.curY] > 0 || */goodsInMap[bot.curX][bot.curY] == -(botID + 1)) && bot.carryGoods == 0)
+    if ((/*goodsInMap[bot.curX][bot.curY] > 0 || */ goodsInMap[bot.curX][bot.curY] == -(botID + 1)) && bot.carryGoods == 0)
     { // 自己本身没有货物，且遇上了货物（自己的目标或无主货物）
         bot.botMoveState = ARRIVEGOODS;
     }

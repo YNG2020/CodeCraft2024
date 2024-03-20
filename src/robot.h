@@ -7,32 +7,34 @@
 #include <vector>
 using std::vector;
 
-class Robot {
+class Robot
+{
 public:
-    int curX, curY;     // µ±Ç°Î»ÖÃ
-    int carryGoods;     // ÊÇ·ñĞ¯´ø»õÎï
-    int robotStatus;         // 0±íÊ¾»Ö¸´×´Ì¬£¬1±íÊ¾Õı³£ÔËĞĞ×´Ì¬
-    int tarX, tarY;     // Ä¿±êÎ»ÖÃ
-    int lastX, lastY;   // ÉÏÒ»¸öÎ»ÖÃ
-    int goodsVal;       // »õÎï¼ÛÖµ
-    int idxInPth = 0;   // µ±Ç°×ßµ½Â·¾¶µÄµÚ¼¸¸öµã
-    const int jamDetectBufferLen = 6;   // ¶ÂÈû¼ì²â»º³åÇøµÄ³¤¶È
-    int avoidPriority;  // ×ÔÉíµ±Ç°µÄ±ÜÈÃÓÅÏÈ¼¶
-    int avoidBotID;     // µ±Ç°ÕıÔÚ±ÜÈÃµÄrobotµÄID£¬Ã»ÓĞ±ÜÈÃµÄrobotÊ±£¬ÖµÎª-1£¬µ±Ç°½öÔÊĞírobotÍ¬Ê±Ö»ÄÜÓĞÒ»¸ö±ÜÈÃrobot
-    int tmpTarX, tmpTarY;   // ÖĞÍ¾µã£¬×÷Îª±ÜÈÃÂ·¾¶µÄÖÕµã
+    int curX, curY;                   // å½“å‰ä½ç½®
+    int carryGoods;                   // æ˜¯å¦æºå¸¦è´§ç‰©
+    int robotStatus;                  // 0è¡¨ç¤ºæ¢å¤çŠ¶æ€ï¼Œ1è¡¨ç¤ºæ­£å¸¸è¿è¡ŒçŠ¶æ€
+    int tarX, tarY;                   // ç›®æ ‡ä½ç½®
+    int lastX, lastY;                 // ä¸Šä¸€ä¸ªä½ç½®
+    int goodsVal;                     // è´§ç‰©ä»·å€¼
+    int idxInPth = 0;                 // å½“å‰èµ°åˆ°è·¯å¾„çš„ç¬¬å‡ ä¸ªç‚¹
+    const int jamDetectBufferLen = 6; // å µå¡æ£€æµ‹ç¼“å†²åŒºçš„é•¿åº¦
+    int avoidPriority;                // è‡ªèº«å½“å‰çš„é¿è®©ä¼˜å…ˆçº§
+    int avoidBotID;                   // å½“å‰æ­£åœ¨é¿è®©çš„robotçš„IDï¼Œæ²¡æœ‰é¿è®©çš„robotæ—¶ï¼Œå€¼ä¸º-1ï¼Œå½“å‰ä»…å…è®¸robotåŒæ—¶åªèƒ½æœ‰ä¸€ä¸ªé¿è®©robot
+    int tmpTarX, tmpTarY;             // ä¸­é€”ç‚¹ï¼Œä½œä¸ºé¿è®©è·¯å¾„çš„ç»ˆç‚¹
     bool findToBerthFlag;
 
-    vector<Point> pathPoint;    // ´æ´¢Â·¾¶µãĞòÁĞ
-    vector<int> pathDir;        // ´æ´¢Â·¾¶·½ÏòĞòÁĞ
-    BOT_MOVE_STATE botMoveState;    // robotµÄÒÆ¶¯×´Ì¬
-    BOT_TARGET_STATE botTarState;   // robotµÄÊÇ·ñÓĞÄ¿±ê×´Ì¬£¨»õÎïÄ¿±ê»ò²´Î»Ä¿±ê£©
-    BOT_PATH_STATE botPathState;    // robotµÄÊÇ·ñÊÇ·ñÕÒµ½ÒÆ¶¯Â·¾¶×´Ì¬
-    BOT_AVOID_STATE botAvoidState;  // robotµÄÊÇ·ñÕıÔÚ±ÜÈÃ×´Ì¬
-    int jamDetectBuffer[6];   // ¶ÂÈû¼ì²â»º³åÇø£¬´æ´¢µÄÊÇrobotµÄÂ·¾¶µÄµãÔÚmapµÄĞòºÅ£¨¶şÎ¬»¯Ò»Î¬£©
+    vector<Point> pathPoint;       // å­˜å‚¨è·¯å¾„ç‚¹åºåˆ—
+    vector<int> pathDir;           // å­˜å‚¨è·¯å¾„æ–¹å‘åºåˆ—
+    BOT_MOVE_STATE botMoveState;   // robotçš„ç§»åŠ¨çŠ¶æ€
+    BOT_TARGET_STATE botTarState;  // robotçš„æ˜¯å¦æœ‰ç›®æ ‡çŠ¶æ€ï¼ˆè´§ç‰©ç›®æ ‡æˆ–æ³Šä½ç›®æ ‡ï¼‰
+    BOT_PATH_STATE botPathState;   // robotçš„æ˜¯å¦æ˜¯å¦æ‰¾åˆ°ç§»åŠ¨è·¯å¾„çŠ¶æ€
+    BOT_AVOID_STATE botAvoidState; // robotçš„æ˜¯å¦æ­£åœ¨é¿è®©çŠ¶æ€
+    int jamDetectBuffer[6];        // å µå¡æ£€æµ‹ç¼“å†²åŒºï¼Œå­˜å‚¨çš„æ˜¯robotçš„è·¯å¾„çš„ç‚¹åœ¨mapçš„åºå·ï¼ˆäºŒç»´åŒ–ä¸€ç»´ï¼‰
     bool availableBerth[10];
 
     Robot() {}
-    Robot(int startX, int startY) {
+    Robot(int startX, int startY)
+    {
         curX = startX;
         curY = startY;
     }
