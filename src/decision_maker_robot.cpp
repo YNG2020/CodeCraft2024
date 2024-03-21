@@ -312,6 +312,17 @@ void DecisionMaker::robotDecision()
             bot.lastY = -1;
         }
 
+        if (bot.botTarState == HAVE_TARGET && bot.curPropotion < 0.8) {
+            bot.botTarState = NO_TARGET;
+            bot.botMoveState = WAITING;
+            bot.botPathState = NO_PATH;
+            bot.idxInPth = 0;
+            vector<int>().swap(bot.pathDir); // 清空
+            vector<Point>().swap(bot.pathPoint); // 清空
+            bot.tarX = -1;
+            bot.tarY = -1;
+        }
+
         if (bot.botTarState == NO_TARGET || bot.botPathState == NO_PATH)
         { // 没有目标，分配目标（目前通过寻路在分配目标，需要改进），之前没找到路，更新路（适用于中途变更路径，但失败的情况）
             if (bot.carryGoods == 0)
