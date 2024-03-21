@@ -123,7 +123,7 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
         loadGoodsTime2 = ((double)numRemainGoods + (double)numAddGoods) / (double)berth[berthID].loadingSpeed + // 泊位上能以最高效率给boat装载货物的时间
                          (numNeedGoods - (numRemainGoods + numAddGoods)) * berth[berthID].timeOfGoodsToBerth;   // 需要等robot给泊位送货物的时间
 
-        if (berth[berthID].isBlcoked)
+        if (berth[berthID].isBlocked)
             numAddGoods = 0;
 
         if (numRemainGoods + numAddGoods > numNeedGoods)

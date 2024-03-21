@@ -92,6 +92,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
     }
     robot[botID].goodsVal = goodsInMap[target->x][target->y]; // 先存储
     robot[botID].idxInPth = 0;                                // 更新路径点序列
+    robot[botID].curPropotion = propotion;                    // 更新性价比
     goodsInMap[target->x][target->y] = -(botID + 1);          // 打上标记
 
     vector<int>().swap(pathDir); // 清空
@@ -143,7 +144,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
 {
     bool haveBerthFlag = false;
     for (int i = 0; i < berth_num; ++i)
-        if (frame_id < 10000 || (!berth[i].isBlcoked && robot[botID].availableBerth[i]))
+        if (frame_id < 10000 || (!berth[i].isBlocked && robot[botID].availableBerth[i]))
         { // 没被封锁或泊位路径可达
             haveBerthFlag = true;
             break;
@@ -178,7 +179,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
         {
             int berthID = getBerthId(now->x, now->y);
             robot[botID].availableBerth[berthID] = true;
-            if (!berth[berthID].isBlcoked)
+            if (!berth[berthID].isBlocked)
             {
                 target = now;              // 找到目标
                 robot[botID].idxInPth = 0; // 更新路径点序列
@@ -263,9 +264,9 @@ void DecisionMaker::robotDecision()
 {
     for (int i = 0; i < berth_num; ++i)
         if (frame_id + 2 * 500 + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
-            berth[i].isBlcoked = true;
+            berth[i].isBlocked = true;
         else
-            berth[i].isBlcoked = false;
+            berth[i].isBlocked = false;
 
     for (int i = 0; i < robot_num; i++)
     {

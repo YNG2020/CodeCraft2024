@@ -166,7 +166,7 @@ void berthInit()
         berth[i].lastTimeGetGoods = 0;
         berth[i].totGetGoodsGap = 0;
         berth[i].numGetGoods = 0;
-        berth[i].isBlcoked = false;
+        berth[i].isBlocked = false;
     }
 }
 
