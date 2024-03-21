@@ -71,13 +71,12 @@ int Input()
         myCin >> frame_id >> money;
     else
         cin >> frame_id >> money;
-    int num;
     if (Debug)
-        myCin >> num;
+        myCin >> K;
     else
-        cin >> num;
-    goods_num += num;
-    for (int i = 1; i <= num; i++)
+        cin >> K;
+    goods_num += K;
+    for (int i = 1; i <= K; i++)
     {
         int x, y, val;
         if (Debug)
@@ -151,6 +150,7 @@ void robotInit()
         robot[i].findToBerthFlag = true;
         for (int j = 0; j < berth_num; ++j)
             robot[i].availableBerth[j] = false;
+        robot[i].curPropotion = -1;
     }
 }
 

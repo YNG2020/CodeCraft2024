@@ -4,11 +4,13 @@
 #include <cstring>
 #include <cmath>
 
-bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID)
+bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath = false)
 {
     queue<Node *> q;
     vector<Node *> rest;
     double propotion = 0;
+    if (tryChangePath)
+        propotion = robot[botID].curPropotion;
     int cnt = 0;
     q.push(new Node(x, y));
     memset(vis, 0, sizeof(vis));
@@ -28,25 +30,27 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         Node *now = q.front();
         q.pop();
 
-        if (goodsInMap[now->x][now->y] == -(botID + 1))
-        {
-            target = now; // 找到目标或找到自身目标
-            break;
-        }
         if (goodsInMap[now->x][now->y] > 0)
         {
             if (now->dis < goodsLeftTime[now->x][now->y])
             { // 赶得及在货物消失之前把货物运走
                 if (cnt == 0)
                 { // 第一次找到货物
-
-                    propotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
+                    if (!tryChangePath)
+                        propotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
+                    else    // 尝试变更要搬运的货物的目标
+                        propotion = pow((double)goodsInMap[now->x][now->y], 1) / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
                     target = now;
                     cnt++;
                 }
                 else
                 { // 尝试寻找性价比更高的货物
-                    double newPropotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
+                    double newPropotion;
+                    if (!tryChangePath)
+                        newPropotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
+                    else    // 尝试变更要搬运的货物的目标
+                        newPropotion = pow((double)goodsInMap[now->x][now->y], 1) / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+
                     if (newPropotion > propotion)
                     {
                         propotion = newPropotion;
@@ -75,6 +79,9 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         }
         rest.push_back(now);
     }
+
+    if (propotion <= 1.4 * robot[botID].curPropotion)
+        target = nullptr;
 
     if (target == nullptr) // 找不到路直接返回 
     {
@@ -270,7 +277,6 @@ void DecisionMaker::robotDecision()
 
     for (int i = 0; i < robot_num; i++)
     {
-
         Robot &bot = robot[i];
         refreshRobotState(i); // 自动更新robot的状态
 
@@ -282,6 +288,7 @@ void DecisionMaker::robotDecision()
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
             bot.botPathState = NO_PATH;
             bot.idxInPth = 0;
+            bot.curPropotion = -1;
             if (goodsInMap[bot.curX][bot.curY] > 0)
             { // 说明取走的是无主货物
                 goodsInMap[bot.curX][bot.curY] = 0;
@@ -312,15 +319,20 @@ void DecisionMaker::robotDecision()
             bot.lastY = -1;
         }
 
-        if (bot.botTarState == HAVE_TARGET && bot.curPropotion < 0.8) {
-            bot.botTarState = NO_TARGET;
-            bot.botMoveState = WAITING;
-            bot.botPathState = NO_PATH;
-            bot.idxInPth = 0;
-            vector<int>().swap(bot.pathDir); // 清空
-            vector<Point>().swap(bot.pathPoint); // 清空
-            bot.tarX = -1;
-            bot.tarY = -1;
+        //if (bot.botMoveState == TOGOODS && K > 0) {   // 只有新增了货物才会尝试变更运货目标，感觉应该不会改变分数，但实际上改变了
+        if (bot.botMoveState == TOGOODS) {
+            int oriTarX = bot.tarX, oriTarY = bot.tarY, oriGoodsVal = bot.goodsVal;
+            double lastPropotion = bot.curPropotion;
+            bool changePathFlag = getNearestGoods(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i, true);
+            if (changePathFlag)
+            {
+                goodsInMap[oriTarX][oriTarY] = oriGoodsVal;
+                bot.lastX = bot.curX;
+                bot.lastY = bot.curY;
+                bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
+                bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
+                refreshJamBuffer(i);
+            }
         }
 
         if (bot.botTarState == NO_TARGET || bot.botPathState == NO_PATH)
@@ -345,6 +357,7 @@ void DecisionMaker::robotDecision()
                     bot.botPathState = NO_PATH;
                     bot.botTarState = NO_TARGET;
                     bot.idxInPth = 0;
+                    bot.curPropotion = -1;
                     vector<int>().swap(bot.pathDir); // 清空
                     vector<Point>().swap(bot.pathPoint); // 清空
                     bot.tarX = -1;
@@ -648,7 +661,12 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
             robot[botID1].botPathState = NO_PATH;
             robot[botID1].botTarState = NO_TARGET;
             if (robot[botID1].botMoveState == TOGOODS)
+            {
                 goodsInMap[robot[botID1].tarX][robot[botID1].tarY] = robot[botID1].goodsVal;
+                robot[botID1].curPropotion = -1;
+            }
+            robot[botID1].botMoveState = WAITING;
+                
             robot[botID1].idxInPth = 0;
             vector<int>().swap(robot[botID1].pathDir); // 清空
             vector<Point>().swap(robot[botID1].pathPoint); // 清空
@@ -658,9 +676,14 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
 
             robot[botID2].botAvoidState = NO_AVOIDING;
             robot[botID2].botPathState = NO_PATH;
-            robot[botID2].botTarState = NO_TARGET;
+            robot[botID2].botTarState = NO_TARGET;            
             if (robot[botID2].botMoveState == TOGOODS)
+            {
                 goodsInMap[robot[botID2].tarX][robot[botID2].tarY] = robot[botID2].goodsVal;
+                robot[botID2].curPropotion = -1;
+            }
+            robot[botID2].botMoveState = WAITING;
+                
             robot[botID2].idxInPth = 0;
             vector<int>().swap(robot[botID2].pathDir); // 清空
             vector<Point>().swap(robot[botID2].pathPoint); // 清空
