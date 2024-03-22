@@ -15,7 +15,7 @@ public:
     int lastTimeGetGoods;   // 上一次获得货物的时刻
     int totGetGoodsGap; // 所有获得货物的时间间隔之和
     int numGetGoods;    // 获得的货物的总量
-    bool isBlcoked;
+    bool isBlocked;
     queue<int> berthGoodsValueList; // 泊位货物价值队列，与load(),pull同步更新
     int boatLeftTime[5];           // 存储boat预计驶离该berth的时间，数组下标对应船的编号
     int boatIDLastLeft;         // 存储预计的最后一个驶离该berth的boat的ID
