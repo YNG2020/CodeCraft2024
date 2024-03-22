@@ -543,12 +543,10 @@ bool DecisionMaker::jamDetect(int botID1, int botID2)
     return jamFlag;
 }
 
-// 对robot1和robot2进行是否可以接触避让状态的检测，默认此刻botID1正在避让botID2
+// 对robot1和robot2进行是否可以解除避让状态的检测，默认此刻botID1正在避让botID2，即botID1是Avoided状态，对robot可能出现的停止状态，交给jamdetect判断
 bool DecisionMaker::unJamDetect(int botID1, int botID2)
 {
     bool jamFlag = false;                                                     // 标识可能发生的堵塞情况
-    if (robot[botID2].jamDetectBuffer[1] == robot[botID1].jamDetectBuffer[0]) // bto2撞到robot[botID1]停下的位置上
-        jamFlag = true;
     for (int i = 0; i < robot[botID1].jamDetectBufferLen - 1; ++i)
     {
         if (robot[botID2].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i])
@@ -628,7 +626,7 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
 {
     bool findPathFlag;
     if (robot[botID1].botMoveState == AVOIDED)
-    {                                        // 此时botID2不可能也出于AVOIDED的状态，因为此时jamDetect将返回false的结果
+    {                                        // 此时botID2不可能也处于AVOIDED的状态，因为此时jamDetect将返回false的结果
         findPathFlag = getToTarPath(botID2); // botID2直接不进行避让动作，而是找路去既定目标
         if (findPathFlag)
         {
