@@ -22,7 +22,6 @@ public:
     int avoidBotID;                   // 当前正在避让的robot的ID，没有避让的robot时，值为-1，当前仅允许robot同时只能有一个避让robot
     int tmpTarX, tmpTarY;             // 中途点，作为避让路径的终点
     double curPropotion;              // 当前目标的分数
-    bool findToBerthFlag;
     double meanPropotion;               // 机器人运送货物性价比的历史平均值
     double sumPropotion;               // 机器人运送货物性价比的历史平求和值
     int cntPropotion;                   // 机器人运送货物的性价比被改变的总次数

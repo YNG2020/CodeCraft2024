@@ -54,7 +54,7 @@ void DecisionMaker::shipDecision()
                     int loadNum = berth[berthID].load(boat[boatID].capacity - boat[boatID].numBoatGoods);
                     boat[boatID].numBoatGoods += loadNum;
                     int newBerth = boat[boatID].tarPos;
-                    if (loadNum == 0) // 跑去别的泊位去装货
+                    if (loadNum == 0) // 尝试比较跑去别的泊位去装货的性价比
                         newBerth = berth_select(boatID, boat[boatID].tarPos);
                     if (newBerth != boat[boatID].tarPos)
                     {

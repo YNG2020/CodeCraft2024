@@ -169,8 +169,6 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
     if (!haveBerthFlag)
         return false;
 
-    if (!robot[botID].findToBerthFlag)
-        return false;
     queue<Node *> q;
     vector<Node *> rest;
     q.push(new Node(x, y));
@@ -217,7 +215,6 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
 
     if (target == nullptr) // 找不到路直接返回
     {
-        robot[botID].findToBerthFlag = false;
         while (!rest.empty())
         {
             delete rest.back();
@@ -317,7 +314,7 @@ void DecisionMaker::robotDecision()
             berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap += (frame_id - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
             berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods = frame_id;
             berth[getBerthId(bot.curX, bot.curY)].numGetGoods += 1;
-            berth[getBerthId(bot.curX, bot.curY)].timeOfGoodsToBerth = 1 * berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap / berth[getBerthId(bot.curX, bot.curY)].numGetGoods + 0 * (frame_id - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
+            berth[getBerthId(bot.curX, bot.curY)].timeOfGoodsToBerth = berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap / berth[getBerthId(bot.curX, bot.curY)].numGetGoods;
             bot.goodsVal = 0;            // 将目前所拥有的或准备拥有的货物价值清0
             bot.carryGoods = 0;          // 手动更新为不持有货物的状态
             bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
@@ -330,7 +327,6 @@ void DecisionMaker::robotDecision()
 
         if (bot.botMoveState == TOGOODS && bot.curPropotion < 0.2 * bot.meanPropotion) {
             int oriTarX = bot.tarX, oriTarY = bot.tarY, oriGoodsVal = bot.goodsVal;
-            double lastPropotion = bot.curPropotion;
             bool changePathFlag = getNearestGoods(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i, true);
             if (changePathFlag)
             {
@@ -344,7 +340,7 @@ void DecisionMaker::robotDecision()
         }
 
         if (bot.botTarState == NO_TARGET || bot.botPathState == NO_PATH)
-        { // 没有目标，分配目标（目前通过寻路在分配目标，需要改进），之前没找到路，更新路（适用于中途变更路径，但失败的情况）
+        { // 没有目标，分配目标，之前没找到路，更新路（适用于中途变更路径，但失败的情况）
             if (bot.carryGoods == 0)
             { // 未持有货物
                 bool findPathFlag = getNearestGoods(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i);
@@ -431,6 +427,8 @@ void DecisionMaker::refreshRobotState(int botID)
         bot.carryGoods = 0;          // 手动更新为不持有货物的状态
         bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
         bot.botMoveState = WAITING;
+        bot.botPathState = NO_PATH;
+        bot.curPropotion = -1;
     }
 }
 
@@ -545,12 +543,10 @@ bool DecisionMaker::jamDetect(int botID1, int botID2)
     return jamFlag;
 }
 
-// 对robot1和robot2进行是否可以接触避让状态的检测，默认此刻botID1正在避让botID2
+// 对robot1和robot2进行是否可以解除避让状态的检测，默认此刻botID1正在避让botID2，即botID1是Avoided状态，对robot可能出现的停止状态，交给jamdetect判断
 bool DecisionMaker::unJamDetect(int botID1, int botID2)
 {
     bool jamFlag = false;                                                     // 标识可能发生的堵塞情况
-    if (robot[botID2].jamDetectBuffer[1] == robot[botID1].jamDetectBuffer[0]) // bto2撞到robot[botID1]停下的位置上
-        jamFlag = true;
     for (int i = 0; i < robot[botID1].jamDetectBufferLen - 1; ++i)
     {
         if (robot[botID2].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i])
@@ -630,7 +626,7 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
 {
     bool findPathFlag;
     if (robot[botID1].botMoveState == AVOIDED)
-    {                                        // 此时botID2不可能也出于AVOIDED的状态，因为此时jamDetect将返回false的结果
+    {                                        // 此时botID2不可能也处于AVOIDED的状态，因为此时jamDetect将返回false的结果
         findPathFlag = getToTarPath(botID2); // botID2直接不进行避让动作，而是找路去既定目标
         if (findPathFlag)
         {
