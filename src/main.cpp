@@ -75,6 +75,7 @@ int Input()
         myCin >> K;
     else
         cin >> K;
+    numCurGoods += K;
     goods_num += K;
     for (int i = 1; i <= K; i++)
     {
@@ -127,9 +128,15 @@ int main()
             for (int j = 0; j < mapSize; ++j)
             {
                 if (goodsInMap[i][j] != 0) // 说明该位置有货物存在，该值等于0时，不必维护该信息
+                {
                     --goodsLeftTime[i][j];
-                if (goodsLeftTime[i][j] == 0) // 货物消失，货物价值归零
-                    goodsInMap[i][j] = 0;
+                    if (goodsLeftTime[i][j] == 0) // 货物消失，货物价值归零
+                    {
+                        --numCurGoods;
+                        goodsInMap[i][j] = 0;
+                    }
+                }    
+
             }
         }
     }

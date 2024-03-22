@@ -6,6 +6,8 @@
 
 bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath = false)
 {
+    if (numCurGoods <= 0)
+        return false;
     queue<Node *> q;
     vector<Node *> rest;
     double propotion = 0;
@@ -351,6 +353,7 @@ void DecisionMaker::robotDecision()
                     bot.botMoveState = TOGOODS;
                     bot.botPathState = HAVE_PATH;
                     bot.botTarState = HAVE_TARGET;
+                    --numCurGoods;
                     bot.lastX = bot.curX;
                     bot.lastY = bot.curY;
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
@@ -670,6 +673,7 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
             {
                 goodsInMap[robot[botID1].tarX][robot[botID1].tarY] = robot[botID1].goodsVal;
                 robot[botID1].curPropotion = -1;
+                ++numCurGoods;
             }
             robot[botID1].botMoveState = WAITING;
                 
@@ -687,6 +691,7 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
             {
                 goodsInMap[robot[botID2].tarX][robot[botID2].tarY] = robot[botID2].goodsVal;
                 robot[botID2].curPropotion = -1;
+                ++numCurGoods;
             }
             robot[botID2].botMoveState = WAITING;
                 
@@ -850,11 +855,15 @@ void DecisionMaker::unJam()
                 { // 应该只用处理找不到的情况，找到路的话，状态变量似乎没有什么需要特地更新的
                     // 还是找不到路，则在当前帧不动，且放弃当前的目标货物（如果有），在下一帧中寻找新的目标，直到能找到为止
                     robot[i].botPathState = NO_PATH;
-                    robot[i].botMoveState = WAITING;
+                    robot[i].botTarState = NO_TARGET;
                     vector<int>().swap(robot[i].pathDir); // 清空
                     vector<Point>().swap(robot[i].pathPoint); // 清空
                     if (robot[i].botMoveState == TOGOODS)
+                    {
+                        ++numCurGoods;
                         goodsInMap[robot[i].tarX][robot[i].tarY] = robot[i].goodsVal;
+                    }
+                    robot[i].botMoveState = WAITING;
                     robot[i].idxInPth = 0;
                 }
                 refreshJamBuffer(i); // 修改了路径，需要更新碰撞检测缓冲区
