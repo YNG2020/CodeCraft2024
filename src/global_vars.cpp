@@ -5,6 +5,7 @@ Berth berth[berth_num];
 Boat boat[boat_num];
 
 int money, boat_capacity, frame_id, frame, K, numCurGoods = 0;
+double limToTryChangeGoods, limToChangeGoods;
 char map[N][N];
 int goodsInMap[N][N];
 int goodsLeftTime[N][N];

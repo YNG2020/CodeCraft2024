@@ -86,7 +86,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         rest.push_back(now);
     }
 
-    if (propotion <= 1.4 * robot[botID].curPropotion)
+    if (propotion <= limToChangeGoods * robot[botID].curPropotion)
         target = nullptr;
 
     if (target == nullptr) // 找不到路直接返回 
@@ -325,7 +325,7 @@ void DecisionMaker::robotDecision()
             bot.lastY = -1;
         }
 
-        if (bot.botMoveState == TOGOODS && bot.curPropotion < 0.2 * bot.meanPropotion) {
+        if (bot.botMoveState == TOGOODS && bot.curPropotion < limToTryChangeGoods * bot.meanPropotion) {
             int oriTarX = bot.tarX, oriTarY = bot.tarY, oriGoodsVal = bot.goodsVal;
             bool changePathFlag = getNearestGoods(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i, true);
             if (changePathFlag)

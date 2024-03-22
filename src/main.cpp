@@ -22,6 +22,8 @@ DecisionMaker decisionMaker;
 
 void Init()
 {
+    limToTryChangeGoods = 0.2;
+    limToChangeGoods = 1.4;
     std::srand(1234); // 这里的1234可以是任何你喜欢的整数
     if (Debug)
         myCin.open("output.txt");
