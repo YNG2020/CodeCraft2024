@@ -37,9 +37,11 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
                 if (cnt == 0)
                 { // 第一次找到货物
                     if (!tryChangePath)
-                        propotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
+                        propotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                        //propotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
                     else    // 尝试变更要搬运的货物的目标
-                        propotion = pow((double)goodsInMap[now->x][now->y], 1) / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+                        propotion = (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+                        //propotion = pow((double)goodsInMap[now->x][now->y], 1) / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
                     target = now;
                     cnt++;
                 }
@@ -47,9 +49,11 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
                 { // 尝试寻找性价比更高的货物
                     double newPropotion;
                     if (!tryChangePath)
-                        newPropotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
+                        newPropotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                        //newPropotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
                     else    // 尝试变更要搬运的货物的目标
-                        newPropotion = pow((double)goodsInMap[now->x][now->y], 1) / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+                        newPropotion = (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+                        //newPropotion = pow((double)goodsInMap[now->x][now->y], 1) / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
 
                     if (newPropotion > propotion)
                     {
@@ -100,6 +104,9 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
     robot[botID].goodsVal = goodsInMap[target->x][target->y]; // 先存储
     robot[botID].idxInPth = 0;                                // 更新路径点序列
     robot[botID].curPropotion = propotion;                    // 更新性价比
+    robot[botID].sumPropotion += propotion;                 // 更新历史性价比之和
+    ++robot[botID].cntPropotion;                            // 更新性价比被改变的总次数
+    robot[botID].meanPropotion = robot[botID].sumPropotion / robot[botID].cntPropotion;         // 更新历史平均性价比
     goodsInMap[target->x][target->y] = -(botID + 1);          // 打上标记
 
     vector<int>().swap(pathDir); // 清空
@@ -319,8 +326,7 @@ void DecisionMaker::robotDecision()
             bot.lastY = -1;
         }
 
-        //if (bot.botMoveState == TOGOODS && K > 0) {   // 只有新增了货物才会尝试变更运货目标，感觉应该不会改变分数，但实际上改变了
-        if (bot.botMoveState == TOGOODS) {
+        if (bot.botMoveState == TOGOODS && bot.curPropotion < 0.2 * bot.meanPropotion) {
             int oriTarX = bot.tarX, oriTarY = bot.tarY, oriGoodsVal = bot.goodsVal;
             double lastPropotion = bot.curPropotion;
             bool changePathFlag = getNearestGoods(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i, true);

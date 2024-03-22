@@ -150,7 +150,10 @@ void robotInit()
         robot[i].findToBerthFlag = true;
         for (int j = 0; j < berth_num; ++j)
             robot[i].availableBerth[j] = false;
-        robot[i].curPropotion = -1;
+        robot[i].curPropotion = 0.0;
+        robot[i].meanPropotion = 0.0;
+        robot[i].sumPropotion = 0.0;
+        robot[i].cntPropotion = 0;
     }
 }
 
