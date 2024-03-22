@@ -179,7 +179,7 @@ void berthInit()
         berth[i].boatIDLastLeft = 0;
         for (int j = 0; j < boat_num; ++j)
             berth[i].boatLeftTime[j] = -1;
-        berth[i].isBlcoked = false;
+        berth[i].isBlocked = false;
     }
 }
 
