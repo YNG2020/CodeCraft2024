@@ -1,45 +1,42 @@
 #ifndef GLOBAL_STRUCT_H
 #define GLOBAL_STRUCT_H
-// 声明一些影响全局的结构
+// ����һЩӰ��ȫ�ֵĽṹ
 
 /// <summary>
-/// bot层的移动状态,
+/// bot����ƶ�״̬,   
 /// </summary>
-enum BOT_MOVE_STATE
-{
-	WAITING,	 // 手动更新为原地等待的状态（等路径分配）
-	ARRIVEGOODS, // 抵达货物所在地
-	ARRIVEBERTH, // 抵达港口所在地
-	TOGOODS,	 // 奔赴货物所在地
-	TOBERTH		 // 奔赴泊位所在地
+enum BOT_MOVE_STATE {
+	WAITING,		// �ֶ�����Ϊԭ�صȴ���״̬����·�����䣩
+	ARRIVEGOODS,	// �ִ�������ڵ�
+	ARRIVEBERTH,	// �ִ�ۿ����ڵ�
+	TOGOODS,		// �����������ڵ�
+	TOBERTH			// ������λ���ڵ�
 };
 
 /// <summary>
-/// bot层的避让状态,
+/// bot��ı���״̬,   
 /// </summary>
-enum BOT_AVOID_STATE
-{
-	AVOIDING,	 // 碰撞避免中
-	AVOIDED,	 // 避让完成，停止不动
-	NO_AVOIDING, // 解除了避让状态
+enum BOT_AVOID_STATE {
+	AVOIDING,		// ��ײ������
+	AVOIDED,		// ������ɣ�ֹͣ����
+	NO_AVOIDING,	// ����˱���״̬
 };
 
 /// <summary>
-/// bot层的目标状态,
+/// bot���Ŀ��״̬, 
 /// </summary>
-enum BOT_TARGET_STATE
-{
-	HAVE_TARGET, // 无目标
-	NO_TARGET	 // 有目标
+enum BOT_TARGET_STATE {
+	HAVE_TARGET,	// ��Ŀ��
+	NO_TARGET		// ��Ŀ��
 };
 
 /// <summary>
-/// bot层的寻路状态,
+/// bot���Ѱ·״̬, 
 /// </summary>
-enum BOT_PATH_STATE
-{
-	HAVE_PATH, // 有路径
-	NO_PATH	   // 无路径
+enum BOT_PATH_STATE {
+	HAVE_PATH,	// ��·��
+	NO_PATH		// ��·��
 };
 
 #endif // GLOBAL_STRUCT_H
+
