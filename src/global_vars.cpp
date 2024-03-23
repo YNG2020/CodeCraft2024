@@ -7,6 +7,8 @@ Boat boat[boat_num];
 int money, boat_capacity, frame_id, frame, K, numCurGoods = 0;
 double limToTryChangeGoods, limToChangeGoods;
 int extraSearchTime;
+int blockBerthTime;
+int meanGoodsValue;
 char map[N][N];
 int goodsInMap[N][N];
 int goodsLeftTime[N][N];
