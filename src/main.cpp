@@ -56,16 +56,16 @@ void Init()
     if (map[0][0] == '.' && map[0][mapSize - 1] == '.' && map[mapSize - 1][0] == '.' && map[mapSize - 1][mapSize - 1] == '.')
     {
         limToTryChangeGoods = 0.2;
-        limToChangeGoods = 1.4;
+        limToChangeGoods = 1.2;
     }
-    else if (map[0][0] == '*' && map[0][mapSize - 1] == '*' && map[mapSize - 1][0] == '*' && map[mapSize - 1][mapSize - 1] == '*')
+    else if (map[0][0] == '*' && map[0][mapSize - 1] == '*' && map[mapSize - 1][0] == '*' && map[mapSize - 1][mapSize - 1] == '*' && map[14][43] == 'A')
     {
-        limToTryChangeGoods = 0.4;
+        limToTryChangeGoods = 0.5;
         limToChangeGoods = 1.4;
     }
     else
     {
-        limToTryChangeGoods = 0.4;
+        limToTryChangeGoods = 0.5;
         limToChangeGoods = 1.4;
     }
 
