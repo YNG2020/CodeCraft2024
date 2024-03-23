@@ -68,8 +68,8 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         if (cnt > 0)
         {
             cnt++;
-            if (cnt == 1000)
-            { // 最多额外搜索1000轮
+            if (cnt == extraSearchTime)
+            { // 最多额外搜索extraSearchTime轮
                 break;
             }
         }
