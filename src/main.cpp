@@ -20,6 +20,7 @@ std::ifstream myCin;
 bool Debug = false;
 DecisionMaker decisionMaker;
 
+ 
 void Init()
 {
     limToTryChangeGoods = 0.2;
@@ -53,7 +54,7 @@ void Init()
         myCin >> boat_capacity;
     else
         cin >> boat_capacity;
-
+    
     robotInit();
     berthInit();
     boatInit();
@@ -70,16 +71,16 @@ void Init()
 int Input()
 {
     if (Debug)
-        myCin >> frame_id >> money;
+        myCin >> id >> money;
     else
-        cin >> frame_id >> money;
+        cin >> id >> money;
+    int num;
     if (Debug)
-        myCin >> K;
+        myCin >> num;
     else
-        cin >> K;
-    numCurGoods += K;
-    goods_num += K;
-    for (int i = 1; i <= K; i++)
+        cin >> num;
+    goods_num += num;
+    for (int i = 1; i <= num; i++)
     {
         int x, y, val;
         if (Debug)
@@ -109,13 +110,13 @@ int Input()
     else
         cin >> okk;
 
-    return frame_id;
+    return id;
 }
 int main()
 {
     srand((unsigned int)time(nullptr)); // Seed for random number generation
-    // ofstream outputFile("data.csv");
-    // outputFile << "goods_num, pick_goods_num, ship_goods_num" << endl;
+    //ofstream outputFile("data.csv");
+    //outputFile << "goods_num, pick_goods_num, ship_goods_num" << endl;
     Init();
     for (frame = 1; frame <= 15000; frame++)
     {
@@ -123,26 +124,22 @@ int main()
         decisionMaker.makeDecision();
         cout << "OK" << endl;
         cout.flush();
-        // outputFile << goods_num << ", " << pick_goods_num << ", " << ship_goods_num << endl;
+        //outputFile << goods_num << ", " << pick_goods_num << ", " << ship_goods_num << endl;
 
         for (int i = 0; i < mapSize; ++i)
-        { // 维护货物的剩余存在时间
+        {   // 维护货物的剩余存在时间
             for (int j = 0; j < mapSize; ++j)
             {
-                if (goodsInMap[i][j] != 0) // 说明该位置有货物存在，该值等于0时，不必维护该信息
-                {
+                if (goodsInMap[i][j] != 0)   // 说明该位置有货物存在，该值等于0时，不必维护该信息
                     --goodsLeftTime[i][j];
-                    if (goodsLeftTime[i][j] == 0) // 货物消失，货物价值归零
-                    {
-                        --numCurGoods;
-                        goodsInMap[i][j] = 0;
-                    }
-                }    
-
+                if (goodsLeftTime[i][j] == 0)   // 货物消失，货物价值归零
+                    goodsInMap[i][j] = 0;
             }
+                
         }
+
     }
-    // outputFile.close();
+    //outputFile.close();
     return 0;
 }
 
@@ -150,18 +147,12 @@ int main()
 void robotInit()
 {
     for (int i = 0; i < robot_num; ++i)
-    {
+    {   
         robot[i].botMoveState = WAITING;
         robot[i].botTarState = NO_TARGET;
         robot[i].botPathState = NO_PATH;
         robot[i].botAvoidState = NO_AVOIDING;
         robot[i].avoidBotID = -1;
-        for (int j = 0; j < berth_num; ++j)
-            robot[i].availableBerth[j] = false;
-        robot[i].curPropotion = 0.0;
-        robot[i].meanPropotion = 0.0;
-        robot[i].sumPropotion = 0.0;
-        robot[i].cntPropotion = 0;
     }
 }
 
@@ -169,15 +160,14 @@ void robotInit()
 void berthInit()
 {
     for (int i = 0; i < berth_num; ++i)
-    {
+    {   
         berth[i].numBerthGoods = 0;
         berth[i].boatIDInBerth = -1;
         berth[i].boatIDToBerth = -1;
-        berth[i].timeOfGoodsToBerth = 100.0; // 这个值先初始化为100.0先
+        berth[i].timeOfGoodsToBerth = 100.0;    // 这个值先初始化为100.0先
         berth[i].lastTimeGetGoods = 0;
         berth[i].totGetGoodsGap = 0;
         berth[i].numGetGoods = 0;
-        berth[i].isBlocked = false;
     }
 }
 
@@ -185,7 +175,7 @@ void berthInit()
 void boatInit()
 {
     for (int i = 0; i < boat_num; ++i)
-    {
+    {   
         boat[i].numBoatGoods = 0;
         boat[i].boatStatus = 1;
         boat[i].tarPos = -1;
