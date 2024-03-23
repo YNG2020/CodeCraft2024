@@ -18,7 +18,6 @@ extern Robot robot[robot_num];
 extern Berth berth[berth_num];
 extern Boat boat[boat_num];
 
-
 extern int money, boat_capacity, frame_id, frame, K, numCurGoods;
 extern double limToTryChangeGoods, limToChangeGoods;
 extern char map[N][N];
