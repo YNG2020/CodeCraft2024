@@ -794,7 +794,19 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
     }
 
     if (target == nullptr) // 找不到路直接返回
+    {
+        while (!rest.empty())
+        {
+            delete rest.back();
+            rest.pop_back();
+        }
+        while (!q.empty())
+        {
+            delete q.front();
+            q.pop();
+        }
         return false;
+    }
 
     robot[botID2].pathDir.clear(); // 清空
     if (target != nullptr)
@@ -926,7 +938,19 @@ bool DecisionMaker::getToTarPath(int botID)
     }
 
     if (target == nullptr) // 找不到路直接返回
+    {
+        while (!rest.empty())
+        {
+            delete rest.back();
+            rest.pop_back();
+        }
+        while (!q.empty())
+        {
+            delete q.front();
+            q.pop();
+        }
         return false;
+    }
 
     bot.pathDir.clear(); // 清空
     if (target != nullptr)
