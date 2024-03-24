@@ -22,8 +22,7 @@ DecisionMaker decisionMaker;
 
 void Init()
 {
-    limToTryChangeGoods = 0.2;
-    limToChangeGoods = 1.4;
+
     std::srand(1234); // 这里的1234可以是任何你喜欢的整数
     if (Debug)
         myCin.open("output.txt");
@@ -53,6 +52,33 @@ void Init()
         myCin >> boat_capacity;
     else
         cin >> boat_capacity;
+
+
+    if (map[0][0] == '*' && map[0][mapSize - 1] == '*' && map[mapSize - 1][0] == '*' && map[mapSize - 1][mapSize - 1] == '*' && map[14][43] == 'A')
+    {
+        limToTryChangeGoods = 0.4;
+        limToChangeGoods = 1.4;
+        extraSearchTime = 1000;
+        blockBerthTime = 1000;
+        meanGoodsValue = 100;
+
+    }
+    else if (map[0][0] == '.' && map[0][mapSize - 1] == '.' && map[mapSize - 1][0] == '.' && map[mapSize - 1][mapSize - 1] == '.')
+    {
+        limToTryChangeGoods = 0.2;
+        limToChangeGoods = 1.4;
+        extraSearchTime = 2000;
+        blockBerthTime = 1000;
+        meanGoodsValue = 50;
+    }
+    else
+    {
+        limToTryChangeGoods = 0.5;
+        limToChangeGoods = 1.4;
+        extraSearchTime = 1000;
+        blockBerthTime = 1000;
+        meanGoodsValue = 0;
+    }
 
     robotInit();
     berthInit();

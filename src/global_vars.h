@@ -20,6 +20,9 @@ extern Boat boat[boat_num];
 
 extern int money, boat_capacity, frame_id, frame, K, numCurGoods;
 extern double limToTryChangeGoods, limToChangeGoods;
+extern int extraSearchTime;
+extern int blockBerthTime;
+extern int meanGoodsValue;
 extern char map[N][N];
 extern int goodsInMap[N][N];
 extern int goodsLeftTime[N][N]; // 记录货物的剩余存在时间

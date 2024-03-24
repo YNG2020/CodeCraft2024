@@ -68,8 +68,8 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         if (cnt > 0)
         {
             cnt++;
-            if (cnt == 1000)
-            { // 最多额外搜索1000轮
+            if (cnt == extraSearchTime)
+            { // 最多额外搜索extraSearchTime轮
                 break;
             }
         }
@@ -276,7 +276,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
 void DecisionMaker::robotDecision()
 {
     for (int i = 0; i < berth_num; ++i)
-        if (frame_id + 2 * 500 + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
+        if (frame_id + blockBerthTime + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
             berth[i].isBlocked = true;
         else
             berth[i].isBlocked = false;
@@ -794,7 +794,19 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
     }
 
     if (target == nullptr) // 找不到路直接返回
+    {
+        while (!rest.empty())
+        {
+            delete rest.back();
+            rest.pop_back();
+        }
+        while (!q.empty())
+        {
+            delete q.front();
+            q.pop();
+        }
         return false;
+    }
 
     robot[botID2].pathDir.clear(); // 清空
     if (target != nullptr)
@@ -926,7 +938,19 @@ bool DecisionMaker::getToTarPath(int botID)
     }
 
     if (target == nullptr) // 找不到路直接返回
+    {
+        while (!rest.empty())
+        {
+            delete rest.back();
+            rest.pop_back();
+        }
+        while (!q.empty())
+        {
+            delete q.front();
+            q.pop();
+        }
         return false;
+    }
 
     bot.pathDir.clear(); // 清空
     if (target != nullptr)
