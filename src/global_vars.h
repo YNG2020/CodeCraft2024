@@ -22,11 +22,13 @@ extern int money, boat_capacity, frame_id, frame, K, numCurGoods;
 extern double limToTryChangeGoods, limToChangeGoods;
 extern int extraSearchTime;
 extern int blockBerthTime;
+extern int GainForSameBerth;
 extern int meanGoodsValue;
 extern char map[N][N];
 extern int goodsInMap[N][N];
 extern int goodsLeftTime[N][N]; // 记录货物的剩余存在时间
 extern int nearBerthDis[N][N];  // 记录每个点到最近的泊位的距离
+extern int nearBerthID[N][N];	// 记录每个点到最近的泊位的ID
 extern int dx[4];
 extern int dy[4];
 extern vector<std::vector<std::pair<int, int>>> goodsState; // 记录第i帧时的货物位置信息
