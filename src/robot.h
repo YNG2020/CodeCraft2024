@@ -2,7 +2,7 @@
 #define ROBOT_H
 
 #include "global_struct.h"
-#include "Point.h"
+#include "point.h"
 
 #include <vector>
 using std::vector;

@@ -28,14 +28,14 @@ void Init()
     if (Debug)
         myCin.open("output.txt");
 
-    for (int i = 0; i < mapSize; i++)
+    for (int i = 0; i < MAP_SIZE; i++)
     {
         if (Debug)
             myCin >> map[i];
         else
             cin >> map[i];
     }
-    for (int i = 0; i < berth_num; i++)
+    for (int i = 0; i < BERTH_NUM; i++)
     {
         int id;
         if (Debug)
@@ -50,9 +50,9 @@ void Init()
         }
     }
     if (Debug)
-        myCin >> boat_capacity;
+        myCin >> boatCapacity;
     else
-        cin >> boat_capacity;
+        cin >> boatCapacity;
 
     robotInit();
     berthInit();
@@ -70,15 +70,15 @@ void Init()
 int Input()
 {
     if (Debug)
-        myCin >> frame_id >> money;
+        myCin >> frameId >> money;
     else
-        cin >> frame_id >> money;
+        cin >> frameId >> money;
     if (Debug)
         myCin >> K;
     else
         cin >> K;
     numCurGoods += K;
-    goods_num += K;
+    goodsNum += K;
     for (int i = 1; i <= K; i++)
     {
         int x, y, val;
@@ -91,14 +91,14 @@ int Input()
         if (nearBerthDis[x][y] == 0)
             decisionMaker.getNearBerthDis(x, y);
     }
-    for (int i = 0; i < robot_num; i++)
+    for (int i = 0; i < ROBOT_NUM; i++)
     {
         if (Debug)
             myCin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].robotStatus;
         else
             cin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].robotStatus;
     }
-    for (int i = 0; i < boat_num; i++)
+    for (int i = 0; i < BOAT_NUM; i++)
         if (Debug)
             myCin >> boat[i].boatStatus >> boat[i].tarPos;
         else
@@ -109,13 +109,13 @@ int Input()
     else
         cin >> okk;
 
-    return frame_id;
+    return frameId;
 }
 int main()
 {
     srand((unsigned int)time(nullptr)); // Seed for random number generation
     // ofstream outputFile("data.csv");
-    // outputFile << "goods_num, pick_goods_num, ship_goods_num" << endl;
+    // outputFile << "goodsNum, pickGoodsNum, shipGoodsNum" << endl;
     Init();
     for (frame = 1; frame <= 15000; frame++)
     {
@@ -123,11 +123,11 @@ int main()
         decisionMaker.makeDecision();
         cout << "OK" << endl;
         cout.flush();
-        // outputFile << goods_num << ", " << pick_goods_num << ", " << ship_goods_num << endl;
+        // outputFile << goodsNum << ", " << pickGoodsNum << ", " << shipGoodsNum << endl;
 
-        for (int i = 0; i < mapSize; ++i)
+        for (int i = 0; i < MAP_SIZE; ++i)
         { // 维护货物的剩余存在时间
-            for (int j = 0; j < mapSize; ++j)
+            for (int j = 0; j < MAP_SIZE; ++j)
             {
                 if (goodsInMap[i][j] != 0) // 说明该位置有货物存在，该值等于0时，不必维护该信息
                 {
@@ -149,14 +149,14 @@ int main()
 // robot参数的初始化
 void robotInit()
 {
-    for (int i = 0; i < robot_num; ++i)
+    for (int i = 0; i < ROBOT_NUM; ++i)
     {
         robot[i].botMoveState = WAITING;
         robot[i].botTarState = NO_TARGET;
         robot[i].botPathState = NO_PATH;
         robot[i].botAvoidState = NO_AVOIDING;
         robot[i].avoidBotID = -1;
-        for (int j = 0; j < berth_num; ++j)
+        for (int j = 0; j < BERTH_NUM; ++j)
             robot[i].availableBerth[j] = false;
         robot[i].curPropotion = 0.0;
         robot[i].meanPropotion = 0.0;
@@ -168,7 +168,7 @@ void robotInit()
 // berth参数的初始化
 void berthInit()
 {
-    for (int i = 0; i < berth_num; ++i)
+    for (int i = 0; i < BERTH_NUM; ++i)
     {
         berth[i].numBerthGoods = 0;
         berth[i].boatIDInBerth = -1;
@@ -184,11 +184,11 @@ void berthInit()
 // boat参数的初始化
 void boatInit()
 {
-    for (int i = 0; i < boat_num; ++i)
+    for (int i = 0; i < BOAT_NUM; ++i)
     {
         boat[i].numBoatGoods = 0;
         boat[i].boatStatus = 1;
         boat[i].tarPos = -1;
-        boat[i].capacity = boat_capacity;
+        boat[i].capacity = boatCapacity;
     }
 }

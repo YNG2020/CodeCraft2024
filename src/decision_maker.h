@@ -1,6 +1,6 @@
 #ifndef DECISION_MAKER_H
 #define DECISION_MAKER_H
-#include "Point.h"
+#include "point.h"
 #include <iostream>
 #include <vector>
 #include <queue>

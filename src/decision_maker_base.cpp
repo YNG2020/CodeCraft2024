@@ -9,7 +9,7 @@ namespace decision_maker_base {
     };
 }
 
-DecisionMaker::DecisionMaker() : priority(robot_num, 0) {}
+DecisionMaker::DecisionMaker() : priority(ROBOT_NUM, 0) {}
 
 void DecisionMaker::makeDecision()
 {
@@ -19,7 +19,7 @@ void DecisionMaker::makeDecision()
 
 bool DecisionMaker::inBerth(int x, int y)
 {
-    for (int i = 0; i < berth_num; i++)
+    for (int i = 0; i < BERTH_NUM; i++)
     {
         if (x >= berth[i].x && x < berth[i].x + 4 &&
             y >= berth[i].y && y < berth[i].y + 4)
@@ -32,7 +32,7 @@ bool DecisionMaker::inBerth(int x, int y)
 
 int DecisionMaker::getBerthId(int x, int y)
 {
-    for (int i = 0; i < berth_num; i++)
+    for (int i = 0; i < BERTH_NUM; i++)
     {
         if (x >= berth[i].x && x < berth[i].x + 4 &&
             y >= berth[i].y && y < berth[i].y + 4)
@@ -56,7 +56,7 @@ void DecisionMaker::getNearBerthDis(int x, int y)
         {
             int nx = now.x + dx[i];
             int ny = now.y + dy[i];
-            if (nx < 0 || nx >= mapSize || ny < 0 || ny >= mapSize || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             if (inBerth(nx, ny))

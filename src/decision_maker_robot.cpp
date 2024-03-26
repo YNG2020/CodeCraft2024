@@ -16,7 +16,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
     int cnt = 0;
     q.push(new Node(x, y));
     memset(vis, 0, sizeof(vis));
-    for (int i = 0; i < robot_num; i++)
+    for (int i = 0; i < ROBOT_NUM; i++)
     {
         if (robot[i].robotStatus == 0)
             vis[robot[i].curX][robot[i].curY] = true;
@@ -78,7 +78,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= mapSize || ny < 0 || ny >= mapSize || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             q.push(new Node(nx, ny, now, now->dis + 1)); // 使用父节点指针
@@ -159,8 +159,8 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
 bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID)
 {
     bool haveBerthFlag = false;
-    for (int i = 0; i < berth_num; ++i)
-        if (frame_id < 10000 || (!berth[i].isBlocked && robot[botID].availableBerth[i]))
+    for (int i = 0; i < BERTH_NUM; ++i)
+        if (frameId < 10000 || (!berth[i].isBlocked && robot[botID].availableBerth[i]))
         { // 没被封锁或泊位路径可达
             haveBerthFlag = true;
             break;
@@ -173,7 +173,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
     vector<Node *> rest;
     q.push(new Node(x, y));
     memset(vis, 0, sizeof(vis));
-    for (int i = 0; i < robot_num; i++)
+    for (int i = 0; i < ROBOT_NUM; i++)
     {
         if (robot[i].robotStatus == 0)
             vis[robot[i].curX][robot[i].curY] = true;
@@ -205,7 +205,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= mapSize || ny < 0 || ny >= mapSize || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             q.push(new Node(nx, ny, now)); // 使用父节点指针
@@ -275,13 +275,13 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
 
 void DecisionMaker::robotDecision()
 {
-    for (int i = 0; i < berth_num; ++i)
-        if (frame_id + 2 * 500 + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
+    for (int i = 0; i < BERTH_NUM; ++i)
+        if (frameId + 2 * 500 + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
             berth[i].isBlocked = true;
         else
             berth[i].isBlocked = false;
 
-    for (int i = 0; i < robot_num; i++)
+    for (int i = 0; i < ROBOT_NUM; i++)
     {
         Robot &bot = robot[i];
         refreshRobotState(i); // 自动更新robot的状态
@@ -302,7 +302,7 @@ void DecisionMaker::robotDecision()
             }
             else
                 goodsInMap[bot.tarX][bot.tarY] = 0;
-            pick_goods_num++;
+            pickGoodsNum++;
             bot.lastX = -1;
             bot.lastY = -1;
         }
@@ -311,8 +311,8 @@ void DecisionMaker::robotDecision()
             cout << "pull " << i << endl;
             berth[getBerthId(bot.curX, bot.curY)].numBerthGoods++;
             berth[getBerthId(bot.curX, bot.curY)].berthGoodsValueList.push(bot.goodsVal);
-            berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap += (frame_id - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
-            berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods = frame_id;
+            berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap += (frameId - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
+            berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods = frameId;
             berth[getBerthId(bot.curX, bot.curY)].numGetGoods += 1;
             berth[getBerthId(bot.curX, bot.curY)].timeOfGoodsToBerth = berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap / berth[getBerthId(bot.curX, bot.curY)].numGetGoods;
             bot.goodsVal = 0;            // 将目前所拥有的或准备拥有的货物价值清0
@@ -436,7 +436,7 @@ void DecisionMaker::moveControl()
 {
     jamControl();
     jamControl(); // 先这样吧（在同一帧内，前面的robot无法及时读取到后面的robot的可能已更新的堵塞检测缓冲区的信息，导致潜在的堵塞风险）
-    for (int i = 0; i < robot_num; ++i)
+    for (int i = 0; i < ROBOT_NUM; ++i)
     {
         Robot &bot = robot[i];
 
@@ -454,7 +454,7 @@ void DecisionMaker::moveControl()
 // 更新robot的避让优先级
 void DecisionMaker::setPriority()
 {
-    // for (int i = 0; i < robot_num; ++i) {
+    // for (int i = 0; i < ROBOT_NUM; ++i) {
     //     priorityFactor[i][0] = i;   // 第一列放编号
     //     priorityFactor[i][1] = robot[i].goodsVal;   // 第二列放货物的价值
     // }
@@ -481,7 +481,7 @@ void DecisionMaker::refreshJamBuffer(int botID)
     { // 有路，可以正常更新缓冲区
         for (; i < bot.jamDetectBufferLen && (bot.idxInPth + i) < bot.pathPoint.size(); ++i)
         {
-            bot.jamDetectBuffer[i] = bot.pathPoint[bot.idxInPth + i].x * mapSize + bot.pathPoint[bot.idxInPth + i].y;
+            bot.jamDetectBuffer[i] = bot.pathPoint[bot.idxInPth + i].x * MAP_SIZE + bot.pathPoint[bot.idxInPth + i].y;
         }
         for (; i < bot.jamDetectBufferLen; ++i)
         {
@@ -492,7 +492,7 @@ void DecisionMaker::refreshJamBuffer(int botID)
     { // 没路，缓冲区全都存储为自己本身所在的位置
         for (; i < bot.jamDetectBufferLen; ++i)
         {
-            bot.jamDetectBuffer[i] = bot.curX * mapSize + bot.curY;
+            bot.jamDetectBuffer[i] = bot.curX * MAP_SIZE + bot.curY;
         }
     }
 }
@@ -506,12 +506,12 @@ bool DecisionMaker::jamDetect(int botID1, int botID2)
         (robot[botID2].robotStatus == 0 || robot[botID2].botPathState == NO_PATH || robot[botID2].botAvoidState == AVOIDED)) // 此刻双方都不动
         return false;
     if (robot[botID2].robotStatus == 0 || robot[botID2].botPathState == NO_PATH || robot[botID2].botAvoidState == AVOIDED) // // 此刻robto[botID2]停止不动
-        if (robot[botID1].jamDetectBuffer[1] == (robot[botID2].curX * mapSize + robot[botID2].curY))
+        if (robot[botID1].jamDetectBuffer[1] == (robot[botID2].curX * MAP_SIZE + robot[botID2].curY))
             return true;
         else
             return false;
     if (robot[botID1].robotStatus == 0 || robot[botID1].botPathState == NO_PATH || robot[botID1].botAvoidState == AVOIDED) // // 此刻robto[botID1]停止不动
-        if (robot[botID2].jamDetectBuffer[1] == (robot[botID1].curX * mapSize + robot[botID1].curY))
+        if (robot[botID2].jamDetectBuffer[1] == (robot[botID1].curX * MAP_SIZE + robot[botID1].curY))
             return true;
         else
             return false;
@@ -521,16 +521,16 @@ bool DecisionMaker::jamDetect(int botID1, int botID2)
     {
         if (robot[botID2].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i])
         {
-            if (robot[botID2].jamDetectBuffer[i + 1] == (robot[botID2].tarX * mapSize + robot[botID2].tarY))
+            if (robot[botID2].jamDetectBuffer[i + 1] == (robot[botID2].tarX * MAP_SIZE + robot[botID2].tarY))
                 break; // 这是路径检测缓冲区的有效长度，此刻与之后无须检测
-            if (robot[botID2].jamDetectBuffer[i + 1] == (robot[botID2].tmpTarX * mapSize + robot[botID2].tmpTarY))
+            if (robot[botID2].jamDetectBuffer[i + 1] == (robot[botID2].tmpTarX * MAP_SIZE + robot[botID2].tmpTarY))
                 break; // 这是路径检测缓冲区的有效长度，此刻与之后无须检测
         }
         if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID1].jamDetectBuffer[i])
         {
-            if (robot[botID1].jamDetectBuffer[i + 1] == (robot[botID1].tarX * mapSize + robot[botID1].tarY))
+            if (robot[botID1].jamDetectBuffer[i + 1] == (robot[botID1].tarX * MAP_SIZE + robot[botID1].tarY))
                 break; // 这是路径检测缓冲区的有效长度，此刻与之后无须检测
-            if (robot[botID1].jamDetectBuffer[i + 1] == (robot[botID1].tmpTarX * mapSize + robot[botID1].tmpTarY))
+            if (robot[botID1].jamDetectBuffer[i + 1] == (robot[botID1].tmpTarX * MAP_SIZE + robot[botID1].tmpTarY))
                 break; // 这是路径检测缓冲区的有效长度，此刻与之后无须检测
         }
 
@@ -551,16 +551,16 @@ bool DecisionMaker::unJamDetect(int botID1, int botID2)
     {
         if (robot[botID2].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i])
         {
-            if (robot[botID2].jamDetectBuffer[i + 1] == (robot[botID2].tarX * mapSize + robot[botID2].tarY))
+            if (robot[botID2].jamDetectBuffer[i + 1] == (robot[botID2].tarX * MAP_SIZE + robot[botID2].tarY))
                 break; // 这是路径检测缓冲区的有效长度，此刻与之后无须检测
-            if (robot[botID2].jamDetectBuffer[i + 1] == (robot[botID2].tmpTarX * mapSize + robot[botID2].tmpTarY))
+            if (robot[botID2].jamDetectBuffer[i + 1] == (robot[botID2].tmpTarX * MAP_SIZE + robot[botID2].tmpTarY))
                 break; // 这是路径检测缓冲区的有效长度，此刻与之后无须检测
         }
         if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID1].jamDetectBuffer[i])
         {
-            if (robot[botID1].jamDetectBuffer[i + 1] == (robot[botID1].tarX * mapSize + robot[botID1].tarY))
+            if (robot[botID1].jamDetectBuffer[i + 1] == (robot[botID1].tarX * MAP_SIZE + robot[botID1].tarY))
                 break; // 这是路径检测缓冲区的有效长度，此刻与之后无须检测
-            if (robot[botID1].jamDetectBuffer[i + 1] == (robot[botID1].tmpTarX * mapSize + robot[botID1].tmpTarY))
+            if (robot[botID1].jamDetectBuffer[i + 1] == (robot[botID1].tmpTarX * MAP_SIZE + robot[botID1].tmpTarY))
                 break; // 这是路径检测缓冲区的有效长度，此刻与之后无须检测
         }
         // 只需逐对检测是否有可能发生冲突即可
@@ -577,9 +577,9 @@ void DecisionMaker::jamControl()
 {
     unJam();
     setPriority(); // 计算每一个机器人的移动优先级
-    for (int i = 0; i < robot_num; ++i)
+    for (int i = 0; i < ROBOT_NUM; ++i)
     {
-        for (int j = i + 1; j < robot_num; ++j)
+        for (int j = i + 1; j < ROBOT_NUM; ++j)
         {
             if (jamDetect(i, j))
             {                               // 预计会发生碰撞，robot_j去寻找避让点（将考虑robot_i的堵塞检测缓冲区），robot_i则保持原来的轨迹
@@ -711,9 +711,9 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
     vector<Node *> rest;
     q.push(new Node(x, y));
     memset(vis, 0, sizeof(vis));
-    for (int i = 0; i < robot_num; i++)
+    for (int i = 0; i < ROBOT_NUM; i++)
     {
-        if (robot[i].robotStatus == 0 && (abs(robot[i].curX - x) + abs(robot[i].curY - y) < distExRecoverBot))
+        if (robot[i].robotStatus == 0 && (abs(robot[i].curX - x) + abs(robot[i].curY - y) < BOT_EXRECOVER_DIST))
             vis[robot[i].curX][robot[i].curY] = true;
     }
     vis[x][y] = true;
@@ -725,14 +725,14 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
             continue;
         if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i + 1])
         { // 二者下一个目标位置都相同
-            tmpX = robot[botID2].jamDetectBuffer[i + 1] / mapSize;
-            tmpY = robot[botID2].jamDetectBuffer[i + 1] % mapSize;
+            tmpX = robot[botID2].jamDetectBuffer[i + 1] / MAP_SIZE;
+            tmpY = robot[botID2].jamDetectBuffer[i + 1] % MAP_SIZE;
             vis[tmpX][tmpY] = true;
         }
         else if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i] && robot[botID1].jamDetectBuffer[i] == robot[botID2].jamDetectBuffer[i + 1])
         { // 对撞
-            tmpX = robot[botID1].jamDetectBuffer[i] / mapSize;
-            tmpY = robot[botID1].jamDetectBuffer[i] % mapSize;
+            tmpX = robot[botID1].jamDetectBuffer[i] / MAP_SIZE;
+            tmpY = robot[botID1].jamDetectBuffer[i] % MAP_SIZE;
             vis[tmpX][tmpY] = true;
         }
     }
@@ -756,7 +756,7 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
         }
 
         if (pointAvailable)
-            for (int i = 0; i < robot_num; ++i) // 检查该避让点是否已经被别人所占据
+            for (int i = 0; i < ROBOT_NUM; ++i) // 检查该避让点是否已经被别人所占据
                 if (robot[i].botAvoidState != NO_AVOIDING)
                     if (now->x == robot[i].tmpTarX && now->y == robot[i].tmpTarY)
                     {
@@ -766,7 +766,7 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
 
         if (pointAvailable)
         {
-            for (int i = 0; i < robot_num; ++i)
+            for (int i = 0; i < ROBOT_NUM; ++i)
             { // 检查该避让点是否已经被别人所占据
                 if (robot[i].botAvoidState != NO_AVOIDING)
                 {
@@ -785,7 +785,7 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= mapSize || ny < 0 || ny >= mapSize || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             q.push(new Node(nx, ny, now)); // 使用父节点指针
@@ -839,7 +839,7 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
 // 检测是否可以解除堵塞状态
 void DecisionMaker::unJam()
 {
-    for (int i = 0; i < robot_num; ++i)
+    for (int i = 0; i < ROBOT_NUM; ++i)
     {
         if (robot[i].botAvoidState == AVOIDING)
         { // 正处于避让状态
@@ -890,9 +890,9 @@ bool DecisionMaker::getToTarPath(int botID)
     int tarX = bot.tarX, tarY = bot.tarY;
     q.push(new Node(x, y));
     memset(vis, 0, sizeof(vis));
-    for (int i = 0; i < robot_num; i++)
+    for (int i = 0; i < ROBOT_NUM; i++)
     {
-        if (robot[i].robotStatus == 0 && (abs(robot[i].curX - x) + abs(robot[i].curY - y) < distExRecoverBot))
+        if (robot[i].robotStatus == 0 && (abs(robot[i].curX - x) + abs(robot[i].curY - y) < BOT_EXRECOVER_DIST))
             vis[robot[i].curX][robot[i].curY] = true;
         if (robot[i].botAvoidState == AVOIDED)
             vis[robot[i].curX][robot[i].curY] = true;
@@ -917,7 +917,7 @@ bool DecisionMaker::getToTarPath(int botID)
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= mapSize || ny < 0 || ny >= mapSize || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             q.push(new Node(nx, ny, now)); // 使用父节点指针

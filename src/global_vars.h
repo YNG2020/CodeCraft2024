@@ -7,18 +7,18 @@
 #include <vector>
 #include <utility> // for std::pair
 
-const int mapSize = 200;
-const int robot_num = 10;
-const int berth_num = 10;
-const int boat_num = 5;
+const int MAP_SIZE = 200;
+const int ROBOT_NUM = 10;
+const int BERTH_NUM = 10;
+const int BOAT_NUM = 5;
 const int N = 210;
-const int distExRecoverBot = 25; // 将处于恢复状态的机器人排除在路径搜索范围的最小距离
-const int GoodsValueMax = 200;
-extern Robot robot[robot_num];
-extern Berth berth[berth_num];
-extern Boat boat[boat_num];
+const int BOT_EXRECOVER_DIST = 25; // 将处于恢复状态的机器人排除在路径搜索范围的最小距离
+const int GOODS_MAX_VALUE = 200;
+extern Robot robot[ROBOT_NUM];
+extern Berth berth[BERTH_NUM];
+extern Boat boat[BOAT_NUM];
 
-extern int money, boat_capacity, frame_id, frame, K, numCurGoods;
+extern int money, boatCapacity, frameId, frame, K, numCurGoods;
 extern double limToTryChangeGoods, limToChangeGoods;
 extern char map[N][N];
 extern int goodsInMap[N][N];
@@ -27,8 +27,8 @@ extern int nearBerthDis[N][N];  // 记录每个点到最近的泊位的距离
 extern int dx[4];
 extern int dy[4];
 extern vector<std::vector<std::pair<int, int>>> goodsState; // 记录第i帧时的货物位置信息
-extern int goods_num;                                       // 分析用，地图生成的货物总量
-extern int pick_goods_num;                                  // 分析用，机器人捡起的货物总量
-extern int ship_goods_num;                                  // 分析用，船运走的货物总量
+extern int goodsNum;                                       // 分析用，地图生成的货物总量
+extern int pickGoodsNum;                                  // 分析用，机器人捡起的货物总量
+extern int shipGoodsNum;                                  // 分析用，船运走的货物总量
 
 #endif // GLOBAL_VARS_H

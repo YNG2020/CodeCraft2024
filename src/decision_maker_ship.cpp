@@ -8,14 +8,14 @@ using namespace std;
 void DecisionMaker::shipDecision()
 {
 
-    for (int boatID = 0; boatID < boat_num; ++boatID)
+    for (int boatID = 0; boatID < BOAT_NUM; ++boatID)
     {
         int berthID = boat[boatID].tarPos;
         // 最终装载时间到，直接去虚拟点（不管它目前是什么状态）
-        if (berthID != -1 && (frame_id >= 15000 - berth[berthID].transportTime))
+        if (berthID != -1 && (frameId >= 15000 - berth[berthID].transportTime))
         {
             cout << "go " << boatID << endl;
-            ship_goods_num += boat[boatID].numBoatGoods;
+            shipGoodsNum += boat[boatID].numBoatGoods;
             berth[boat[boatID].tarPos].boatIDInBerth = -1; // 更新泊位被占用的情况
             berth[boat[boatID].tarPos].boatIDToBerth = -1; // 更新泊位被指向的情况
             continue;
@@ -44,7 +44,7 @@ void DecisionMaker::shipDecision()
                         break;
                     }
                     cout << "go " << boatID << endl;
-                    ship_goods_num += boat[boatID].numBoatGoods;
+                    shipGoodsNum += boat[boatID].numBoatGoods;
                     berth[boat[boatID].tarPos].boatIDInBerth = -1; // 更新泊位被占用的情况
                     berth[boat[boatID].tarPos].boatIDToBerth = -1; // 更新泊位被指向的情况
                 }
@@ -92,13 +92,13 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
     double timeToGetMoney;      // 到预计拿到资金的时间
     int Money;
 
-    for (int berthID = 0; berthID < berth_num; ++berthID)
+    for (int berthID = 0; berthID < BERTH_NUM; ++berthID)
     {
         moveTimeToVir = berth[berthID].transportTime;
         if (oriLocation == -1)
         { // 说明boat是从虚拟点过来的
             moveTimeToBerth = berth[berthID].transportTime;
-            if (frame_id + 2 * moveTimeToBerth >= 15000)
+            if (frameId + 2 * moveTimeToBerth >= 15000)
             { // 这时候一定不选择该泊位，因为时间上来不及再去虚拟点
                 continue;
             }
@@ -110,7 +110,7 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
             else // 从别的泊位来
             {
                 moveTimeToBerth = moveTimeFromBerth;
-                if (frame_id + moveTimeToBerth + berth[berthID].transportTime >= 15000)
+                if (frameId + moveTimeToBerth + berth[berthID].transportTime >= 15000)
                 { // 这时候一定不选择转移，因为时间上来不及再去虚拟点
                     continue;
                 }
@@ -140,7 +140,7 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
         else // 从泊位过来
             timeToGetMoney = moveTimeToBerth + moveTimeToVir + loadGoodsTime;
         // 计算可获得的价值
-        Money = berth[berthID].getBerthGoodsValueOfNum(numNeedGoods, 0, GoodsValueMax / 2) + 1; // +1是为了Money为0时，仍能在时间上进行比较（适用于通过泊位间的转移来再去虚拟点的情况）
+        Money = berth[berthID].getBerthGoodsValueOfNum(numNeedGoods, 0, GOODS_MAX_VALUE / 2) + 1; // +1是为了Money为0时，仍能在时间上进行比较（适用于通过泊位间的转移来再去虚拟点的情况）
         double MeanGetValue = (double)Money / (timeToGetMoney == 0 ? 1 : timeToGetMoney);
         if ((MeanGetValue > MaxMeanGetValue) && (berth[berthID].boatIDToBerth == -1 || berthID == oriLocation)) // 如果泊位有空位
         {
