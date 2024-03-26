@@ -61,7 +61,7 @@ void Init()
         extraSearchTime = 1000;
         blockBerthTime = 1000;
         meanGoodsValue = 100;
-        GainForSameBerth = 4.0;
+        gainForSameBerth = 4.0;
 
     }
     else if (map[0][0] == '.' && map[0][MAP_SIZE - 1] == '.' && map[MAP_SIZE - 1][0] == '.' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '.')
@@ -71,7 +71,7 @@ void Init()
         extraSearchTime = 2000;
         blockBerthTime = 1000;
         meanGoodsValue = 50;
-        GainForSameBerth = 4.0;
+        gainForSameBerth = 4.0;
     }
     else
     {
@@ -80,7 +80,7 @@ void Init()
         extraSearchTime = 1000;
         blockBerthTime = 1000;
         meanGoodsValue = 0;
-        GainForSameBerth = 4.0;
+        gainForSameBerth = 4.0;
     }
 
     robotInit();

@@ -41,7 +41,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
             { // 赶得及在货物消失之前把货物运走
                 int goodsNearBerthID = nearBerthID[now->x][now->y];
                 if (botInberthID == goodsNearBerthID)
-                    factor = GainForSameBerth;
+                    factor = gainForSameBerth;
                 else
                     factor = 1.0;
 

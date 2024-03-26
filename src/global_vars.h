@@ -22,7 +22,7 @@ extern int money, boatCapacity, frameId, frame, K, numCurGoods;
 extern double limToTryChangeGoods, limToChangeGoods;
 extern int extraSearchTime;
 extern int blockBerthTime;
-extern int GainForSameBerth;
+extern int gainForSameBerth;
 extern int meanGoodsValue;
 extern char map[N][N];
 extern int goodsInMap[N][N];

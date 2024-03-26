@@ -10,7 +10,7 @@ double limToTryChangeGoods, limToChangeGoods;
 int extraSearchTime;
 int blockBerthTime;
 int meanGoodsValue;
-int GainForSameBerth;
+int gainForSameBerth;
 char map[N][N];
 int goodsInMap[N][N];
 int goodsLeftTime[N][N];
