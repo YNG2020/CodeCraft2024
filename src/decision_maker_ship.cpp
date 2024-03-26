@@ -140,7 +140,7 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
         else // 从泊位过来
             timeToGetMoney = moveTimeToBerth + moveTimeToVir + loadGoodsTime;
         // 计算可获得的价值
-        Money = berth[berthID].getBerthGoodsValueOfNum(numNeedGoods, 0, GOODS_MAX_VALUE / 2) + 1; // +1是为了Money为0时，仍能在时间上进行比较（适用于通过泊位间的转移来再去虚拟点的情况）
+        Money = berth[berthID].getBerthGoodsValueOfNum(numNeedGoods, 0, meanGoodsValue) + 1; // +1是为了Money为0时，仍能在时间上进行比较（适用于通过泊位间的转移来再去虚拟点的情况）
         double MeanGetValue = (double)Money / (timeToGetMoney == 0 ? 1 : timeToGetMoney);
         if ((MeanGetValue > MaxMeanGetValue) && (berth[berthID].boatIDToBerth == -1 || berthID == oriLocation)) // 如果泊位有空位
         {

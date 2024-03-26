@@ -62,6 +62,7 @@ void DecisionMaker::getNearBerthDis(int x, int y)
             if (inBerth(nx, ny))
             {
                 nearBerthDis[x][y] = now.dis;
+                nearBerthID[x][y] = getBerthId(nx, ny);
                 // cerr << "nearBerthDis[" << x << "][" << y << "] = " << now.dis << endl;
                 return;
             }

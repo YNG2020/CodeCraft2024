@@ -27,6 +27,9 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
 
     Node *target = nullptr; // 用于存储找到的目标节点
 
+    int botInberthID = getBerthId(x, y);
+    double factor = 2.0;
+
     while (!q.empty())
     {
         Node *now = q.front();
@@ -36,13 +39,19 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         {
             if (now->dis < goodsLeftTime[now->x][now->y])
             { // 赶得及在货物消失之前把货物运走
+                int goodsNearBerthID = nearBerthID[now->x][now->y];
+                if (botInberthID == goodsNearBerthID)
+                    factor = GainForSameBerth;
+                else
+                    factor = 1.0;
+
                 if (cnt == 0)
                 { // 第一次找到货物
                     if (!tryChangePath)
-                        propotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                        propotion = factor * (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
                         //propotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
                     else    // 尝试变更要搬运的货物的目标
-                        propotion = (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+                        propotion = factor * (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
                         //propotion = pow((double)goodsInMap[now->x][now->y], 1) / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
                     target = now;
                     cnt++;
@@ -51,10 +60,10 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
                 { // 尝试寻找性价比更高的货物
                     double newPropotion;
                     if (!tryChangePath)
-                        newPropotion = (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                        newPropotion = factor * (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
                         //newPropotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
                     else    // 尝试变更要搬运的货物的目标
-                        newPropotion = (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+                        newPropotion = factor * (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
                         //newPropotion = pow((double)goodsInMap[now->x][now->y], 1) / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
 
                     if (newPropotion > propotion)
@@ -68,8 +77,8 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         if (cnt > 0)
         {
             cnt++;
-            if (cnt == 1000)
-            { // 最多额外搜索1000轮
+            if (cnt == extraSearchTime)
+            { // 最多额外搜索extraSearchTime轮
                 break;
             }
         }
@@ -85,6 +94,14 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         }
         rest.push_back(now);
     }
+
+    if (target)
+    {
+        int goodsNearBerthID = nearBerthID[target->x][target->y];
+        if (botInberthID == goodsNearBerthID)
+            propotion = propotion / factor;
+    }
+
 
     if (propotion <= limToChangeGoods * robot[botID].curPropotion)
         target = nullptr;
@@ -276,14 +293,14 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
 void DecisionMaker::robotDecision()
 {
     for (int i = 0; i < BERTH_NUM; ++i)
-        if (frameId + 2 * 500 + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
+        if (frameId + blockBerthTime + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
             berth[i].isBlocked = true;
         else
             berth[i].isBlocked = false;
 
     for (int i = 0; i < ROBOT_NUM; i++)
     {
-        Robot &bot = robot[i];
+        Robot& bot = robot[i];
         refreshRobotState(i); // 自动更新robot的状态
 
         if (bot.botMoveState == ARRIVEGOODS)
@@ -794,7 +811,19 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
     }
 
     if (target == nullptr) // 找不到路直接返回
+    {
+        while (!rest.empty())
+        {
+            delete rest.back();
+            rest.pop_back();
+        }
+        while (!q.empty())
+        {
+            delete q.front();
+            q.pop();
+        }
         return false;
+    }
 
     robot[botID2].pathDir.clear(); // 清空
     if (target != nullptr)
@@ -926,7 +955,19 @@ bool DecisionMaker::getToTarPath(int botID)
     }
 
     if (target == nullptr) // 找不到路直接返回
+    {
+        while (!rest.empty())
+        {
+            delete rest.back();
+            rest.pop_back();
+        }
+        while (!q.empty())
+        {
+            delete q.front();
+            q.pop();
+        }
         return false;
+    }
 
     bot.pathDir.clear(); // 清空
     if (target != nullptr)
