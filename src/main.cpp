@@ -54,7 +54,7 @@ void Init()
         cin >> boatCapacity;
 
 
-    if (map[0][0] == '*' && map[0][mapSize - 1] == '*' && map[mapSize - 1][0] == '*' && map[mapSize - 1][mapSize - 1] == '*' && map[14][43] == 'A')
+    if (map[0][0] == '*' && map[0][MAP_SIZE - 1] == '*' && map[MAP_SIZE - 1][0] == '*' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '*' && map[14][43] == 'A')
     {
         limToTryChangeGoods = 0.4;
         limToChangeGoods = 1.4;
@@ -64,7 +64,7 @@ void Init()
         GainForSameBerth = 4.0;
 
     }
-    else if (map[0][0] == '.' && map[0][mapSize - 1] == '.' && map[mapSize - 1][0] == '.' && map[mapSize - 1][mapSize - 1] == '.')
+    else if (map[0][0] == '.' && map[0][MAP_SIZE - 1] == '.' && map[MAP_SIZE - 1][0] == '.' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '.')
     {
         limToTryChangeGoods = 0.2;
         limToChangeGoods = 1.4;
