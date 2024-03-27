@@ -6,19 +6,19 @@
 
 bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath = false)
 {
-    static Node* nodes = new Node[MAP_SIZE * MAP_SIZE];
-    int nodeIndex = 0;
+    int queueCount = 0;
+    int queueIndex = 0;
     if (numCurGoods <= 0)
         return false;
-    queue<Node *> q;
     double propotion = 0;
     if (tryChangePath)
         propotion = robot[botID].curPropotion;
     int cnt = 0;
 
-    Node *current = &nodes[nodeIndex++];// root
-    current->setNode(x, y, 0, nullptr);
-    q.push(current);
+    Node *now = &nodes[queueCount++];
+    Node* target = nullptr; // 用于存储找到的目标节点
+    Node* child = nullptr;
+    now->setNode(x, y, 0, nullptr);
 
     memset(vis, 0, sizeof(vis));
     for (int i = 0; i < ROBOT_NUM; i++)
@@ -30,15 +30,12 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
     if (robot[botID].avoidBotID != -1) // 避让状态中找不到路，找新路时则避免路过曾经要避让但避让失败的对象
         vis[robot[robot[botID].avoidBotID].curX][robot[robot[botID].avoidBotID].curY] = true;
 
-    Node *target = nullptr; // 用于存储找到的目标节点
-
     int botInberthID = getBerthId(x, y);
     double factor = 2.0;
 
-    while (!q.empty())
+    while (queueCount > queueIndex)
     {
-        Node *now = q.front();
-        q.pop();
+        now = &nodes[queueIndex++];
 
         if (goodsInMap[now->x][now->y] > 0)
         {
@@ -54,10 +51,8 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
                 { // 第一次找到货物
                     if (!tryChangePath)
                         propotion = factor * (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
-                        //propotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
                     else    // 尝试变更要搬运的货物的目标
                         propotion = factor * (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
-                        //propotion = pow((double)goodsInMap[now->x][now->y], 1) / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
                     target = now;
                     cnt++;
                 }
@@ -66,10 +61,8 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
                     double newPropotion;
                     if (!tryChangePath)
                         newPropotion = factor * (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
-                        //newPropotion = pow((double)goodsInMap[now->x][now->y], 1) / (now->dis + nearBerthDis[now->x][now->y]);
                     else    // 尝试变更要搬运的货物的目标
                         newPropotion = factor * (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
-                        //newPropotion = pow((double)goodsInMap[now->x][now->y], 1) / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
 
                     if (newPropotion > propotion)
                     {
@@ -94,10 +87,9 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
             int ny = now->y + dy[i];
             if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
-            Node *child = &nodes[nodeIndex++];
-            child->setNode(nx, ny, now->dis + 1, now);
             vis[nx][ny] = true;
-            q.push(child); // 使用父节点指针
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now->dis + 1, now);
         }
     }
 
@@ -107,7 +99,6 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         if (botInberthID == goodsNearBerthID)
             propotion = propotion / factor;
     }
-
 
     if (propotion <= limToChangeGoods * robot[botID].curPropotion)
         target = nullptr;
@@ -161,6 +152,8 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
 
 bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID)
 {
+    int queueCount = 0;
+    int queueIndex = 0;
     bool haveBerthFlag = false;
     for (int i = 0; i < BERTH_NUM; ++i)
         if (frameId < 10000 || (!berth[i].isBlocked && robot[botID].availableBerth[i]))
@@ -172,9 +165,11 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
     if (!haveBerthFlag)
         return false;
 
-    queue<Node *> q;
-    vector<Node *> rest;
-    q.push(new Node(x, y));
+    Node* now = &nodes[queueCount++];
+    Node* target = nullptr; // 用于存储找到的目标节点
+    Node* child = nullptr;
+    now->setNode(x, y, 0, nullptr);
+
     memset(vis, 0, sizeof(vis));
     for (int i = 0; i < ROBOT_NUM; i++)
     {
@@ -185,12 +180,9 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
     if (robot[botID].avoidBotID != -1) // 避让状态中找不到路，找新路时则避免路过曾经要避让但避让失败的对象
         vis[robot[robot[botID].avoidBotID].curX][robot[robot[botID].avoidBotID].curY] = true;
 
-    Node *target = nullptr; // 用于存储找到的目标节点
-
-    while (!q.empty())
+    while (queueCount > queueIndex)
     {
-        Node *now = q.front();
-        q.pop();
+        now = &nodes[queueIndex++];
 
         if (inBerth(now->x, now->y))
         {
@@ -211,25 +203,13 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
             if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
-            q.push(new Node(nx, ny, now)); // 使用父节点指针
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now->dis + 1, now);
         }
-        rest.push_back(now);
     }
 
     if (target == nullptr) // 找不到路直接返回
-    {
-        while (!rest.empty())
-        {
-            delete rest.back();
-            rest.pop_back();
-        }
-        while (!q.empty())
-        {
-            delete q.front();
-            q.pop();
-        }
         return false;
-    }
 
     vector<int>().swap(pathDir); // 清空
     if (target != nullptr)
@@ -258,16 +238,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
             pathPoint[i + 1] = Point(curX, curY);
         }
     }
-    while (!rest.empty())
-    {
-        delete rest.back();
-        rest.pop_back();
-    }
-    while (!q.empty())
-    {
-        delete q.front();
-        q.pop();
-    }
+
     if (robot[botID].avoidBotID != -1)
     { // 避让状态中找不到路，找新路时则避免路过曾经要避让但避让失败的对象，中途捡到货物也会进入到这里
         robot[botID].botAvoidState = NO_AVOIDING;
@@ -707,12 +678,15 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
 // 寻找避让路径，默认是botID2去寻找避让botID1的路径
 bool DecisionMaker::getAvoidPath(int botID1, int botID2)
 {
+    int queueCount = 0;
+    int queueIndex = 0;
     if (robot[botID2].robotStatus == 0)
         return false;
     int x = robot[botID2].curX, y = robot[botID2].curY;
-    queue<Node *> q;
-    vector<Node *> rest;
-    q.push(new Node(x, y));
+    Node* now = &nodes[queueCount++];
+    Node* target = nullptr; // 用于存储找到的目标节点
+    Node* child = nullptr;
+    now->setNode(x, y, 0, nullptr);
     memset(vis, 0, sizeof(vis));
     for (int i = 0; i < ROBOT_NUM; i++)
     {
@@ -740,13 +714,11 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
         }
     }
 
-    Node *target = nullptr;     // 用于存储找到的目标节点
     bool pointAvailable = true; // 用于标识找到的避让点是否可行
 
-    while (!q.empty())
+    while (queueCount > queueIndex)
     {
-        Node *now = q.front();
-        q.pop();
+        now = &nodes[queueIndex++];
 
         pointAvailable = true;
         for (int i = robot[botID1].idxInPth; i < robot[botID1].pathPoint.size(); ++i)
@@ -791,25 +763,13 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
             if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
-            q.push(new Node(nx, ny, now)); // 使用父节点指针
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now->dis + 1, now);
         }
-        rest.push_back(now);
     }
 
     if (target == nullptr) // 找不到路直接返回
-    {
-        while (!rest.empty())
-        {
-            delete rest.back();
-            rest.pop_back();
-        }
-        while (!q.empty())
-        {
-            delete q.front();
-            q.pop();
-        }
         return false;
-    }
 
     robot[botID2].pathDir.clear(); // 清空
     if (target != nullptr)
@@ -837,16 +797,6 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
             curY += dy[robot[botID2].pathDir[i]];
             robot[botID2].pathPoint[i + 1] = Point(curX, curY);
         }
-    }
-    while (!rest.empty())
-    {
-        delete rest.back();
-        rest.pop_back();
-    }
-    while (!q.empty())
-    {
-        delete q.front();
-        q.pop();
     }
     return true;
 }
@@ -896,15 +846,21 @@ void DecisionMaker::unJam()
 // robot[botID]寻找到robot[botID]的目标位置的路径
 bool DecisionMaker::getToTarPath(int botID)
 {
+    int queueCount = 0;
+    int queueIndex = 0;
     if (robot[botID].botTarState == NO_TARGET)
         return false;
-    queue<Node *> q;
-    vector<Node *> rest;
+
     Robot &bot = robot[botID];
     int x = bot.curX, y = bot.curY;
     int tarX = bot.tarX, tarY = bot.tarY;
-    q.push(new Node(x, y));
+
+    Node* now = &nodes[queueCount++];
+    Node* target = nullptr; // 用于存储找到的目标节点
+    Node* child = nullptr;
+    now->setNode(x, y, 0, nullptr);
     memset(vis, 0, sizeof(vis));
+
     for (int i = 0; i < ROBOT_NUM; i++)
     {
         if (robot[i].robotStatus == 0 && (abs(robot[i].curX - x) + abs(robot[i].curY - y) < BOT_EXRECOVER_DIST))
@@ -914,12 +870,9 @@ bool DecisionMaker::getToTarPath(int botID)
     }
     vis[x][y] = true;
 
-    Node *target = nullptr; // 用于存储找到的目标节点
-
-    while (!q.empty())
+    while (queueCount > queueIndex)
     {
-        Node *now = q.front();
-        q.pop();
+        now = &nodes[queueIndex++];
 
         if (now->x == tarX && now->y == tarY)
         {
@@ -935,25 +888,13 @@ bool DecisionMaker::getToTarPath(int botID)
             if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
-            q.push(new Node(nx, ny, now)); // 使用父节点指针
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now->dis + 1, now);
         }
-        rest.push_back(now);
     }
 
     if (target == nullptr) // 找不到路直接返回
-    {
-        while (!rest.empty())
-        {
-            delete rest.back();
-            rest.pop_back();
-        }
-        while (!q.empty())
-        {
-            delete q.front();
-            q.pop();
-        }
         return false;
-    }
 
     bot.pathDir.clear(); // 清空
     if (target != nullptr)
@@ -981,16 +922,6 @@ bool DecisionMaker::getToTarPath(int botID)
             curY += dy[bot.pathDir[i]];
             bot.pathPoint[i + 1] = Point(curX, curY);
         }
-    }
-    while (!rest.empty())
-    {
-        delete rest.back();
-        rest.pop_back();
-    }
-    while (!q.empty())
-    {
-        delete q.front();
-        q.pop();
     }
     return true;
 }

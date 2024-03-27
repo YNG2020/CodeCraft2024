@@ -9,7 +9,7 @@ namespace decision_maker_base {
     };
 }
 
-DecisionMaker::DecisionMaker() : priority(ROBOT_NUM, 0) {}
+DecisionMaker::DecisionMaker() : priority(ROBOT_NUM, 0) { nodes = new Node[MAP_SIZE * MAP_SIZE]; }
 
 void DecisionMaker::makeDecision()
 {
@@ -45,28 +45,34 @@ int DecisionMaker::getBerthId(int x, int y)
 
 void DecisionMaker::getNearBerthDis(int x, int y)
 {
-    queue<decision_maker_base::DisNode> q;
+    int queueCount = 0;
+    int queueIndex = 0;
+    Node* now = &nodes[queueCount++];
+    Node* target = nullptr; // 用于存储找到的目标节点
+    Node* child = nullptr;
+    now->setNode(x, y, 0, nullptr);
     memset(vis, 0, sizeof(vis));
-    q.push(decision_maker_base::DisNode(x, y, 0));
-    while (!q.empty())
+
+    while (queueCount > queueIndex)
     {
-        decision_maker_base::DisNode now = q.front();
-        q.pop();
+        now = &nodes[queueIndex++];
+
         for (int i = 0; i < 4; i++)
         {
-            int nx = now.x + dx[i];
-            int ny = now.y + dy[i];
+            int nx = now->x + dx[i];
+            int ny = now->y + dy[i];
             if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             if (inBerth(nx, ny))
             {
-                nearBerthDis[x][y] = now.dis;
+                nearBerthDis[x][y] = now->dis;
                 nearBerthID[x][y] = getBerthId(nx, ny);
                 // cerr << "nearBerthDis[" << x << "][" << y << "] = " << now.dis << endl;
                 return;
             }
-            q.push(decision_maker_base::DisNode(nx, ny, now.dis + 1));
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now->dis + 1, now);
         }
     }
 }

@@ -23,6 +23,7 @@ private:
         }
     };
 
+    Node* nodes;
     vector<int> priority;
     bool vis[210][210];
 
