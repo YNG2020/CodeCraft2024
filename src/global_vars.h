@@ -7,13 +7,6 @@
 #include <vector>
 #include <utility> // for std::pair
 
-const int MAP_SIZE = 200;
-const int ROBOT_NUM = 10;
-const int BERTH_NUM = 10;
-const int BOAT_NUM = 5;
-const int N = 210;
-const int BOT_EXRECOVER_DIST = 25; // 将处于恢复状态的机器人排除在路径搜索范围的最小距离
-const int GOODS_MAX_VALUE = 200;
 extern Robot robot[ROBOT_NUM];
 extern Berth berth[BERTH_NUM];
 extern Boat boat[BOAT_NUM];

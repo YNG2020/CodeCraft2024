@@ -51,14 +51,28 @@ public:
         }
         return BerthGoodsValueOfNum;
     }
-    Berth() {}
+    void Init()
+    {
+        numBerthGoods = 0;
+        boatIDInBerth = -1;
+        boatIDToBerth = -1;
+        timeOfGoodsToBerth = 100;
+        lastTimeGetGoods = 0;
+        totGetGoodsGap = 0;
+        numGetGoods = 0;
+        isBlocked = false;
+    }
+    Berth() 
+    {
+        Init();
+    }
     Berth(int newX, int newY, int newTransportTime, int newLoadingSpeed)
     {
         x = newX;
         y = newY;
         transportTime = newTransportTime;
         loadingSpeed = newLoadingSpeed;
-        numBerthGoods = 0;
+        Init();
     }
 };
 

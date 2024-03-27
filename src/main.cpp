@@ -11,9 +11,6 @@
 #include <ctime>
 #include <algorithm>
 
-void robotInit();
-void berthInit();
-void boatInit();
 
 using namespace std;
 std::ifstream myCin;
@@ -83,9 +80,10 @@ void Init()
         gainForSameBerth = 4.0;
     }
 
-    robotInit();
-    berthInit();
-    boatInit();
+    for (int i = 0; i < BOAT_NUM; ++i)
+    {
+        boat[i].setCapacity(boatCapacity);
+    }
 
     string okk;
     if (Debug)
@@ -173,51 +171,4 @@ int main()
     }
     // outputFile.close();
     return 0;
-}
-
-// robot参数的初始化
-void robotInit()
-{
-    for (int i = 0; i < ROBOT_NUM; ++i)
-    {
-        robot[i].botMoveState = WAITING;
-        robot[i].botTarState = NO_TARGET;
-        robot[i].botPathState = NO_PATH;
-        robot[i].botAvoidState = NO_AVOIDING;
-        robot[i].avoidBotID = -1;
-        for (int j = 0; j < BERTH_NUM; ++j)
-            robot[i].availableBerth[j] = false;
-        robot[i].curPropotion = 0.0;
-        robot[i].meanPropotion = 0.0;
-        robot[i].sumPropotion = 0.0;
-        robot[i].cntPropotion = 0;
-    }
-}
-
-// berth参数的初始化
-void berthInit()
-{
-    for (int i = 0; i < BERTH_NUM; ++i)
-    {
-        berth[i].numBerthGoods = 0;
-        berth[i].boatIDInBerth = -1;
-        berth[i].boatIDToBerth = -1;
-        berth[i].timeOfGoodsToBerth = 100.0; // 这个值先初始化为100.0先
-        berth[i].lastTimeGetGoods = 0;
-        berth[i].totGetGoodsGap = 0;
-        berth[i].numGetGoods = 0;
-        berth[i].isBlocked = false;
-    }
-}
-
-// boat参数的初始化
-void boatInit()
-{
-    for (int i = 0; i < BOAT_NUM; ++i)
-    {
-        boat[i].numBoatGoods = 0;
-        boat[i].boatStatus = 1;
-        boat[i].tarPos = -1;
-        boat[i].capacity = boatCapacity;
-    }
 }
