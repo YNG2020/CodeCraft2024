@@ -13,7 +13,14 @@ private:
     {
         int x, y, dis;
         Node *parent; // 指向父节点的指针
-        Node(int xx, int yy, Node *p = nullptr, int d = 0) : x(xx), y(yy), parent(p), dis(d) {}
+        Node(int xx = 0, int yy = 0, Node *p = nullptr, int d = 0) : x(xx), y(yy), parent(p), dis(d) {}
+        void setNode(int xx, int yy, int d, Node* p)
+        {
+            x = xx;
+            y = yy;
+            dis = d;
+            parent = p;
+        }
     };
 
     vector<int> priority;

@@ -10,6 +10,7 @@
 #include <string>
 #include <ctime>
 #include <algorithm>
+//#include <chrono>
 
 void robotInit();
 void berthInit();
@@ -140,9 +141,10 @@ int Input()
 
     return frameId;
 }
+
 int main()
 {
-    srand((unsigned int)time(nullptr)); // Seed for random number generation
+    //auto start = std::chrono::steady_clock::now();
     // ofstream outputFile("data.csv");
     // outputFile << "goodsNum, pickGoodsNum, shipGoodsNum" << endl;
     Init();
@@ -172,6 +174,14 @@ int main()
         }
     }
     // outputFile.close();
+        // 定义结束时间点
+    //auto end = std::chrono::steady_clock::now();
+
+    //// 计算时间差
+    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+    //// 输出时间差
+    //std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
     return 0;
 }
 

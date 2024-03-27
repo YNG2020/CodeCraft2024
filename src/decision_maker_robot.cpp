@@ -6,15 +6,20 @@
 
 bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath = false)
 {
+    static Node* nodes = new Node[MAP_SIZE * MAP_SIZE];
+    int nodeIndex = 0;
     if (numCurGoods <= 0)
         return false;
     queue<Node *> q;
-    vector<Node *> rest;
     double propotion = 0;
     if (tryChangePath)
         propotion = robot[botID].curPropotion;
     int cnt = 0;
-    q.push(new Node(x, y));
+
+    Node *current = &nodes[nodeIndex++];// root
+    current->setNode(x, y, 0, nullptr);
+    q.push(current);
+
     memset(vis, 0, sizeof(vis));
     for (int i = 0; i < ROBOT_NUM; i++)
     {
@@ -89,10 +94,11 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
             int ny = now->y + dy[i];
             if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
                 continue;
+            Node *child = &nodes[nodeIndex++];
+            child->setNode(nx, ny, now->dis + 1, now);
             vis[nx][ny] = true;
-            q.push(new Node(nx, ny, now, now->dis + 1)); // 使用父节点指针
+            q.push(child); // 使用父节点指针
         }
-        rest.push_back(now);
     }
 
     if (target)
@@ -107,19 +113,8 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         target = nullptr;
 
     if (target == nullptr) // 找不到路直接返回 
-    {
-        while (!rest.empty())
-        {
-            delete rest.back();
-            rest.pop_back();
-        }
-        while (!q.empty())
-        {
-            delete q.front();
-            q.pop();
-        }
         return false;
-    }
+
     robot[botID].goodsVal = goodsInMap[target->x][target->y]; // 先存储
     robot[botID].idxInPth = 0;                                // 更新路径点序列
     robot[botID].curPropotion = propotion;                    // 更新性价比
@@ -155,16 +150,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
             pathPoint[i + 1] = Point(curX, curY);
         }
     }
-    while (!rest.empty())
-    {
-        delete rest.back();
-        rest.pop_back();
-    }
-    while (!q.empty())
-    {
-        delete q.front();
-        q.pop();
-    }
+
     if (robot[botID].avoidBotID != -1)
     { // 避让状态中找不到路，找新路时则避免路过曾经要避让但避让失败的对象，货物消失也会进入这个条件
         robot[botID].botAvoidState = NO_AVOIDING;
