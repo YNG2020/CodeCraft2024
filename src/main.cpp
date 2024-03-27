@@ -58,7 +58,7 @@ void Init()
     }
     else if (map[0][0] == '.' && map[0][MAP_SIZE - 1] == '.' && map[MAP_SIZE - 1][0] == '.' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '.')
     {
-        decisionMaker.setParams(0.5, 1.4, 1000, 1000, 0, 4.0);
+        decisionMaker.setParams(0.2, 1.4, 2000, 1000, 50, 4.0);
     }
     else
     {
