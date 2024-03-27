@@ -12,11 +12,6 @@ extern Berth berth[BERTH_NUM];
 extern Boat boat[BOAT_NUM];
 
 extern int money, boatCapacity, frameId, frame, K, numCurGoods;
-extern double limToTryChangeGoods, limToChangeGoods;
-extern int extraSearchTime;
-extern int blockBerthTime;
-extern int gainForSameBerth;
-extern int meanGoodsValue;
 extern char map[N][N];
 extern int goodsInMap[N][N];
 extern int goodsLeftTime[N][N]; // 记录货物的剩余存在时间

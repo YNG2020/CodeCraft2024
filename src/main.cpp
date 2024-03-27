@@ -53,31 +53,15 @@ void Init()
 
     if (map[0][0] == '*' && map[0][MAP_SIZE - 1] == '*' && map[MAP_SIZE - 1][0] == '*' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '*' && map[14][43] == 'A')
     {
-        limToTryChangeGoods = 0.4;
-        limToChangeGoods = 1.4;
-        extraSearchTime = 1000;
-        blockBerthTime = 1000;
-        meanGoodsValue = 100;
-        gainForSameBerth = 4.0;
-
+        decisionMaker.setParams(0.4, 1.4, 1000, 1000, 100, 4.0);
     }
     else if (map[0][0] == '.' && map[0][MAP_SIZE - 1] == '.' && map[MAP_SIZE - 1][0] == '.' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '.')
     {
-        limToTryChangeGoods = 0.2;
-        limToChangeGoods = 1.4;
-        extraSearchTime = 2000;
-        blockBerthTime = 1000;
-        meanGoodsValue = 50;
-        gainForSameBerth = 4.0;
+        decisionMaker.setParams(0.5, 1.4, 1000, 1000, 0, 4.0);
     }
     else
     {
-        limToTryChangeGoods = 0.5;
-        limToChangeGoods = 1.4;
-        extraSearchTime = 1000;
-        blockBerthTime = 1000;
-        meanGoodsValue = 0;
-        gainForSameBerth = 4.0;
+        decisionMaker.setParams(0.5, 1.4, 1000, 1000, 0, 4.0);
     }
 
     for (int i = 0; i < BOAT_NUM; ++i)

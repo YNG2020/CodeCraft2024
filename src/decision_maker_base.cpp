@@ -70,3 +70,13 @@ void DecisionMaker::getNearBerthDis(int x, int y)
         }
     }
 }
+
+void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, int blockBerthTime, int meanGoodsValue, double gainForSameBerth)
+{
+    this->limToTryChangeGoods = limToTryChangeGoods;
+    this->limToChangeGoods = limToChangeGoods;
+    this->extraSearchTime = extraSearchTime;
+    this->blockBerthTime = blockBerthTime;
+    this->meanGoodsValue = meanGoodsValue;
+    this->gainForSameBerth = gainForSameBerth;
+}

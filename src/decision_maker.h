@@ -16,6 +16,12 @@ private:
         Node(int xx, int yy, Node *p = nullptr, int d = 0) : x(xx), y(yy), parent(p), dis(d) {}
     };
 
+    double limToTryChangeGoods, limToChangeGoods;
+    int extraSearchTime;
+    int blockBerthTime;
+    int meanGoodsValue;
+    double gainForSameBerth;
+
     vector<int> priority;
     bool vis[210][210];
 
@@ -36,7 +42,10 @@ private:
     void jamResolve(int botID1, int botID2);
     void unJam();
 public:
+
+
     DecisionMaker();
+    void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, int blockBerthTime, int meanGoodsValue, double gainForSameBerth);
     void makeDecision();
     void shipDecision();
     void robotDecision();
