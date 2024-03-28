@@ -15,7 +15,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
         propotion = robot[botID].curPropotion;
     int firstDis = 0;
 
-    Node *now = &nodes[queueCount++];
+    Node* now = &nodes[queueCount++];
     Node* target = nullptr; // 用于存储找到的目标节点
     Node* child = nullptr;
     now->setNode(x, y, 0, nullptr);
@@ -394,12 +394,13 @@ void DecisionMaker::refreshRobotState(int botID)
         bot.botMoveState = ARRIVEBERTH;
     }
     if (bot.botMoveState == TOGOODS && goodsInMap[bot.tarX][bot.tarY] == 0)
-    {                                // 货物消失，及时更新自身状态
+    {   // 货物消失，及时更新自身状态
         bot.carryGoods = 0;          // 手动更新为不持有货物的状态
         bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
         bot.botMoveState = WAITING;
         bot.botPathState = NO_PATH;
         bot.curPropotion = -1;
+        bot.goodsVal = 0;   // 当前货物价值清零
     }
 }
 

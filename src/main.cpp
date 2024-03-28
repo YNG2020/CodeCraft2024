@@ -10,7 +10,7 @@
 #include <string>
 #include <ctime>
 #include <algorithm>
-#include <chrono>
+//#include <chrono>
 
 
 using namespace std;
@@ -20,7 +20,6 @@ DecisionMaker decisionMaker;
 
 void Init()
 {
-    std::srand(1234); // 这里的1234可以是任何你喜欢的整数
     if (Debug)
         myCin.open("output.txt");
 
@@ -128,7 +127,7 @@ int Input()
 
 int main()
 {
-    auto start = std::chrono::steady_clock::now();
+    //auto start = std::chrono::steady_clock::now();
     // ofstream outputFile("data.csv");
     //outputFile << "goodsNum, pickGoodsNum, shipGoodsNum" << endl;
     Init();
@@ -169,13 +168,13 @@ int main()
         }
     }
     // outputFile.close();
-        // 定义结束时间点
-    auto end = std::chrono::steady_clock::now();
+    //// 定义结束时间点
+    //auto end = std::chrono::steady_clock::now();
 
     //// 计算时间差
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
     //// 输出时间差
-    std::cerr << "Time taken: " << duration.count() << " milliseconds" << std::endl;
+    //std::cerr << "Time taken: " << duration.count() << " milliseconds" << std::endl;
     return 0;
 }
