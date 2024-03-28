@@ -10,7 +10,7 @@
 #include <string>
 #include <ctime>
 #include <algorithm>
-//#include <chrono>
+#include <chrono>
 
 
 using namespace std;
@@ -30,7 +30,7 @@ void Init()
         if (Debug)
             myCin >> map[i];
         else
-            cin >> map[i];
+            scanf("%s", map[i]);
     }
     for (int i = 0; i < BERTH_NUM; i++)
     {
@@ -42,14 +42,14 @@ void Init()
         }
         else
         {
-            cin >> id;
-            cin >> berth[id].x >> berth[id].y >> berth[id].transportTime >> berth[id].loadingSpeed;
+            scanf("%d", &id);
+            scanf("%d %d %d %d", &berth[id].x, &berth[id].y, &berth[id].transportTime, &berth[id].loadingSpeed);
         }
     }
     if (Debug)
         myCin >> boatCapacity;
     else
-        cin >> boatCapacity;
+        scanf("%d", &boatCapacity);
 
 
     if (map[0][0] == '*' && map[0][MAP_SIZE - 1] == '*' && map[MAP_SIZE - 1][0] == '*' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '*' && map[14][43] == 'A')
@@ -74,8 +74,8 @@ void Init()
     if (Debug)
         myCin >> okk;
     else
-        cin >> okk;
-    cout << "OK" << endl;
+        scanf("%s", okk.c_str());
+    printf("OK\n");
     cout.flush();
 }
 
@@ -84,11 +84,11 @@ int Input()
     if (Debug)
         myCin >> frameId >> money;
     else
-        cin >> frameId >> money;
+        scanf("%d %d", &frameId, &money);
     if (Debug)
         myCin >> K;
     else
-        cin >> K;
+        scanf("%d", &K);
     numCurGoods += K;
     goodsNum += K;
     for (int i = 1; i <= K; i++)
@@ -97,7 +97,7 @@ int Input()
         if (Debug)
             myCin >> x >> y >> val;
         else
-            cin >> x >> y >> val;
+            scanf("%d %d %d", &x, &y, &val);
         goodsInMap[x][y] = val;
         goodsLeftTime[x][y] = 1000;
         if (nearBerthDis[x][y] == 0)
@@ -108,25 +108,25 @@ int Input()
         if (Debug)
             myCin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].robotStatus;
         else
-            cin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].robotStatus;
+            scanf("%d %d %d %d", &robot[i].carryGoods, &robot[i].curX, &robot[i].curY, &robot[i].robotStatus);
     }
     for (int i = 0; i < BOAT_NUM; i++)
         if (Debug)
             myCin >> boat[i].boatStatus >> boat[i].tarPos;
         else
-            cin >> boat[i].boatStatus >> boat[i].tarPos;
+            scanf("%d %d", &boat[i].boatStatus, &boat[i].tarPos);
     string okk;
     if (Debug)
         myCin >> okk;
     else
-        cin >> okk;
+        scanf("%s", okk.c_str());
 
     return frameId;
 }
 
 int main()
 {
-    //auto start = std::chrono::steady_clock::now();
+    auto start = std::chrono::steady_clock::now();
     // ofstream outputFile("data.csv");
     // outputFile << "goodsNum, pickGoodsNum, shipGoodsNum" << endl;
     Init();
@@ -134,7 +134,7 @@ int main()
     {
         int id = Input();
         decisionMaker.makeDecision();
-        cout << "OK" << endl;
+        printf("OK\n");
         cout.flush();
         // outputFile << goodsNum << ", " << pickGoodsNum << ", " << shipGoodsNum << endl;
 
@@ -157,12 +157,12 @@ int main()
     }
     // outputFile.close();
         // 定义结束时间点
-    //auto end = std::chrono::steady_clock::now();
+    auto end = std::chrono::steady_clock::now();
 
     //// 计算时间差
-    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
     //// 输出时间差
-    //std::cout << "Time taken: " << duration.count() << " milliseconds" << std::endl;
+    std::cerr << "Time taken: " << duration.count() << " milliseconds" << std::endl;
     return 0;
 }

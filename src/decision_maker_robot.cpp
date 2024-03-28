@@ -262,7 +262,7 @@ void DecisionMaker::robotDecision()
 
         if (bot.botMoveState == ARRIVEGOODS)
         {
-            cout << "get " << i << endl;
+            printf("get %d\n", i);
             bot.carryGoods = 1;          // 手动更新为持有货物的状态
             bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
@@ -282,7 +282,7 @@ void DecisionMaker::robotDecision()
         }
         if (bot.botMoveState == ARRIVEBERTH)
         {
-            cout << "pull " << i << endl;
+            printf("pull %d\n", i);
             berth[getBerthId(bot.curX, bot.curY)].numBerthGoods++;
             berth[getBerthId(bot.curX, bot.curY)].berthGoodsValueList.push(bot.goodsVal);
             berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap += (frameId - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
@@ -420,7 +420,7 @@ void DecisionMaker::moveControl()
         {
             if (bot.pathDir[bot.idxInPth] < 0 || bot.pathDir[bot.idxInPth] > 3)
                 continue;
-            cout << "move " << i << " " << bot.pathDir[bot.idxInPth] << endl;
+            printf("move %d %d\n", i, bot.pathDir[bot.idxInPth]);
         }
     }
 }
