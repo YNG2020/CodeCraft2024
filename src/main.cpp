@@ -20,7 +20,6 @@ DecisionMaker decisionMaker;
 
 void Init()
 {
-
     std::srand(1234); // 这里的1234可以是任何你喜欢的整数
     if (Debug)
         myCin.open("output.txt");
@@ -91,6 +90,8 @@ int Input()
         cin >> K;
     numCurGoods += K;
     goodsNum += K;
+    int frameModIdx = (frameId - 1) % 1000;
+    goodsInfo[frameModIdx].clear();  // 先把对应时刻的全部货物信息清空
     for (int i = 1; i <= K; i++)
     {
         int x, y, val;
@@ -102,6 +103,7 @@ int Input()
         goodsLeftTime[x][y] = 1000;
         if (nearBerthDis[x][y] == 0)
             decisionMaker.getNearBerthDis(x, y);
+        goodsInfo[frameModIdx].emplace(x * MAP_SIZE + y, 1000);
     }
     for (int i = 0; i < ROBOT_NUM; i++)
     {
@@ -128,7 +130,7 @@ int main()
 {
     //auto start = std::chrono::steady_clock::now();
     // ofstream outputFile("data.csv");
-    // outputFile << "goodsNum, pickGoodsNum, shipGoodsNum" << endl;
+    //outputFile << "goodsNum, pickGoodsNum, shipGoodsNum" << endl;
     Init();
     for (frame = 1; frame <= 15000; frame++)
     {
@@ -138,25 +140,36 @@ int main()
         cout.flush();
         // outputFile << goodsNum << ", " << pickGoodsNum << ", " << shipGoodsNum << endl;
 
-        for (int i = 0; i < MAP_SIZE; ++i)
-        { // 维护货物的剩余存在时间
-            for (int j = 0; j < MAP_SIZE; ++j)
+        for (int i = 0, x = 0, y = 0, idx = 0; i < 1000; ++i)
+        {   // 维护货物的剩余存在时间
+            for (auto iter = goodsInfo[i].begin(); iter != goodsInfo[i].end(); ++iter)
             {
-                if (goodsInMap[i][j] != 0) // 说明该位置有货物存在，该值等于0时，不必维护该信息
+                if (iter->second > 0)
                 {
-                    --goodsLeftTime[i][j];
-                    if (goodsLeftTime[i][j] == 0) // 货物消失，货物价值归零
+                    --iter->second;
+                    idx = iter->first;
+                    x = idx / MAP_SIZE;
+                    y = idx - x * MAP_SIZE;
+                    if (goodsInMap[x][y] != 0)  // 说明该位置在此刻有货物存在（货物生成了，且暂时没被机器人取走）
                     {
-                        --numCurGoods;
-                        goodsInMap[i][j] = 0;
+                        goodsLeftTime[x][y] = iter->second;
+                        if (goodsLeftTime[x][y] == 0)
+                        {   // 货物消失，货物价值归零
+                            --numCurGoods;
+                            goodsInMap[x][y] = 0;
+                        }
                     }
-                }    
-
+                    if (goodsInMap[x][y] == 0)
+                    {   // 货物在当前帧被机器人拿走，直接将货物剩余存在时间归零
+                        iter->second = 0;
+                        goodsLeftTime[x][y] = iter->second;
+                    }
+                }
             }
         }
     }
-    // outputFile.close();
-        // 定义结束时间点
+    //outputFile.close();
+    ////定义结束时间点
     //auto end = std::chrono::steady_clock::now();
 
     //// 计算时间差
