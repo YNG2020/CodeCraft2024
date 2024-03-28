@@ -75,7 +75,7 @@ void Init()
     else
         scanf("%s", okk.c_str());
     printf("OK\n");
-    cout.flush();
+    fflush(stdout);
 }
 
 int Input()
@@ -137,7 +137,7 @@ int main()
         int id = Input();
         decisionMaker.makeDecision();
         printf("OK\n");
-        cout.flush();
+        fflush(stdout);
         // outputFile << goodsNum << ", " << pickGoodsNum << ", " << shipGoodsNum << endl;
 
         for (int i = 0, x = 0, y = 0, idx = 0; i < 1000; ++i)
