@@ -14,7 +14,7 @@ void DecisionMaker::shipDecision()
         // 最终装载时间到，直接去虚拟点（不管它目前是什么状态）
         if (berthID != -1 && (frameId >= 15000 - berth[berthID].transportTime))
         {
-            cout << "go " << boatID << endl;
+            printf("go %d\n", boatID);
             shipGoodsNum += boat[boatID].numBoatGoods;
             berth[boat[boatID].tarPos].boatIDInBerth = -1; // 更新泊位被占用的情况
             berth[boat[boatID].tarPos].boatIDToBerth = -1; // 更新泊位被指向的情况
@@ -43,7 +43,7 @@ void DecisionMaker::shipDecision()
                         berth[newBerth].boatIDToBerth = boatID;        // 更新泊位被指向的情况
                         break;
                     }
-                    cout << "go " << boatID << endl;
+                    printf("go %d\n", boatID);
                     shipGoodsNum += boat[boatID].numBoatGoods;
                     berth[boat[boatID].tarPos].boatIDInBerth = -1; // 更新泊位被占用的情况
                     berth[boat[boatID].tarPos].boatIDToBerth = -1; // 更新泊位被指向的情况
@@ -152,6 +152,6 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
         return minIdx;
 
     berth[minIdx].boatIDToBerth = boatID;
-    cout << "ship " << boatID << " " << minIdx << endl;
+    printf("ship %d %d\n", boatID, minIdx);
     return minIdx;
 }
