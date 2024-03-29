@@ -13,9 +13,10 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
     double propotion = 0;
     if (tryChangePath)
         propotion = robot[botID].curPropotion;
-    int cnt = 0;
+    int firstDis = 0;
+    //int cnt = 0;
 
-    Node *now = &nodes[queueCount++];
+    Node* now = &nodes[queueCount++];
     Node* target = nullptr; // 用于存储找到的目标节点
     Node* child = nullptr;
     now->setNode(x, y, 0, nullptr);
@@ -47,14 +48,16 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
                 else
                     factor = 1.0;
 
-                if (cnt == 0)
+                if (firstDis == 0)
+                //if (cnt == 0)
                 { // 第一次找到货物
                     if (!tryChangePath)
                         propotion = factor * (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
                     else    // 尝试变更要搬运的货物的目标
                         propotion = factor * (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
                     target = now;
-                    cnt++;
+                    firstDis = now->dis;
+                    //++cnt;
                 }
                 else
                 { // 尝试寻找性价比更高的货物
@@ -72,13 +75,13 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
                 }
             }
         }
-        if (cnt > 0)
+        if (firstDis > 0)
+        //if (cnt > 0)
         {
-            cnt++;
-            if (cnt == extraSearchTime)
-            { // 最多额外搜索extraSearchTime轮
+            if (now->dis - firstDis > extraSearchTime) // 最多额外搜索extraSearchTime步
+            //if (cnt > extraSearchTime) // 最多额外搜索extraSearchTime步
                 break;
-            }
+            //++cnt;
         }
 
         for (int i = 0; i < 4; i++)
@@ -97,7 +100,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
     {
         int goodsNearBerthID = nearBerthID[target->x][target->y];
         if (botInberthID == goodsNearBerthID)
-            propotion = propotion / factor;
+            propotion = propotion / gainForSameBerth;
     }
 
     if (propotion <= limToChangeGoods * robot[botID].curPropotion)
@@ -262,7 +265,7 @@ void DecisionMaker::robotDecision()
 
         if (bot.botMoveState == ARRIVEGOODS)
         {
-            cout << "get " << i << endl;
+            printf("get %d\n", i);
             bot.carryGoods = 1;          // 手动更新为持有货物的状态
             bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
@@ -282,7 +285,7 @@ void DecisionMaker::robotDecision()
         }
         if (bot.botMoveState == ARRIVEBERTH)
         {
-            cout << "pull " << i << endl;
+            printf("pull %d\n", i);
             berth[getBerthId(bot.curX, bot.curY)].numBerthGoods++;
             berth[getBerthId(bot.curX, bot.curY)].berthGoodsValueList.push(bot.goodsVal);
             berth[getBerthId(bot.curX, bot.curY)].totGetGoodsGap += (frameId - berth[getBerthId(bot.curX, bot.curY)].lastTimeGetGoods);
@@ -397,12 +400,13 @@ void DecisionMaker::refreshRobotState(int botID)
         bot.botMoveState = ARRIVEBERTH;
     }
     if (bot.botMoveState == TOGOODS && goodsInMap[bot.tarX][bot.tarY] == 0)
-    {                                // 货物消失，及时更新自身状态
+    {   // 货物消失，及时更新自身状态
         bot.carryGoods = 0;          // 手动更新为不持有货物的状态
         bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
         bot.botMoveState = WAITING;
         bot.botPathState = NO_PATH;
         bot.curPropotion = -1;
+        bot.goodsVal = 0;   // 当前货物价值清零
     }
 }
 
@@ -420,7 +424,7 @@ void DecisionMaker::moveControl()
         {
             if (bot.pathDir[bot.idxInPth] < 0 || bot.pathDir[bot.idxInPth] > 3)
                 continue;
-            cout << "move " << i << " " << bot.pathDir[bot.idxInPth] << endl;
+            printf("move %d %d\n", i, bot.pathDir[bot.idxInPth]);
         }
     }
 }
