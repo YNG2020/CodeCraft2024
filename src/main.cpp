@@ -52,15 +52,15 @@ void Init()
 
     if (map[0][0] == '*' && map[0][MAP_SIZE - 1] == '*' && map[MAP_SIZE - 1][0] == '*' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '*' && map[14][43] == 'A')
     {
-        decisionMaker.setParams(0.4, 1.4, 35, 1000, 100, 4.0);
+        decisionMaker.setParams(0.45, 1.4, 35, 1000, 100, 4.0);
     }
     else if (map[0][0] == '.' && map[0][MAP_SIZE - 1] == '.' && map[MAP_SIZE - 1][0] == '.' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '.')
     {
-        decisionMaker.setParams(0.2, 1.4, 50, 1000, 50, 4.0);
+        decisionMaker.setParams(0.3, 1.4, 50, 1000, 50, 4.0);
     }
     else
     {
-        decisionMaker.setParams(0.5, 1.4, 1000, 1000, 0, 4.0);
+        decisionMaker.setParams(0.4, 1.4, 50, 1000, 0, 4.0);
     }
 
     for (int i = 0; i < BOAT_NUM; ++i)

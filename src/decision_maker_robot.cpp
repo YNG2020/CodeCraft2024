@@ -14,6 +14,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
     if (tryChangePath)
         propotion = robot[botID].curPropotion;
     int firstDis = 0;
+    //int cnt = 0;
 
     Node* now = &nodes[queueCount++];
     Node* target = nullptr; // 用于存储找到的目标节点
@@ -48,6 +49,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
                     factor = 1.0;
 
                 if (firstDis == 0)
+                //if (cnt == 0)
                 { // 第一次找到货物
                     if (!tryChangePath)
                         propotion = factor * (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
@@ -55,6 +57,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
                         propotion = factor * (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
                     target = now;
                     firstDis = now->dis;
+                    //++cnt;
                 }
                 else
                 { // 尝试寻找性价比更高的货物
@@ -73,9 +76,12 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
             }
         }
         if (firstDis > 0)
+        //if (cnt > 0)
         {
             if (now->dis - firstDis > extraSearchTime) // 最多额外搜索extraSearchTime步
+            //if (cnt > extraSearchTime) // 最多额外搜索extraSearchTime步
                 break;
+            //++cnt;
         }
 
         for (int i = 0; i < 4; i++)
@@ -94,7 +100,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point> &pathPoint, vect
     {
         int goodsNearBerthID = nearBerthID[target->x][target->y];
         if (botInberthID == goodsNearBerthID)
-            propotion = propotion / factor;
+            propotion = propotion / gainForSameBerth;
     }
 
     if (propotion <= limToChangeGoods * robot[botID].curPropotion)
