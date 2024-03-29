@@ -190,7 +190,6 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point> &pathPoint, vect
         if (inBerth(now->x, now->y))
         {
             int berthID = getBerthId(now->x, now->y);
-            robot[botID].availableBerth[berthID] = true;
             if (!berth[berthID].isBlocked)
             {
                 target = now;              // 找到目标

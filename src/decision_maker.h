@@ -60,6 +60,7 @@ public:
     void refreshRobotState(int botID);
     //void refreshBoatState(int boatID);
     void getNearBerthDis(int x, int y); // 计算点到最近的泊位的距离
+    void getAvailableBerth(int x, int y, int botID);  // 计算机器人可行的泊位
 };
 
 #endif // DECISION_MAKER_H

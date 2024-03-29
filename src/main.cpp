@@ -23,7 +23,7 @@ void Init()
     if (Debug)
         myCin.open("output.txt");
 
-    for (int i = 0; i < MAP_SIZE; i++)
+    for (int i = 0, botID = 0; i < MAP_SIZE; i++)
     {
         if (Debug)
             myCin >> map[i];
@@ -49,6 +49,15 @@ void Init()
     else
         scanf("%d", &boatCapacity);
 
+    for (int i = 0, botID = 0; i < MAP_SIZE; ++i)
+    {
+        for (int j = 0; j < MAP_SIZE; ++j)
+            if (map[i][j] == 'A')
+            {
+                decisionMaker.getAvailableBerth(i, j, botID);
+                ++botID;
+            }
+    }
 
     if (map[0][0] == '*' && map[0][MAP_SIZE - 1] == '*' && map[MAP_SIZE - 1][0] == '*' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '*' && map[14][43] == 'A')
     {
