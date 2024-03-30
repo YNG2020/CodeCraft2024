@@ -1,7 +1,7 @@
 #ifndef BERTH_H
 #define BERTH_H
 #include <queue>
-using std::queue;
+using std::deque;
 class Berth
 {
 public:
@@ -12,11 +12,11 @@ public:
     int boatIDInBerth;         // 当前停泊在该泊位的船的ID
     int boatIDToBerth;         // 当前目标泊位为该泊位的船的ID
     double timeOfGoodsToBerth; // 期望的robot把货物运送到berth的时间（帧/个），需要动态维护
-    int lastTimeGetGoods;   // 上一次获得货物的时刻
-    int totGetGoodsGap; // 所有获得货物的时间间隔之和
-    int numGetGoods;    // 获得的货物的总量
+    int lastTimeGetGoods;      // 上一次获得货物的时刻
+    int totGetGoodsGap;        // 所有获得货物的时间间隔之和
+    int numGetGoods;           // 获得的货物的总量
     bool isBlocked;
-    queue<int> berthGoodsValueList; // 泊位货物价值队列，与load(),pull同步更新
+    deque<int> berthGoodsValueList; // 泊位货物价值队列，与load(),pull同步更新
     int load(int boatCapacityRemain)
     {
         int loadNum = numBerthGoods > loadingSpeed ? loadingSpeed : numBerthGoods;
@@ -25,29 +25,27 @@ public:
         int i = 0;
         while (i < loadNum) // load以后货物价值出队
         {
-            berthGoodsValueList.pop();
+            berthGoodsValueList.pop_front();
             ++i;
         }
         return loadNum;
     }
     int getBerthGoodsValueOfNum(int num, int start, int GoodsValueMean) // 计算从下标start（从0开始）开始的num个货物的总价值
     {
-        queue<int> berthGoodsValueListCopy = berthGoodsValueList; //
+
         int BerthGoodsValueOfNum = 0;
-        while (!berthGoodsValueListCopy.empty() && start > 0)
-        { // 如果从start开始计算货物，需要先让start个货物出队，接下来才是要计算的部分
-            berthGoodsValueListCopy.pop();
-            --start;
-        }
-        for (int i = 0; i < num; ++i)
+        int count = 0;
+        for (auto value = berthGoodsValueList.begin(); value < berthGoodsValueList.end(); ++value)
         {
-            if (berthGoodsValueListCopy.empty())
-                BerthGoodsValueOfNum += GoodsValueMean; // 没有货，则加上物品价值期望
-            else
-            {
-                BerthGoodsValueOfNum += berthGoodsValueListCopy.front();
-                berthGoodsValueListCopy.pop();
-            }
+            if (count >= start && count < start + num)
+                BerthGoodsValueOfNum += *value;
+            count++;
+        }
+        while (count < start + num)
+        {
+            if (count >= start)
+                BerthGoodsValueOfNum += GoodsValueMean;
+            count++;
         }
         return BerthGoodsValueOfNum;
     }
@@ -62,7 +60,7 @@ public:
         numGetGoods = 0;
         isBlocked = false;
     }
-    Berth() 
+    Berth()
     {
         Init();
     }
