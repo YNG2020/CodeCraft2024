@@ -23,18 +23,19 @@ private:
         }
     };
 
-    double limToTryChangeGoods, limToChangeGoods;
-    int extraSearchTime;
-    int blockBerthTime;
-    int meanGoodsValue;
-    double gainForSameBerth;
+    double limToTryChangeGoods, limToChangeGoods;   // 尝试选新目标，接受新目标的参数
+    int extraSearchTime;        // getNearestGoods中的额外搜索轮次
+    int blockBerthTime;         // 提前屏蔽berth的时间
+    int meanGoodsValue;         
+    double gainForSameBerth;    // 本区增益
+    double globalMeanGoodsRatio;// 全场泊位接收的货物的平均性价比
 
     Node* nodes;
     vector<int> priority;
     bool vis[210][210];
 
     bool inBerth(int x, int y);
-    bool getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath);
+    bool getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID);
     bool getNearestBerth(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID);
     bool getAvoidPath(int botID1, int botID2);
     bool getToTarPath(int botID, bool calFromJam);
@@ -57,9 +58,10 @@ public:
     void shipDecision();
     void robotDecision();
     void refreshRobotState(int botID);
-    //void refreshBoatState(int boatID);
+    void refreshBerthState();
     void getNearBerthDis(int x, int y); // 计算点到最近的泊位的距离
     void getAvailableBerth(int x, int y, int botID);  // 计算机器人可行的泊位
+    void getConnectedBerth(int berthID); // 计算相互邻接的泊位的距离
     int getBerthId(int x, int y);
 };
 

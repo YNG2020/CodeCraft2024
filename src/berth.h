@@ -1,5 +1,7 @@
 #ifndef BERTH_H
 #define BERTH_H
+#include "global_struct.h"
+#include "constants.h"
 #include <queue>
 #include <unordered_map>
 using std::deque;
@@ -17,10 +19,16 @@ public:
     int totGetGoodsGap;        // 所有获得货物的时间间隔之和
     int numGetGoods;           // 获得的货物的总量
     bool isBlocked;            // 泊位对robot屏蔽的标识
-    double meanGoodsRatio;     // 接收到的货物的平均性价比
-    double totGoodsRatio;      // 接收到的货物的总性价比
+    double meanGetGoodsRatio;     // 接收到的货物的平均性价比
+    double totGetGoodsRatio;      // 接收到的货物的总性价比
     int totGoodsInBerthZone;   // 落在泊位管理区内的货物总量
-    std::unordered_map<int, double> goodsInBerthInfo;    // 存储落在该泊位管理区内的货物信息，键是标识货物的ID，值是把货物运到最近泊位的性价比，默认robot也是从最近的泊位出发
+    std::unordered_map<int, singleGoodsInfo> goodsInBerthInfo;    // 存储落在该泊位管理区内的货物信息，键是标识货物的ID，值是一些货物信息
+    bool connectedBerth[BERTH_NUM];
+    int nearestBerth;           // 最近邻的泊位ID
+    double connectedBerthMeanGoodsRatio;    // 邻接泊位的接收的货物的平均性价比
+    int servingRobot[20];   // 正在为该泊位服务的机器人ID，每一帧更新一次
+    int numServingRobot;    // 正在为该泊位服务的机器人数量，每一帧更新一次
+    double meanInZoneGoodsRatio;    // 当前处于该泊位管理区内的货物的平均性价比
 
     deque<int> berthGoodsValueList; // 泊位货物价值队列，与load(),pull同步更新
     int load(int boatCapacityRemain)
@@ -65,8 +73,10 @@ public:
         totGetGoodsGap = 0;
         numGetGoods = 0;
         isBlocked = false;
-        meanGoodsRatio = 0.0;
-        totGoodsRatio = 0.0;
+        meanGetGoodsRatio = 0.0;
+        totGetGoodsRatio = 0.0;
+        numServingRobot = 0;
+        nearestBerth = 0;   // 其实是为了防止越界，正常的话，该值能被变更为正确值
     }
     Berth()
     {

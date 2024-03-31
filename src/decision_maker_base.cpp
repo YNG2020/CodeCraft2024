@@ -49,7 +49,7 @@ void DecisionMaker::getNearBerthDis(int x, int y)
     int queueCount = 0;
     int queueIndex = 0;
     Node* now = &nodes[queueCount++];
-    Node* target = nullptr; // ���ڴ洢�ҵ���Ŀ��ڵ�
+    Node* target = nullptr; // 用于存储找到的目标节点
     Node* child = nullptr;
     now->setNode(x, y, 0, nullptr);
     memset(vis, 0, sizeof(vis));
@@ -72,7 +72,7 @@ void DecisionMaker::getNearBerthDis(int x, int y)
                 nearBerthID[x][y] = berthID;
                 ++berth[berthID].totGoodsInBerthZone;
                 goodsIDInBerthZone[x][y] = berth[berthID].totGoodsInBerthZone;
-                berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, goodsInMap[x][y] / double(2 * nearBerthDis[x][y]));
+                berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, singleGoodsInfo(goodsInMap[x][y], 2 * nearBerthDis[x][y], x, y));
                 // cerr << "nearBerthDis[" << x << "][" << y << "] = " << now.dis << endl;
                 ++numCurGoods;
                 return;
@@ -88,7 +88,7 @@ void DecisionMaker::getAvailableBerth(int x, int y, int botID)
     int queueCount = 0;
     int queueIndex = 0;
     Node* now = &nodes[queueCount++];
-    Node* target = nullptr; // ���ڴ洢�ҵ���Ŀ��ڵ�
+    Node* target = nullptr; // 用于存储找到的目标节点
     Node* child = nullptr;
     now->setNode(x, y, 0, nullptr);
     memset(vis, 0, sizeof(vis));
@@ -113,6 +113,49 @@ void DecisionMaker::getAvailableBerth(int x, int y, int botID)
                 robot[botID].availableBerth[berthID] = true;
             }
                 
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now->dis + 1, now);
+        }
+    }
+}
+
+void DecisionMaker::getConnectedBerth(int berthID)
+{
+    int nearestBerthDis = 1000000000;    // 最近邻泊位的距离
+    int queueCount = 0;
+    int queueIndex = 0;
+    Node* now = &nodes[queueCount++];
+    Node* target = nullptr; // 用于存储找到的目标节点
+    Node* child = nullptr;
+    int x = berth[berthID].x, y = berth[berthID].y;
+    now->setNode(x, y, 0, nullptr);
+    memset(vis, 0, sizeof(vis));
+    int numFoundedBerth = 0;
+
+    while (queueCount > queueIndex && numFoundedBerth < BERTH_NUM)
+    {
+        now = &nodes[queueIndex++];
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = now->x + dx[i];
+            int ny = now->y + dy[i];
+            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+                continue;
+            vis[nx][ny] = true;
+            if (inBerth(nx, ny))
+            {
+                int connectedBerthID = getBerthId(nx, ny);
+                if (!berth[berthID].connectedBerth[connectedBerthID])
+                    ++numFoundedBerth;
+                berth[berthID].connectedBerth[connectedBerthID] = true;
+                if (connectedBerthID != berthID && now->dis + 1 < nearestBerthDis)
+                {
+                    nearestBerthDis = now->dis + 1;
+                    berth[berthID].nearestBerth = connectedBerthID;
+                }
+            }
+
             child = &nodes[queueCount++];
             child->setNode(nx, ny, now->dis + 1, now);
         }

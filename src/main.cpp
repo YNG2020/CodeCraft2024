@@ -6,6 +6,7 @@
 #include "berth.h"
 #include "boat.h"
 #include "global_vars.h"
+#include "global_struct.h"
 #include "decision_maker.h"
 #include <string>
 #include <ctime>
@@ -44,6 +45,11 @@ void Init()
             scanf("%d %d %d %d", &berth[id].x, &berth[id].y, &berth[id].transportTime, &berth[id].loadingSpeed);
         }
     }
+    for (int i = 0; i < BERTH_NUM; ++i)
+    {   // 获得泊位间的连通性信息
+        decisionMaker.getConnectedBerth(i);
+    }
+
     if (Debug)
         myCin >> boatCapacity;
     else
@@ -116,7 +122,7 @@ int Input()
             int berthID = nearBerthID[x][y];
             ++berth[berthID].totGoodsInBerthZone;
             goodsIDInBerthZone[x][y] = berth[berthID].totGoodsInBerthZone;
-            berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, goodsInMap[x][y] / double(2 * nearBerthDis[x][y]));
+            berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, singleGoodsInfo(goodsInMap[x][y], 2 * nearBerthDis[x][y], x, y));
             ++numCurGoods;
         }
         goodsInfo[frameModIdx].emplace(x * MAP_SIZE + y, 1000);
@@ -144,7 +150,7 @@ int Input()
 
 int main()
 {
-    //auto start = std::chrono::steady_clock::now();
+    auto start = std::chrono::steady_clock::now();
     // ofstream outputFile("data.csv");
     //outputFile << "goodsNum, pickGoodsNum, shipGoodsNum" << endl;
     Init();
