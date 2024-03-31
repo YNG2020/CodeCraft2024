@@ -1,6 +1,7 @@
 #ifndef BERTH_H
 #define BERTH_H
 #include <queue>
+#include <unordered_map>
 using std::deque;
 class Berth
 {
@@ -15,7 +16,12 @@ public:
     int lastTimeGetGoods;      // 上一次获得货物的时刻
     int totGetGoodsGap;        // 所有获得货物的时间间隔之和
     int numGetGoods;           // 获得的货物的总量
-    bool isBlocked;
+    bool isBlocked;            // 泊位对robot屏蔽的标识
+    double meanGoodsRatio;     // 接收到的货物的平均性价比
+    double totGoodsRatio;      // 接收到的货物的总性价比
+    int totGoodsInBerthZone;   // 落在泊位管理区内的货物总量
+    std::unordered_map<int, double> goodsInBerthInfo;    // 存储落在该泊位管理区内的货物信息，键是标识货物的ID，值是把货物运到最近泊位的性价比，默认robot也是从最近的泊位出发
+
     deque<int> berthGoodsValueList; // 泊位货物价值队列，与load(),pull同步更新
     int load(int boatCapacityRemain)
     {
@@ -54,11 +60,13 @@ public:
         numBerthGoods = 0;
         boatIDInBerth = -1;
         boatIDToBerth = -1;
-        timeOfGoodsToBerth = 100;
+        timeOfGoodsToBerth = 100.0;
         lastTimeGetGoods = 0;
         totGetGoodsGap = 0;
         numGetGoods = 0;
         isBlocked = false;
+        meanGoodsRatio = 0.0;
+        totGoodsRatio = 0.0;
     }
     Berth()
     {

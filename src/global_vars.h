@@ -19,6 +19,7 @@ extern vector<std::unordered_map<int, int>> goodsInfo;	// 存储全体货物在�
 extern int goodsLeftTime[N][N]; // 记录货物的剩余存在时间
 extern int nearBerthDis[N][N];  // 记录每个点到最近的泊位的距离
 extern int nearBerthID[N][N];	// 记录每个点到最近的泊位的ID
+extern int goodsIDInBerthZone[N][N];	// 记录对应点上的货物在最近邻泊位管理区内的ID
 extern int dx[4];
 extern int dy[4];
 extern vector<std::vector<std::pair<int, int>>> goodsState; // 记录第i帧时的货物位置信息

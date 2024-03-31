@@ -42,4 +42,11 @@ enum BOT_PATH_STATE
 	NO_PATH	   // 无路径
 };
 
+class singleGoods
+{
+public:
+	double propotion;	// 把货物运到最近泊位的性价比，默认robot也是从最近的泊位出发
+	int goodsID;		// goods在相应的泊位管理区上出现的次序
+};
+
 #endif // GLOBAL_STRUCT_H

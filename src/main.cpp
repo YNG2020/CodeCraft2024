@@ -69,7 +69,7 @@ void Init()
     }
     else
     {
-        decisionMaker.setParams(0.4, 1.4, 50, 1000, 0, 4.0);
+        decisionMaker.setParams(0.4, 1.4, 200, 1000, 0, 4.0);
     }
 
     for (int i = 0; i < BOAT_NUM; ++i)
@@ -96,8 +96,8 @@ int Input()
         myCin >> K;
     else
         scanf("%d", &K);
-    numCurGoods += K;
     goodsNum += K;
+    //numCurGoods += K;
     int frameModIdx = (frameId - 1) % 1000;
     goodsInfo[frameModIdx].clear();  // 先把对应时刻的全部货物信息清空
     for (int i = 1; i <= K; i++)
@@ -111,6 +111,14 @@ int Input()
         goodsLeftTime[x][y] = 1000;
         if (nearBerthDis[x][y] == 0)
             decisionMaker.getNearBerthDis(x, y);
+        else
+        {
+            int berthID = nearBerthID[x][y];
+            ++berth[berthID].totGoodsInBerthZone;
+            goodsIDInBerthZone[x][y] = berth[berthID].totGoodsInBerthZone;
+            berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, goodsInMap[x][y] / (2 * nearBerthDis[x][y]));
+            ++numCurGoods;
+        }
         goodsInfo[frameModIdx].emplace(x * MAP_SIZE + y, 1000);
     }
     for (int i = 0; i < ROBOT_NUM; i++)
@@ -163,21 +171,32 @@ int main()
                         goodsLeftTime[x][y] = iter->second;
                         if (goodsLeftTime[x][y] == 0)
                         {   // 货物消失，货物价值归零
-                            --numCurGoods;
+                            if (goodsInMap[x][y] > 0)
+                            {   // 该货物未被机器人选定为目标（选定为目标的话，场上货物数目已经减去一次1了）
+                                if (nearBerthDis[x][y] != 0)
+                                {   // if条件不成立，说明该货物对于所有泊位都不可达
+                                    --numCurGoods;
+                                    int berthID = nearBerthID[x][y];
+                                    int goodsID = goodsIDInBerthZone[x][y];
+                                    berth[berthID].goodsInBerthInfo.erase(goodsID);
+                                }
+                            }
+                            
                             goodsInMap[x][y] = 0;
                         }
                     }
                     if (goodsInMap[x][y] == 0)
-                    {   // 货物在当前帧被机器人拿走，直接将货物剩余存在时间归零
+                    {   // 货物在当前帧被机器人拿走或剩余存在时间刚好被归零，直接将货物剩余存在时间归零
                         iter->second = 0;
                         goodsLeftTime[x][y] = iter->second;
                     }
                 }
             }
         }
+
     }
     // outputFile.close();
-    //// 定义结束时间点
+    // 定义结束时间点
     //auto end = std::chrono::steady_clock::now();
 
     //// 计算时间差

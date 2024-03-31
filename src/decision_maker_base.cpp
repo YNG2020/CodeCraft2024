@@ -1,5 +1,6 @@
 #include "decision_maker.h"
 #include "global_vars.h"
+#include "global_struct.h"
 #include <cstring>
 
 namespace decision_maker_base {
@@ -66,9 +67,14 @@ void DecisionMaker::getNearBerthDis(int x, int y)
             vis[nx][ny] = true;
             if (inBerth(nx, ny))
             {
-                nearBerthDis[x][y] = now->dis;
-                nearBerthID[x][y] = getBerthId(nx, ny);
+                nearBerthDis[x][y] = now->dis + 1;
+                int berthID = getBerthId(nx, ny);
+                nearBerthID[x][y] = berthID;
+                ++berth[berthID].totGoodsInBerthZone;
+                goodsIDInBerthZone[x][y] = berth[berthID].totGoodsInBerthZone;
+                berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, goodsInMap[x][y] / (2 * nearBerthDis[x][y]));
                 // cerr << "nearBerthDis[" << x << "][" << y << "] = " << now.dis << endl;
+                ++numCurGoods;
                 return;
             }
             child = &nodes[queueCount++];

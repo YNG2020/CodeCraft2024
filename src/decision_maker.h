@@ -34,11 +34,10 @@ private:
     bool vis[210][210];
 
     bool inBerth(int x, int y);
-    int getBerthId(int x, int y);
     bool getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath);
     bool getNearestBerth(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID);
     bool getAvoidPath(int botID1, int botID2);
-    bool getToTarPath(int botID);
+    bool getToTarPath(int botID, bool calFromJam);
     void moveControl();
     void setPriority();
     int berth_select(int boat_id, int oriLocation);
@@ -61,6 +60,7 @@ public:
     //void refreshBoatState(int boatID);
     void getNearBerthDis(int x, int y); // 计算点到最近的泊位的距离
     void getAvailableBerth(int x, int y, int botID);  // 计算机器人可行的泊位
+    int getBerthId(int x, int y);
 };
 
 #endif // DECISION_MAKER_H
