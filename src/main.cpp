@@ -61,7 +61,7 @@ void Init()
 
     if (map[0][0] == '*' && map[0][MAP_SIZE - 1] == '*' && map[MAP_SIZE - 1][0] == '*' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '*' && map[14][43] == 'A')
     {
-        decisionMaker.setParams(0.45, 1.4, 35, 1000, 100, 4.0);
+        decisionMaker.setParams(0.45, 1.4, 50, 1000, 100, 4.0);
     }
     else if (map[0][0] == '.' && map[0][MAP_SIZE - 1] == '.' && map[MAP_SIZE - 1][0] == '.' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '.')
     {
@@ -116,7 +116,7 @@ int Input()
             int berthID = nearBerthID[x][y];
             ++berth[berthID].totGoodsInBerthZone;
             goodsIDInBerthZone[x][y] = berth[berthID].totGoodsInBerthZone;
-            berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, goodsInMap[x][y] / (2 * nearBerthDis[x][y]));
+            berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, goodsInMap[x][y] / double(2 * nearBerthDis[x][y]));
             ++numCurGoods;
         }
         goodsInfo[frameModIdx].emplace(x * MAP_SIZE + y, 1000);
@@ -181,7 +181,6 @@ int main()
                                     berth[berthID].goodsInBerthInfo.erase(goodsID);
                                 }
                             }
-                            
                             goodsInMap[x][y] = 0;
                         }
                     }

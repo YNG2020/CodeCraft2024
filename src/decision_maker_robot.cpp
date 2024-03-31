@@ -324,7 +324,7 @@ void DecisionMaker::robotDecision()
 
                 berthID = nearBerthID[oriTarX][oriTarY];
                 goodsID = goodsIDInBerthZone[oriTarX][oriTarY];
-                berth[berthID].goodsInBerthInfo.emplace(goodsID, goodsInMap[oriTarX][oriTarY] / (2 * nearBerthDis[oriTarX][oriTarY]));
+                berth[berthID].goodsInBerthInfo.emplace(goodsID, goodsInMap[oriTarX][oriTarY] / double(2 * nearBerthDis[oriTarX][oriTarY]));
 
                 refreshJamBuffer(i);
             }
@@ -675,7 +675,7 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
 
                 int berthID = nearBerthID[robot[botID1].tarX][robot[botID1].tarY];
                 int goodsID = goodsIDInBerthZone[robot[botID1].tarX][robot[botID1].tarY];
-                berth[berthID].goodsInBerthInfo.emplace(goodsID, goodsInMap[robot[botID1].tarX][robot[botID1].tarY] / (2 * nearBerthDis[robot[botID1].tarX][robot[botID1].tarY]));
+                berth[berthID].goodsInBerthInfo.emplace(goodsID, goodsInMap[robot[botID1].tarX][robot[botID1].tarY] / double(2 * nearBerthDis[robot[botID1].tarX][robot[botID1].tarY]));
             }
             robot[botID1].botMoveState = WAITING;
 
@@ -697,7 +697,7 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
 
                 int berthID = nearBerthID[robot[botID2].tarX][robot[botID2].tarY];
                 int goodsID = goodsIDInBerthZone[robot[botID2].tarX][robot[botID2].tarY];
-                berth[berthID].goodsInBerthInfo.emplace(goodsID, goodsInMap[robot[botID2].tarX][robot[botID2].tarY] / (2 * nearBerthDis[robot[botID2].tarX][robot[botID2].tarY]));
+                berth[berthID].goodsInBerthInfo.emplace(goodsID, goodsInMap[robot[botID2].tarX][robot[botID2].tarY] / double(2 * nearBerthDis[robot[botID2].tarX][robot[botID2].tarY]));
             }
             robot[botID2].botMoveState = WAITING;
 
@@ -862,7 +862,7 @@ void DecisionMaker::unJam()
 
                         int berthID = nearBerthID[robot[i].tarX][robot[i].tarY];
                         int goodsID = goodsIDInBerthZone[robot[i].tarX][robot[i].tarY];
-                        berth[berthID].goodsInBerthInfo.emplace(goodsID, goodsInMap[robot[i].tarX][robot[i].tarY] / (2 * nearBerthDis[robot[i].tarX][robot[i].tarY]));
+                        berth[berthID].goodsInBerthInfo.emplace(goodsID, goodsInMap[robot[i].tarX][robot[i].tarY] / double(2 * nearBerthDis[robot[i].tarX][robot[i].tarY]));
                     }
                     robot[i].botMoveState = WAITING;
                     robot[i].idxInPth = 0;

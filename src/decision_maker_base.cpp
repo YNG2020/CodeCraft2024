@@ -72,7 +72,7 @@ void DecisionMaker::getNearBerthDis(int x, int y)
                 nearBerthID[x][y] = berthID;
                 ++berth[berthID].totGoodsInBerthZone;
                 goodsIDInBerthZone[x][y] = berth[berthID].totGoodsInBerthZone;
-                berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, goodsInMap[x][y] / (2 * nearBerthDis[x][y]));
+                berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, goodsInMap[x][y] / double(2 * nearBerthDis[x][y]));
                 // cerr << "nearBerthDis[" << x << "][" << y << "] = " << now.dis << endl;
                 ++numCurGoods;
                 return;
