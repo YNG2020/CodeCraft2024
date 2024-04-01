@@ -42,6 +42,31 @@ enum BOT_PATH_STATE
 	NO_PATH	   // 无路径
 };
 
+/// <summary>
+/// 地图格子类型
+/// </summary>
+enum GRID_TYPE
+{
+	// 只有机器人可以
+	LAND, // 陆地
+	ROAD_LAND, // 陆地主干道
+	ROBOT_SHOP, // 机器人出生点
+
+	// 机器人和船都可以
+	BERTH, // 泊位
+	MIX, // 混合区域
+	ROAD_MIX, // 混合区域主干道
+
+	// 只有船可以
+	WATER, // 水域
+	ROAD_WATER, // 水域主干道
+	BOAT_SHOP, // 船出生点
+	ANCHORAGE, // 靠泊区
+	TRADE, // 交货点
+	// 不可通行
+	BLOCK // 障碍物
+};
+
 class SimplePoint
 {
 public:
