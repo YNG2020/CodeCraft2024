@@ -10,6 +10,7 @@ using std::vector;
 class Robot
 {
 public:
+    int id;                          // 机器人ID
     int curX, curY;                   // 当前位置
     int carryGoods;                   // 是否携带货物
     int robotStatus;                  // 0表示恢复状态，1表示正常运行状态

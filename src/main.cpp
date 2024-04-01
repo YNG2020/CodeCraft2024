@@ -31,9 +31,13 @@ void Init()
         else
             scanf("%s", map[i]);
     }
-    // TODO 切换成输入流
-    berthNum = 10;
-    //
+    decisionMaker.analyzeMap();
+
+    // 读入泊位信息
+    if (Debug)
+        myCin >> berthNum;
+    else
+        scanf("%d", &berthNum);
     berth.resize(berthNum);
     for (int i = 0; i < berthNum; i++)
     {
@@ -41,12 +45,12 @@ void Init()
         if (Debug)
         {
             myCin >> id;
-            myCin >> berth[id].x >> berth[id].y >> berth[id].transportTime >> berth[id].loadingSpeed;
+            myCin >> berth[id].x >> berth[id].y >> berth[id].loadingSpeed;
         }
         else
         {
             scanf("%d", &id);
-            scanf("%d %d %d %d", &berth[id].x, &berth[id].y, &berth[id].transportTime, &berth[id].loadingSpeed);
+            scanf("%d %d %d", &berth[id].x, &berth[id].y, &berth[id].loadingSpeed);
         }
     }
     for (int i = 0; i < berthNum; ++i)
@@ -71,13 +75,6 @@ void Init()
     {
         decisionMaker.setParams(0.4, 1.4, 50, 1000, 0, 4.0);
     }
-
-    // TODO 删掉
-    robotNum = 10;
-    boatNum = 5;
-    robot.resize(robotNum);
-    boat.resize(boatNum, Boat(boatCapacity));
-    //
 
     string okk;
     if (Debug)
@@ -125,18 +122,28 @@ int Input()
         }
         goodsInfo[frameModIdx].emplace(x * MAP_SIZE + y, 1000);
     }
+    if (Debug)
+        myCin >> robotNum;
+    else
+        scanf("%d", &robotNum);
+    robot.resize(robotNum);
     for (int i = 0; i < robotNum; i++)
     {
         if (Debug)
-            myCin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].robotStatus;
+            myCin >> robot[i].id >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY;
         else
-            scanf("%d %d %d %d", &robot[i].carryGoods, &robot[i].curX, &robot[i].curY, &robot[i].robotStatus);
+            scanf("%d %d %d %d", &robot[i].id, &robot[i].carryGoods, &robot[i].curX, &robot[i].curY);
     }
+    if (Debug)
+        myCin >> boatNum;
+    else
+        scanf("%d", &boatNum);
+    boat.resize(boatNum, Boat(boatCapacity));
     for (int i = 0; i < boatNum; i++)
         if (Debug)
-            myCin >> boat[i].boatStatus >> boat[i].tarPos;
+            myCin >> boat[i].id >> boat[i].numBoatGoods >> boat[i].curX >> boat[i].curY >> boat[i].dire >> boat[i].boatStatus;
         else
-            scanf("%d %d", &boat[i].boatStatus, &boat[i].tarPos);
+            scanf("%d %d %d %d %d %d", &boat[i].id, &boat[i].numBoatGoods, &boat[i].curX, &boat[i].curY, &boat[i].dire, &boat[i].boatStatus);
     string okk;
     if (Debug)
         myCin >> okk;
@@ -155,6 +162,12 @@ int main()
     for (frame = 1; frame <= 15000; frame++)
     {
         int id = Input();
+        if (frame == 1) {
+            decisionMaker.purchaseDecision();
+            printf("OK\n");
+            fflush(stdout);
+            continue;
+        }
         decisionMaker.makeDecision();
         printf("OK\n");
         fflush(stdout);

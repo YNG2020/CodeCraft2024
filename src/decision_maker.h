@@ -32,6 +32,7 @@ private:
 
     Node* nodes;
     vector<int> priority;
+    vector<SimplePoint> robotShop;
     bool vis[210][210];
 
     bool inBerth(int x, int y);
@@ -56,13 +57,14 @@ public:
 
     DecisionMaker();
     void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, int blockBerthTime, int meanGoodsValue, double gainForSameBerth);
+    void analyzeMap();
+    void purchaseDecision();
     void makeDecision();
     void shipDecision();
     void robotDecision();
     void refreshRobotState(int botID);
     void refreshBerthState();
     void getNearBerthDis(int x, int y); // 计算点到最近的泊位的距离
-    void getAvailableBerth(int x, int y, int botID);  // 计算机器人可行的泊位
     void getConnectedBerth(int berthID); // 计算相互邻接的泊位的距离
     int getBerthId(int x, int y);
 };

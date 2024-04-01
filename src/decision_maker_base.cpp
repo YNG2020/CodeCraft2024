@@ -25,7 +25,8 @@ bool DecisionMaker::invalidForBoat(int x, int y)
 
 bool DecisionMaker::invalidForRobot(int x, int y)
 {
-    return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || map[x][y] == '*' || map[x][y] == '#';
+    return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || map[x][y] == '*' || map[x][y] == '#'
+        || map[x][y] == '~' || map[x][y] == 'S' || map[x][y] == 'K' || map[x][y] == 'T';
 }
 
 bool DecisionMaker::inBerth(int x, int y)
@@ -145,4 +146,25 @@ void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGood
     this->blockBerthTime = blockBerthTime;
     this->meanGoodsValue = meanGoodsValue;
     this->gainForSameBerth = gainForSameBerth;
+}
+
+void DecisionMaker::analyzeMap()
+{
+    for (int i = 0; i < MAP_SIZE; i++)
+    {
+        for (int j = 0; j < MAP_SIZE; j++)
+        {
+            if (map[i][j] == 'R') {
+                robotShop.emplace_back(i, j);
+            }
+        }
+    }
+}
+
+void DecisionMaker::purchaseDecision()
+{
+    for (int i = 0; i < robotShop.size(); i++)
+    {
+        printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
+    }
 }
