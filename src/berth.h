@@ -67,6 +67,7 @@ public:
     }
     void Init()
     {
+        transportTime = 0;
         numBerthGoods = 0;
         boatIDInBerth = -1;
         boatIDToBerth = -1;
@@ -79,6 +80,7 @@ public:
         totGetGoodsRatio = 0.0;
         numServingRobot = 0;
         nearestBerth = 0;   // 其实是为了防止越界，正常的话，该值能被变更为正确值
+        totGoodsInBerthZone = 0;
     }
     Berth()
     {
