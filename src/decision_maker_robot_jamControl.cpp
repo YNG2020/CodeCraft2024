@@ -354,7 +354,7 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             child = &nodes[queueCount++];

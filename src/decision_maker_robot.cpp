@@ -410,7 +410,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point>& pathPoint, vect
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             child = &nodes[queueCount++];
@@ -526,7 +526,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point>& pathPoint, vect
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             child = &nodes[queueCount++];
@@ -616,7 +616,7 @@ bool DecisionMaker::getToTarPath(int botID, bool calFromJam)
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             child = &nodes[queueCount++];

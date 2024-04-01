@@ -49,6 +49,8 @@ private:
     void jamControl();
     void jamResolve(int botID1, int botID2);
     void unJam();
+    bool invalidForBoat(int x, int y);
+    bool invalidForRobot(int x, int y);
 public:
 
 

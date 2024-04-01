@@ -18,6 +18,16 @@ void DecisionMaker::makeDecision()
     shipDecision();
 }
 
+bool DecisionMaker::invalidForBoat(int x, int y)
+{
+    return true;
+}
+
+bool DecisionMaker::invalidForRobot(int x, int y)
+{
+    return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || map[x][y] == '*' || map[x][y] == '#';
+}
+
 bool DecisionMaker::inBerth(int x, int y)
 {
     for (int i = 0; i < BERTH_NUM; i++)
@@ -62,7 +72,7 @@ void DecisionMaker::getNearBerthDis(int x, int y)
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             if (inBerth(nx, ny))
@@ -102,7 +112,7 @@ void DecisionMaker::getAvailableBerth(int x, int y, int botID)
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             if (inBerth(nx, ny))
@@ -140,7 +150,7 @@ void DecisionMaker::getConnectedBerth(int berthID)
         {
             int nx = now->x + dx[i];
             int ny = now->y + dy[i];
-            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] == '*' || map[nx][ny] == '#' || vis[nx][ny])
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
                 continue;
             vis[nx][ny] = true;
             if (inBerth(nx, ny))
