@@ -89,7 +89,7 @@ void DecisionMaker::robotDecision()
         int callingBerthID = -1;
         if (bot.pullBerthID != -1)
         {   // 探测最近的泊位是否有召唤需求（假设当前泊位是A，则A最近的泊位设为B，而以A作为最近泊位的泊位设为C，B和C都应被探测）
-            double factor = 10.0;
+            double factor = 2.0;
             int berthIDA = bot.pullBerthID;
             int berthIDB = berth[berthIDA].nearestBerth, berthIDC = -1;
             int excessValueA = 0, excessValueB = 0, excessValueC = 0;
@@ -352,6 +352,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point>& pathPoint, vect
 
     int botInberthID = getBerthId(x, y);
     double factor = 2.0;
+    double gainForCallingBerth = 100.0;
 
     while (queueCount > queueIndex)
     {
@@ -365,7 +366,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point>& pathPoint, vect
                 if (botInberthID == goodsNearBerthID)
                     factor = gainForSameBerth;
                 else if (callingBerthID == goodsNearBerthID)
-                    factor = 100.0;
+                    factor = gainForCallingBerth;
                 else
                     factor = 1.0;
 
@@ -422,6 +423,8 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point>& pathPoint, vect
         int goodsNearBerthID = nearBerthID[target->x][target->y];
         if (botInberthID == goodsNearBerthID)
             propotion = propotion / gainForSameBerth;
+        if (callingBerthID == goodsNearBerthID)
+            propotion = propotion / gainForCallingBerth;
     }
 
     if (propotion <= limToChangeGoods * robot[botID].curPropotion)

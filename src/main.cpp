@@ -75,7 +75,7 @@ void Init()
     }
     else
     {
-        decisionMaker.setParams(0.4, 1.4, 200, 1000, 0, 4.0);
+        decisionMaker.setParams(0.4, 1.4, 50, 1000, 0, 4.0);
     }
 
     for (int i = 0; i < BOAT_NUM; ++i)
@@ -150,7 +150,7 @@ int Input()
 
 int main()
 {
-    auto start = std::chrono::steady_clock::now();
+    //auto start = std::chrono::steady_clock::now();
     // ofstream outputFile("data.csv");
     //outputFile << "goodsNum, pickGoodsNum, shipGoodsNum" << endl;
     Init();
