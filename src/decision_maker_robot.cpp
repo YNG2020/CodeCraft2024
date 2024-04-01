@@ -111,7 +111,7 @@ void DecisionMaker::robotDecision()
             }
             if (callingBerthID == -1)
             {
-                for (int j = 0; j < robotNum; ++j)
+                for (int j = 0; j < berthNum; ++j)
                     if (berth[j].nearestBerth == berthIDA)
                         berthIDC = j;
 
@@ -319,7 +319,7 @@ void DecisionMaker::moveControl()
         {
             if (bot.pathDir[bot.idxInPth] < 0 || bot.pathDir[bot.idxInPth] > 3)
                 continue;
-            // printf("move %d %d\n", i, bot.pathDir[bot.idxInPth]);
+             printf("move %d %d\n", i, bot.pathDir[bot.idxInPth]);
         }
     }
 }

@@ -25,15 +25,6 @@ enum BOT_AVOID_STATE
 };
 
 /// <summary>
-/// bot层的目标状态,
-/// </summary>
-enum BOT_TARGET_STATE
-{
-	HAVE_TARGET, // 无目标
-	NO_TARGET	 // 有目标
-};
-
-/// <summary>
 /// bot层的寻路状态,
 /// </summary>
 enum BOT_PATH_STATE

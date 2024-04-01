@@ -186,7 +186,7 @@ void DecisionMaker::analyzeMap()
 
 void DecisionMaker::purchaseDecision()
 {
-    if (robotNum < 11) {
+    if (robotNum < 9) {
         for (int i = 0; i < robotShop.size(); i++)
         {
             printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);

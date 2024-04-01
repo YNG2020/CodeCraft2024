@@ -34,16 +34,15 @@ public:
     vector<SimplePoint> pathPoint;       // 存储路径点序列
     vector<int> pathDir;           // 存储路径方向序列
     BOT_MOVE_STATE botMoveState;   // robot的移动状态
-    BOT_TARGET_STATE botTarState;  // robot的是否有目标状态（货物目标或泊位目标）
     BOT_PATH_STATE botPathState;   // robot的是否是否找到移动路径状态
     BOT_AVOID_STATE botAvoidState; // robot的是否正在避让状态
     int jamDetectBuffer[JAM_BUFFER_SIZE];        // 堵塞检测缓冲区，存储的是robot的路径的点在map的序号（二维化一维）
 
     Robot(int startX = 0, int startY = 0) :
-        curX(startX), curY(startY), carryGoods(0), robotStatus(0), tarX(0), tarY(0),
+        curX(startX), curY(startY), carryGoods(0), robotStatus(1), tarX(0), tarY(0),
         lastX(0), lastY(0), goodsVal(0), idxInPth(0), avoidPriority(0), avoidBotID(-1),
         tmpTarX(0), tmpTarY(0), curPropotion(0), meanPropotion(0), sumPropotion(0),
-        cntPropotion(0), botMoveState(WAITING), botTarState(NO_TARGET),
+        cntPropotion(0), botMoveState(WAITING),
         botPathState(NO_PATH), botAvoidState(NO_AVOIDING), pullBerthID(-1)
     {}
 };
