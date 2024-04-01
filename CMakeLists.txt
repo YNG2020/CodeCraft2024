@@ -11,5 +11,6 @@ add_executable(main
     ${CMAKE_SOURCE_DIR}/src/decision_maker_base.cpp
     ${CMAKE_SOURCE_DIR}/src/decision_maker_robot.cpp
     ${CMAKE_SOURCE_DIR}/src/decision_maker_ship.cpp
+    ${CMAKE_SOURCE_DIR}/src/decision_maker_robot_jamControl.cpp
     ${CMAKE_SOURCE_DIR}/src/global_vars.cpp
 )
