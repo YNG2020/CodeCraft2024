@@ -12,9 +12,9 @@
 #include <ctime>
 #include <algorithm>
 //#include <chrono>
-
-
 using namespace std;
+
+
 std::ifstream myCin;
 bool Debug = false;
 DecisionMaker decisionMaker;
@@ -24,13 +24,17 @@ void Init()
     if (Debug)
         myCin.open("output.txt");
 
-    for (int i = 0, botID = 0; i < MAP_SIZE; i++)
+    for (int i = 0; i < MAP_SIZE; i++)
     {
         if (Debug)
             myCin >> map[i];
         else
             scanf("%s", map[i]);
     }
+    // TODO 切换成输入流
+    berthNum = 10;
+    //
+    berth.resize(berthNum);
     for (int i = 0; i < berthNum; i++)
     {
         int id;
@@ -55,16 +59,6 @@ void Init()
     else
         scanf("%d", &boatCapacity);
 
-    for (int i = 0, botID = 0; i < MAP_SIZE; ++i)
-    {
-        for (int j = 0; j < MAP_SIZE; ++j)
-            if (map[i][j] == 'A')
-            {
-                decisionMaker.getAvailableBerth(i, j, botID);
-                ++botID;
-            }
-    }
-
     if (map[0][0] == '*' && map[0][MAP_SIZE - 1] == '*' && map[MAP_SIZE - 1][0] == '*' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '*' && map[14][43] == 'A')
     {
         decisionMaker.setParams(0.45, 1.4, 50, 1000, 100, 4.0);
@@ -78,10 +72,12 @@ void Init()
         decisionMaker.setParams(0.4, 1.4, 50, 1000, 0, 4.0);
     }
 
-    for (int i = 0; i < boatNum; ++i)
-    {
-        boat[i].setCapacity(boatCapacity);
-    }
+    // TODO 删掉
+    robotNum = 10;
+    boatNum = 5;
+    robot.resize(robotNum);
+    boat.resize(boatNum, Boat(boatCapacity));
+    //
 
     string okk;
     if (Debug)

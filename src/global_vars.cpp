@@ -1,9 +1,12 @@
 #include "global_vars.h"
 
-Robot robot[robotNum];
-Berth berth[berthNum];
-Boat boat[boatNum];
+vector<Robot> robot;
+vector<Boat> boat;
+vector<Berth> berth;
 
+int robotNum;
+int boatNum;
+int berthNum;
 
 int money, boatCapacity, frameId, frame, K, numCurGoods = 0;
 char map[N][N];

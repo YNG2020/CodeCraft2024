@@ -483,7 +483,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<SimplePoint>& pathPoint
     int queueIndex = 0;
     bool haveBerthFlag = false;
     for (int i = 0; i < berthNum; ++i)
-        if (frameId < 10000 || (!berth[i].isBlocked && robot[botID].availableBerth[i]))
+        if (frameId < 10000 || (!berth[i].isBlocked))
         { // 没被封锁或泊位路径可达
             haveBerthFlag = true;
             break;

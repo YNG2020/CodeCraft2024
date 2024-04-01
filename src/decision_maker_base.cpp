@@ -93,41 +93,6 @@ void DecisionMaker::getNearBerthDis(int x, int y)
     }
 }
 
-void DecisionMaker::getAvailableBerth(int x, int y, int botID)
-{
-    int queueCount = 0;
-    int queueIndex = 0;
-    Node* now = &nodes[queueCount++];
-    Node* target = nullptr; // 用于存储找到的目标节点
-    Node* child = nullptr;
-    now->setNode(x, y, 0, nullptr);
-    memset(vis, 0, sizeof(vis));
-    int numFoundedBerth = 0;
-
-    while (queueCount > queueIndex && numFoundedBerth < berthNum)
-    {
-        now = &nodes[queueIndex++];
-
-        for (int i = 0; i < 4; i++)
-        {
-            int nx = now->x + dx[i];
-            int ny = now->y + dy[i];
-            if (invalidForRobot(nx, ny) || vis[nx][ny])
-                continue;
-            vis[nx][ny] = true;
-            if (inBerth(nx, ny))
-            {
-                int berthID = getBerthId(nx, ny);
-                if (!robot[botID].availableBerth[berthID])
-                    ++numFoundedBerth;
-                robot[botID].availableBerth[berthID] = true;
-            }
-                
-            child = &nodes[queueCount++];
-            child->setNode(nx, ny, now->dis + 1, now);
-        }
-    }
-}
 
 void DecisionMaker::getConnectedBerth(int berthID)
 {
