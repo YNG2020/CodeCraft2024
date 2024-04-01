@@ -2,13 +2,7 @@
 #include "global_vars.h"
 #include "global_struct.h"
 #include <cstring>
-
-namespace decision_maker_base {
-    struct DisNode {
-        int x, y, dis;
-        DisNode(int xx, int yy, int d) : x(xx), y(yy), dis(d) {}
-    };
-}
+#include <map>
 
 DecisionMaker::DecisionMaker() : priority(robotNum, 0)
 {
@@ -30,13 +24,12 @@ bool DecisionMaker::invalidForBoat(int x, int y)
 
 bool DecisionMaker::invalidForRobot(int x, int y)
 {
-    return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || map[x][y] == '*' || map[x][y] == '#'
-        || map[x][y] == '~' || map[x][y] == 'S' || map[x][y] == 'K' || map[x][y] == 'T';
+    return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || gridMap[x][y] > ROAD_MIX;
 }
 
 bool DecisionMaker::inBerth(int x, int y)
 {
-    return map[x][y] == 'B';
+    return gridMap[x][y] == BERTH;
 }
 
 int DecisionMaker::getBerthId(int x, int y)
@@ -148,7 +141,7 @@ void DecisionMaker::paintBerth(int x, int y, int berthID)
         for (int i = 0; i < 4; i++) {
             int nx = now.x + dx[i];
             int ny = now.y + dy[i];
-            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] != 'B' || berthMap[nx][ny] != -1) continue;
+            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || gridMap[nx][ny] != BERTH || berthMap[nx][ny] != -1) continue;
             q.push(SimplePoint(nx, ny));
             berthMap[nx][ny] = berthID;
         }
@@ -157,11 +150,26 @@ void DecisionMaker::paintBerth(int x, int y, int berthID)
 
 void DecisionMaker::analyzeMap()
 {
+    std::map<char, GRID_TYPE> mp = {
+        {'#', BLOCK},
+        {'*', WATER},
+        {'~', ROAD_WATER},
+        {'.', LAND},
+        {'>', ROAD_LAND},
+        {'R', ROBOT_SHOP},
+        {'S', BOAT_SHOP},
+        {'T', TRADE},
+        {'B', BERTH},
+        {'K', ANCHORAGE},
+        {'C', MIX},
+        {'c', ROAD_MIX}
+    };
     for (int i = 0; i < MAP_SIZE; i++)
     {
         for (int j = 0; j < MAP_SIZE; j++)
         {
-            if (map[i][j] == 'R') {
+            gridMap[i][j] = mp[oriMap[i][j]];
+            if (gridMap[i][j] == ROBOT_SHOP) {
                 robotShop.emplace_back(i, j);
             }
         }

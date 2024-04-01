@@ -9,7 +9,7 @@ int boatNum;
 int berthNum;
 
 int money, boatCapacity, frameId, frame, K, numCurGoods = 0;
-char map[N][N];
+char oriMap[N][N];
 int goodsInMap[N][N];
 vector<std::unordered_map<int, int>> goodsInfo(1000);
 int goodsLeftTime[N][N];

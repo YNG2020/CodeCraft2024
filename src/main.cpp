@@ -27,9 +27,9 @@ void Init()
     for (int i = 0; i < MAP_SIZE; i++)
     {
         if (Debug)
-            myCin >> map[i];
+            myCin >> oriMap[i];
         else
-            scanf("%s", map[i]);
+            scanf("%s", oriMap[i]);
     }
 
     // 读入泊位信息
@@ -64,11 +64,11 @@ void Init()
     else
         scanf("%d", &boatCapacity);
 
-    if (map[0][0] == '*' && map[0][MAP_SIZE - 1] == '*' && map[MAP_SIZE - 1][0] == '*' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '*' && map[14][43] == 'A')
+    if (oriMap[0][0] == '*' && oriMap[0][MAP_SIZE - 1] == '*' && oriMap[MAP_SIZE - 1][0] == '*' && oriMap[MAP_SIZE - 1][MAP_SIZE - 1] == '*' && oriMap[14][43] == 'A')
     {
         decisionMaker.setParams(0.45, 1.4, 50, 1000, 100, 4.0);
     }
-    else if (map[0][0] == '.' && map[0][MAP_SIZE - 1] == '.' && map[MAP_SIZE - 1][0] == '.' && map[MAP_SIZE - 1][MAP_SIZE - 1] == '.')
+    else if (oriMap[0][0] == '.' && oriMap[0][MAP_SIZE - 1] == '.' && oriMap[MAP_SIZE - 1][0] == '.' && oriMap[MAP_SIZE - 1][MAP_SIZE - 1] == '.')
     {
         decisionMaker.setParams(0.3, 1.4, 50, 1000, 50, 4.0);
     }

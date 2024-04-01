@@ -1,6 +1,7 @@
 #ifndef DECISION_MAKER_H
 #define DECISION_MAKER_H
 #include "global_struct.h"
+#include "global_vars.h"
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -33,8 +34,9 @@ private:
     Node* nodes;
     vector<int> priority;
     vector<SimplePoint> robotShop;
-    bool vis[210][210];
-    int berthMap[210][210];
+    bool vis[MAP_SIZE][MAP_SIZE];
+    int berthMap[MAP_SIZE][MAP_SIZE]; // 记录对应的泊位ID
+    GRID_TYPE gridMap[MAP_SIZE][MAP_SIZE];
 
     bool inBerth(int x, int y);
     void paintBerth(int x, int y, int id); //对泊位进行染色
