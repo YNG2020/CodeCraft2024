@@ -249,7 +249,7 @@ void DecisionMaker::refreshRobotState(int botID)
 
 void DecisionMaker::refreshBerthState()
 {
-    for (int i = 0; i < berthNum; ++i)
+    for (int i = 0; i < robotNum; ++i)
     {
         Robot& bot = robot[i];
         int servingBerthID;
