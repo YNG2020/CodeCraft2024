@@ -51,6 +51,7 @@ void DecisionMaker::robotDecision()
             berth[berthID].totGetGoodsRatio += robot[i].curPropotion;
             berth[berthID].meanGetGoodsRatio = berth[berthID].totGetGoodsRatio / berth[berthID].numGetGoods;
                 
+            bot.total_goods_val += bot.goodsVal;
             bot.curPropotion = -1;      
             bot.goodsVal = 0;            // 将目前所拥有的或准备拥有的货物价值清0
             bot.carryGoods = 0;          // 手动更新为不持有货物的状态
@@ -318,7 +319,7 @@ void DecisionMaker::moveControl()
         {
             if (bot.pathDir[bot.idxInPth] < 0 || bot.pathDir[bot.idxInPth] > 3)
                 continue;
-            printf("move %d %d\n", i, bot.pathDir[bot.idxInPth]);
+            // printf("move %d %d\n", i, bot.pathDir[bot.idxInPth]);
         }
     }
 }

@@ -163,13 +163,14 @@ int main()
     for (frame = 1; frame <= 15000; frame++)
     {
         int id = Input();
-        if (frame == 1) {
-            decisionMaker.purchaseDecision();
-            printf("OK\n");
-            fflush(stdout);
-            continue;
-        }
         decisionMaker.makeDecision();
+        /* 打印 */
+        if (frame == 14999) {
+            for (int i = 0; i < robotNum; i++) {
+                cerr << "robot[" << i << "].total_goods_val = " << robot[i].total_goods_val << endl;
+            }
+        }
+        /* 打印 */
         printf("OK\n");
         fflush(stdout);
         // outputFile << goodsNum << ", " << pickGoodsNum << ", " << shipGoodsNum << endl;

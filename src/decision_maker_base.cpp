@@ -13,6 +13,7 @@ DecisionMaker::DecisionMaker() : priority(robotNum, 0)
 
 void DecisionMaker::makeDecision()
 {
+    purchaseDecision();
     robotDecision();
     shipDecision();
 }
@@ -185,8 +186,10 @@ void DecisionMaker::analyzeMap()
 
 void DecisionMaker::purchaseDecision()
 {
-    for (int i = 0; i < robotShop.size(); i++)
-    {
-        printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
+    if (robotNum < 11) {
+        for (int i = 0; i < robotShop.size(); i++)
+        {
+            printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
+        }
     }
 }

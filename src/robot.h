@@ -27,6 +27,9 @@ public:
     double sumPropotion;              // 机器人运送货物性价比的历史平求和值
     int cntPropotion;                 // 机器人运送货物的性价比被改变的总次数
     int pullBerthID;                  // 机器人正在卸货的泊位ID
+    /* record */
+    int total_goods_val = 0;          // 机器人运送货物的总价值
+    /* record */
 
     vector<SimplePoint> pathPoint;       // 存储路径点序列
     vector<int> pathDir;           // 存储路径方向序列
