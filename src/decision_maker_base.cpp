@@ -24,12 +24,15 @@ bool DecisionMaker::invalidForBoat(int x, int y)
 
 bool DecisionMaker::invalidForRobot(int x, int y)
 {
-    return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || gridMap[x][y] > ROAD_MIX;
+    // return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || gridMap[x][y] > ROAD_MIX;
+    return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || oriMap[x][y] == '#' || oriMap[x][y] == '*' || oriMap[x][y] == '~'
+        || oriMap[x][y] == 'S' || oriMap[x][y] == 'K' || oriMap[x][y] == 'T';
 }
 
 bool DecisionMaker::inBerth(int x, int y)
 {
-    return gridMap[x][y] == BERTH;
+    // return gridMap[x][y] == BERTH;
+    return oriMap[x][y] == 'B';
 }
 
 int DecisionMaker::getBerthId(int x, int y)
@@ -141,7 +144,8 @@ void DecisionMaker::paintBerth(int x, int y, int berthID)
         for (int i = 0; i < 4; i++) {
             int nx = now.x + dx[i];
             int ny = now.y + dy[i];
-            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || gridMap[nx][ny] != BERTH || berthMap[nx][ny] != -1) continue;
+            // if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || gridMap[nx][ny] != BERTH || berthMap[nx][ny] != -1) continue;
+            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || oriMap[nx][ny] != 'B' || berthMap[nx][ny] != -1) continue;
             q.push(SimplePoint(nx, ny));
             berthMap[nx][ny] = berthID;
         }
@@ -150,26 +154,26 @@ void DecisionMaker::paintBerth(int x, int y, int berthID)
 
 void DecisionMaker::analyzeMap()
 {
-    std::map<char, GRID_TYPE> mp = {
-        {'#', BLOCK},
-        {'*', WATER},
-        {'~', ROAD_WATER},
-        {'.', LAND},
-        {'>', ROAD_LAND},
-        {'R', ROBOT_SHOP},
-        {'S', BOAT_SHOP},
-        {'T', TRADE},
-        {'B', BERTH},
-        {'K', ANCHORAGE},
-        {'C', MIX},
-        {'c', ROAD_MIX}
-    };
+    // std::map<char, GRID_TYPE> mp = {
+    //     {'#', BLOCK},
+    //     {'*', WATER},
+    //     {'~', ROAD_WATER},
+    //     {'.', LAND},
+    //     {'>', ROAD_LAND},
+    //     {'R', ROBOT_SHOP},
+    //     {'S', BOAT_SHOP},
+    //     {'T', TRADE},
+    //     {'B', BERTH},
+    //     {'K', ANCHORAGE},
+    //     {'C', MIX},
+    //     {'c', ROAD_MIX}
+    // };
     for (int i = 0; i < MAP_SIZE; i++)
     {
         for (int j = 0; j < MAP_SIZE; j++)
         {
-            gridMap[i][j] = mp[oriMap[i][j]];
-            if (gridMap[i][j] == ROBOT_SHOP) {
+            // gridMap[i][j] = mp[oriMap[i][j]];
+            if (oriMap[i][j] == 'R') {
                 robotShop.emplace_back(i, j);
             }
         }
