@@ -8,9 +8,12 @@
 #include <utility> // for std::pair
 #include <unordered_map>
 
-extern Robot robot[ROBOT_NUM];
-extern Berth berth[BERTH_NUM];
-extern Boat boat[BOAT_NUM];
+const int robotNum = 10;
+const int boatNum = 5;
+const int berthNum = 10;
+extern Robot robot[robotNum];
+extern Berth berth[berthNum];
+extern Boat boat[boatNum];
 
 extern int money, boatCapacity, frameId, frame, K, numCurGoods;
 extern char map[N][N];

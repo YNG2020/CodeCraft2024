@@ -1,8 +1,8 @@
 #include "global_vars.h"
 
-Robot robot[ROBOT_NUM];
-Berth berth[BERTH_NUM];
-Boat boat[BOAT_NUM];
+Robot robot[robotNum];
+Berth berth[berthNum];
+Boat boat[boatNum];
 
 
 int money, boatCapacity, frameId, frame, K, numCurGoods = 0;

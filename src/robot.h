@@ -34,7 +34,9 @@ public:
     BOT_PATH_STATE botPathState;   // robot的是否是否找到移动路径状态
     BOT_AVOID_STATE botAvoidState; // robot的是否正在避让状态
     int jamDetectBuffer[JAM_BUFFER_SIZE];        // 堵塞检测缓冲区，存储的是robot的路径的点在map的序号（二维化一维）
-    bool availableBerth[BERTH_NUM];
+    // TODO
+    bool availableBerth[TEMP_BERTH_NUM];   // 机器人可用的泊位
+    //
 
     Robot(int startX = 0, int startY = 0) :
         curX(startX), curY(startY), carryGoods(0), robotStatus(0), tarX(0), tarY(0),
@@ -43,7 +45,9 @@ public:
         cntPropotion(0), botMoveState(WAITING), botTarState(NO_TARGET),
         botPathState(NO_PATH), botAvoidState(NO_AVOIDING), pullBerthID(-1)
     {
-        for (int j = 0; j < BERTH_NUM; ++j)
+        // TODO
+        for (int j = 0; j < TEMP_BERTH_NUM; ++j)
+        //
             availableBerth[j] = false;
     }
 };

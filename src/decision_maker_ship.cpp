@@ -8,7 +8,7 @@ using namespace std;
 void DecisionMaker::shipDecision()
 {
 
-    for (int boatID = 0; boatID < BOAT_NUM; ++boatID)
+    for (int boatID = 0; boatID < boatNum; ++boatID)
     {
         int berthID = boat[boatID].tarPos;
         // 最终装载时间到，直接去虚拟点（不管它目前是什么状态）
@@ -92,7 +92,7 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
     double timeToGetMoney;      // 到预计拿到资金的时间
     int Money;
 
-    for (int berthID = 0; berthID < BERTH_NUM; ++berthID)
+    for (int berthID = 0; berthID < berthNum; ++berthID)
     {
         moveTimeToVir = berth[berthID].transportTime;
         if (oriLocation == -1)

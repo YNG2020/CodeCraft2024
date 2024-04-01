@@ -10,7 +10,7 @@ namespace decision_maker_base {
     };
 }
 
-DecisionMaker::DecisionMaker() : priority(ROBOT_NUM, 0) { nodes = new Node[MAP_SIZE * MAP_SIZE]; }
+DecisionMaker::DecisionMaker() : priority(robotNum, 0) { nodes = new Node[MAP_SIZE * MAP_SIZE]; }
 
 void DecisionMaker::makeDecision()
 {
@@ -30,7 +30,7 @@ bool DecisionMaker::invalidForRobot(int x, int y)
 
 bool DecisionMaker::inBerth(int x, int y)
 {
-    for (int i = 0; i < BERTH_NUM; i++)
+    for (int i = 0; i < berthNum; i++)
     {
         if (x >= berth[i].x && x < berth[i].x + 4 &&
             y >= berth[i].y && y < berth[i].y + 4)
@@ -43,7 +43,7 @@ bool DecisionMaker::inBerth(int x, int y)
 
 int DecisionMaker::getBerthId(int x, int y)
 {
-    for (int i = 0; i < BERTH_NUM; i++)
+    for (int i = 0; i < berthNum; i++)
     {
         if (x >= berth[i].x && x < berth[i].x + 4 &&
             y >= berth[i].y && y < berth[i].y + 4)
@@ -104,7 +104,7 @@ void DecisionMaker::getAvailableBerth(int x, int y, int botID)
     memset(vis, 0, sizeof(vis));
     int numFoundedBerth = 0;
 
-    while (queueCount > queueIndex && numFoundedBerth < BERTH_NUM)
+    while (queueCount > queueIndex && numFoundedBerth < berthNum)
     {
         now = &nodes[queueIndex++];
 
@@ -142,7 +142,7 @@ void DecisionMaker::getConnectedBerth(int berthID)
     memset(vis, 0, sizeof(vis));
     int numFoundedBerth = 0;
 
-    while (queueCount > queueIndex && numFoundedBerth < BERTH_NUM)
+    while (queueCount > queueIndex && numFoundedBerth < berthNum)
     {
         now = &nodes[queueIndex++];
 

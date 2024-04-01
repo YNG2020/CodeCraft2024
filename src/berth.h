@@ -23,7 +23,9 @@ public:
     double totGetGoodsRatio;      // 接收到的货物的总性价比
     int totGoodsInBerthZone;   // 落在泊位管理区内的货物总量
     std::unordered_map<int, singleGoodsInfo> goodsInBerthInfo;    // 存储落在该泊位管理区内的货物信息，键是标识货物的ID，值是一些货物信息
-    bool connectedBerth[BERTH_NUM];
+    // TODO
+    bool connectedBerth[TEMP_BERTH_NUM];
+    //
     int nearestBerth;           // 最近邻的泊位ID
     double connectedBerthMeanGoodsRatio;    // 邻接泊位的接收的货物的平均性价比
     int servingRobot[20];   // 正在为该泊位服务的机器人ID，每一帧更新一次

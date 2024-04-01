@@ -7,13 +7,13 @@
 void DecisionMaker::robotDecision()
 {
     refreshBerthState();
-    for (int i = 0; i < BERTH_NUM; ++i)
+    for (int i = 0; i < berthNum; ++i)
         if (frameId + blockBerthTime + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
             berth[i].isBlocked = true;
         else
             berth[i].isBlocked = false;
 
-    for (int i = 0; i < ROBOT_NUM; i++)
+    for (int i = 0; i < robotNum; i++)
     {
         Robot &bot = robot[i];
         refreshRobotState(i); // 自动更新robot的状态
@@ -110,7 +110,7 @@ void DecisionMaker::robotDecision()
             }
             if (callingBerthID == -1)
             {
-                for (int j = 0; j < ROBOT_NUM; ++j)
+                for (int j = 0; j < robotNum; ++j)
                     if (berth[j].nearestBerth == berthIDA)
                         berthIDC = j;
 
@@ -199,7 +199,7 @@ void DecisionMaker::robotDecision()
         }
     }
     // 清空机器人为泊位的服务情况
-    for (int i = 0; i < BERTH_NUM; ++i)
+    for (int i = 0; i < berthNum; ++i)
         berth[i].numServingRobot = 0;
     moveControl();
 }
@@ -249,7 +249,7 @@ void DecisionMaker::refreshRobotState(int botID)
 
 void DecisionMaker::refreshBerthState()
 {
-    for (int i = 0; i < BERTH_NUM; ++i)
+    for (int i = 0; i < berthNum; ++i)
     {
         Robot& bot = robot[i];
         int servingBerthID;
@@ -267,7 +267,7 @@ void DecisionMaker::refreshBerthState()
     // 计算全局接收到的货物的性价比
     double tmpSum = 0.0;
     int tmpCnt = 0;
-    for (int i = 0; i < BERTH_NUM; ++i)
+    for (int i = 0; i < berthNum; ++i)
     {
         tmpSum += berth[i].totGetGoodsRatio;
         tmpCnt += berth[i].numGetGoods;
@@ -276,11 +276,11 @@ void DecisionMaker::refreshBerthState()
         globalMeanGoodsRatio = tmpSum / tmpCnt;
 
     // 计算各个泊位的连通泊位接收到的货物的性价比
-    for (int i = 0; i < BERTH_NUM; ++i)
+    for (int i = 0; i < berthNum; ++i)
     {
         tmpSum = 0.0;
         tmpCnt = 0;
-        for (int j = 0; j < BERTH_NUM; ++j)
+        for (int j = 0; j < berthNum; ++j)
         {
             if (berth[i].connectedBerth[j] && i != j)
             {
@@ -292,7 +292,7 @@ void DecisionMaker::refreshBerthState()
     }
 
     // 计算各个泊位当前管理区上的货物的平均性价比
-    for (int i = 0; i < BERTH_NUM; ++i)
+    for (int i = 0; i < berthNum; ++i)
     {
         tmpSum = 0.0;
         tmpCnt = berth[i].goodsInBerthInfo.size();
@@ -308,7 +308,7 @@ void DecisionMaker::moveControl()
 {
     jamControl();
     jamControl(); // 先这样吧（在同一帧内，前面的robot无法及时读取到后面的robot的可能已更新的堵塞检测缓冲区的信息，导致潜在的堵塞风险）
-    for (int i = 0; i < ROBOT_NUM; ++i)
+    for (int i = 0; i < robotNum; ++i)
     {
         Robot &bot = robot[i];
 
@@ -341,7 +341,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint
     now->setNode(x, y, 0, nullptr);
 
     memset(vis, 0, sizeof(vis));
-    for (int i = 0; i < ROBOT_NUM; i++)
+    for (int i = 0; i < robotNum; i++)
     {
         if (robot[i].robotStatus == 0 && (abs(robot[i].curX - x) + abs(robot[i].curY - y) < BOT_EXRECOVER_DIST))
             vis[robot[i].curX][robot[i].curY] = true;
@@ -482,7 +482,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<SimplePoint>& pathPoint
     int queueCount = 0;
     int queueIndex = 0;
     bool haveBerthFlag = false;
-    for (int i = 0; i < BERTH_NUM; ++i)
+    for (int i = 0; i < berthNum; ++i)
         if (frameId < 10000 || (!berth[i].isBlocked && robot[botID].availableBerth[i]))
         { // 没被封锁或泊位路径可达
             haveBerthFlag = true;
@@ -498,7 +498,7 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<SimplePoint>& pathPoint
     now->setNode(x, y, 0, nullptr);
 
     memset(vis, 0, sizeof(vis));
-    for (int i = 0; i < ROBOT_NUM; i++)
+    for (int i = 0; i < robotNum; i++)
     {
         if (robot[i].robotStatus == 0)
             vis[robot[i].curX][robot[i].curY] = true;
@@ -592,7 +592,7 @@ bool DecisionMaker::getToTarPath(int botID, bool calFromJam)
     now->setNode(x, y, 0, nullptr);
     memset(vis, 0, sizeof(vis));
 
-    for (int i = 0; i < ROBOT_NUM; i++)
+    for (int i = 0; i < robotNum; i++)
     {
         if (robot[i].robotStatus == 0 && (abs(robot[i].curX - x) + abs(robot[i].curY - y) < BOT_EXRECOVER_DIST))
             vis[robot[i].curX][robot[i].curY] = true;

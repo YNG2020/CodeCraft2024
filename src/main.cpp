@@ -31,7 +31,7 @@ void Init()
         else
             scanf("%s", map[i]);
     }
-    for (int i = 0; i < BERTH_NUM; i++)
+    for (int i = 0; i < berthNum; i++)
     {
         int id;
         if (Debug)
@@ -45,7 +45,7 @@ void Init()
             scanf("%d %d %d %d", &berth[id].x, &berth[id].y, &berth[id].transportTime, &berth[id].loadingSpeed);
         }
     }
-    for (int i = 0; i < BERTH_NUM; ++i)
+    for (int i = 0; i < berthNum; ++i)
     {   // 获得泊位间的连通性信息
         decisionMaker.getConnectedBerth(i);
     }
@@ -78,7 +78,7 @@ void Init()
         decisionMaker.setParams(0.4, 1.4, 50, 1000, 0, 4.0);
     }
 
-    for (int i = 0; i < BOAT_NUM; ++i)
+    for (int i = 0; i < boatNum; ++i)
     {
         boat[i].setCapacity(boatCapacity);
     }
@@ -113,6 +113,8 @@ int Input()
             myCin >> x >> y >> val;
         else
             scanf("%d %d %d", &x, &y, &val);
+        if (val == 0) // 货物消失或被取走
+            continue;
         goodsInMap[x][y] = val;
         goodsLeftTime[x][y] = 1000;
         if (nearBerthDis[x][y] == 0)
@@ -127,14 +129,14 @@ int Input()
         }
         goodsInfo[frameModIdx].emplace(x * MAP_SIZE + y, 1000);
     }
-    for (int i = 0; i < ROBOT_NUM; i++)
+    for (int i = 0; i < robotNum; i++)
     {
         if (Debug)
             myCin >> robot[i].carryGoods >> robot[i].curX >> robot[i].curY >> robot[i].robotStatus;
         else
             scanf("%d %d %d %d", &robot[i].carryGoods, &robot[i].curX, &robot[i].curY, &robot[i].robotStatus);
     }
-    for (int i = 0; i < BOAT_NUM; i++)
+    for (int i = 0; i < boatNum; i++)
         if (Debug)
             myCin >> boat[i].boatStatus >> boat[i].tarPos;
         else

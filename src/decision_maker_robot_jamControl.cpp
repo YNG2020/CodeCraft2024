@@ -7,7 +7,7 @@
 // 更新robot的避让优先级
 void DecisionMaker::setPriority()
 {
-    // for (int i = 0; i < ROBOT_NUM; ++i) {
+    // for (int i = 0; i < robotNum; ++i) {
     //     priorityFactor[i][0] = i;   // 第一列放编号
     //     priorityFactor[i][1] = robot[i].goodsVal;   // 第二列放货物的价值
     // }
@@ -130,9 +130,9 @@ void DecisionMaker::jamControl()
 {
     unJam();
     setPriority(); // 计算每一个机器人的移动优先级
-    for (int i = 0; i < ROBOT_NUM; ++i)
+    for (int i = 0; i < robotNum; ++i)
     {
-        for (int j = i + 1; j < ROBOT_NUM; ++j)
+        for (int j = i + 1; j < robotNum; ++j)
         {
             if (jamDetect(i, j))
             {                               // 预计会发生碰撞，robot_j去寻找避让点（将考虑robot_i的堵塞检测缓冲区），robot_i则保持原来的轨迹
@@ -282,7 +282,7 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
     Node* child = nullptr;
     now->setNode(x, y, 0, nullptr);
     memset(vis, 0, sizeof(vis));
-    for (int i = 0; i < ROBOT_NUM; i++)
+    for (int i = 0; i < robotNum; i++)
     {
         if (robot[i].robotStatus == 0 && (abs(robot[i].curX - x) + abs(robot[i].curY - y) < BOT_EXRECOVER_DIST))
             vis[robot[i].curX][robot[i].curY] = true;
@@ -325,7 +325,7 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
         }
 
         if (pointAvailable)
-            for (int i = 0; i < ROBOT_NUM; ++i) // 检查该避让点是否已经被别人所占据
+            for (int i = 0; i < robotNum; ++i) // 检查该避让点是否已经被别人所占据
                 if (robot[i].botAvoidState != NO_AVOIDING)
                     if (now->x == robot[i].tmpTarX && now->y == robot[i].tmpTarY)
                     {
@@ -335,7 +335,7 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
 
         if (pointAvailable)
         {
-            for (int i = 0; i < ROBOT_NUM; ++i)
+            for (int i = 0; i < robotNum; ++i)
             { // 检查该避让点是否已经被别人所占据
                 if (robot[i].botAvoidState != NO_AVOIDING)
                 {
@@ -398,7 +398,7 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
 // 检测是否可以解除堵塞状态
 void DecisionMaker::unJam()
 {
-    for (int i = 0; i < ROBOT_NUM; ++i)
+    for (int i = 0; i < robotNum; ++i)
     {
         if (robot[i].botAvoidState == AVOIDING)
         { // 正处于避让状态
