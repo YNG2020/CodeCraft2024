@@ -2,77 +2,81 @@
 #include "global_vars.h"
 #include <algorithm>
 #include <iostream>
-
-using namespace std;
-
+#include <cstring>
+#include <cmath>
+#include <string>
 void DecisionMaker::shipDecision()
 {
-
-    for (int boatID = 0; boatID < boatNum; ++boatID)
+    for (int i = 0; i < boatNum; ++i)
     {
-        int berthID = boat[boatID].tarPos;
-        // 最终装载时间到，直接去虚拟点（不管它目前是什么状态）
-        if (berthID != -1 && (frameId >= 15000 - berth[berthID].transportTime))
-        {
-            printf("go %d\n", boatID);
-            shipGoodsNum += boat[boatID].numBoatGoods;
-            berth[boat[boatID].tarPos].boatIDInBerth = -1; // 更新泊位被占用的情况
-            berth[boat[boatID].tarPos].boatIDToBerth = -1; // 更新泊位被指向的情况
-            continue;
-        }
-        switch (boat[boatID].boatStatus)
-        {
-        case 0: // 移动（运输）中
-            break;
-        case 1: // 装货状态或运输完成状态（在虚拟点）
-            if (berthID == -1)
-            { // 在虚拟点，上一次运输已完成。选择泊位航向，货物量置0
-                boat[boatID].numBoatGoods = 0;
-                berth_select(boatID, -1); // 这里需要手动置oriLocation参数，因为还没发出ship指令
-            }
-            else
-            { // 在泊位装货
-                berth[boat[boatID].tarPos].boatIDInBerth = boatID;
-                if (boat[boatID].numBoatGoods == boat[boatID].capacity)
-                { // 如果装满了，去虚拟点
-                    int newBerth = berth_select(boatID, boat[boatID].tarPos);
-                    if (newBerth != boat[boatID].tarPos)
-                    {                                                  // 有可能先去其它泊位，再去虚拟点的时间更短
-                        berth[boat[boatID].tarPos].boatIDInBerth = -1; // 更新泊位被占用的情况
-                        berth[boat[boatID].tarPos].boatIDToBerth = -1; // 更新泊位被指向的情况
-                        berth[newBerth].boatIDToBerth = boatID;        // 更新泊位被指向的情况
-                        break;
-                    }
-                    printf("go %d\n", boatID);
-                    shipGoodsNum += boat[boatID].numBoatGoods;
-                    berth[boat[boatID].tarPos].boatIDInBerth = -1; // 更新泊位被占用的情况
-                    berth[boat[boatID].tarPos].boatIDToBerth = -1; // 更新泊位被指向的情况
-                }
-                else
-                { // 没有满则继续装
-                    int loadNum = berth[berthID].load(boat[boatID].capacity - boat[boatID].numBoatGoods);
-                    boat[boatID].numBoatGoods += loadNum;
-                    int newBerth = boat[boatID].tarPos;
-                    if (loadNum == 0) // 尝试比较跑去别的泊位去装货的性价比
-                        newBerth = berth_select(boatID, boat[boatID].tarPos);
-                    if (newBerth != boat[boatID].tarPos)
-                    {
-                        berth[boat[boatID].tarPos].boatIDInBerth = -1; // 更新泊位被占用的情况
-                        berth[boat[boatID].tarPos].boatIDToBerth = -1; // 更新泊位被指向的情况
-                        berth[newBerth].boatIDToBerth = boatID;        // 更新泊位被指向的情况
-                    }
-                }
-            }
-            break;
-        case 2: // 在泊位外等待的状态
-            berth_select(boatID, boat[boatID].tarPos);
-            break;
-        default:
-            break;
-        }
     }
 }
+// 得到船去目标点的序列
+bool DecisionMaker::getBoatPath(int boatID, int tarx, int tary, vector<SimplePoint> &pathPoint, vector<int> &pathDir)
+{
+    int queueCount = 0;
+    int queueIndex = 0;
+    int firstDis = 0;
+    Node *now = &nodes[queueCount++];
+    Node *target = nullptr; // 用于存储找到的目标节点
+    Node *child = nullptr;
+    now->setNode(boat[boatID].curX, boat[boatID].curY, nullptr, boat[boatID].dire);
 
+    memset(visBoat, 0, sizeof(visBoat));
+    visBoat[boat[boatID].dire][boat[boatID].curX][boat[boatID].curY] = true;
+
+    while (queueCount > queueIndex)
+    {
+        now = &nodes[queueIndex++];
+        if (now->x == tarx && now->y == tary)
+        {
+            target = now;
+            break;
+        }
+        for (int i = 0; i < 3; i++) // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
+        {
+            int nx = now->x + dirBoatDx[i][now->dir];
+            int ny = now->y + dirBoatDy[i][now->dir];
+
+            int curDir = i == 2 ? now->dir : clockWiseDir[i][now->dir];
+            if (boatTimeForDifDir[curDir][nx][ny] == 0 || visBoat[curDir][nx][ny])
+                continue;
+            visBoat[curDir][nx][ny] = true;
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now, curDir);
+        }
+    }
+
+    if (target)
+    {
+        int goodsNearBerthID = nearBerthID[target->x][target->y];
+    }
+    if (target == nullptr) // 找不到路直接返回
+        return false;
+
+    vector<int>().swap(pathDir);           // 清空
+    vector<SimplePoint>().swap(pathPoint); // 清空
+    if (target != nullptr)
+    {
+        pathPoint.push_back(SimplePoint(target->x, target->y));
+        // 从目标节点回溯到起始节点，构建路径
+        for (Node *p = target; p->parent != nullptr; p = p->parent)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                if (p->x == p->parent->x + dirBoatDx[i][now->dir] && p->y == p->parent->y + dirBoatDx[i][now->dir])
+                {
+                    pathDir.push_back(i);
+                    pathPoint.push_back(SimplePoint(p->parent->x, p->parent->y));
+                    break;
+                }
+            }
+        }
+        reverse(pathDir.begin(), pathDir.end());     // 反转路径，使其从起始节点开始
+        reverse(pathPoint.begin(), pathPoint.end()); // 反转路径，使其从起始节点开始
+    }
+    return true;
+}
 int DecisionMaker::berth_select(int boatID, int oriLocation)
 {
 

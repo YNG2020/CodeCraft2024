@@ -13,9 +13,10 @@ DecisionMaker::DecisionMaker() : priority(robotNum, 0)
 
 void DecisionMaker::makeDecision()
 {
-    purchaseDecision();
+
     robotDecision();
     shipDecision();
+    purchaseDecision();
 }
 
 bool DecisionMaker::invalidForBoat(int x, int y)
@@ -26,8 +27,7 @@ bool DecisionMaker::invalidForBoat(int x, int y)
 bool DecisionMaker::invalidForRobot(int x, int y)
 {
     // return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || gridMap[x][y] > ROAD_MIX;
-    return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || oriMap[x][y] == '#' || oriMap[x][y] == '*' || oriMap[x][y] == '~'
-        || oriMap[x][y] == 'S' || oriMap[x][y] == 'K' || oriMap[x][y] == 'T';
+    return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || oriMap[x][y] == '#' || oriMap[x][y] == '*' || oriMap[x][y] == '~' || oriMap[x][y] == 'S' || oriMap[x][y] == 'K' || oriMap[x][y] == 'T';
 }
 
 bool DecisionMaker::inBerth(int x, int y)
@@ -45,9 +45,9 @@ void DecisionMaker::getNearBerthDis(int x, int y)
 {
     int queueCount = 0;
     int queueIndex = 0;
-    Node* now = &nodes[queueCount++];
-    Node* target = nullptr; // 用于存储找到的目标节点
-    Node* child = nullptr;
+    Node *now = &nodes[queueCount++];
+    Node *target = nullptr; // 用于存储找到的目标节点
+    Node *child = nullptr;
     now->setNode(x, y, 0, nullptr);
     memset(vis, 0, sizeof(vis));
 
@@ -80,15 +80,14 @@ void DecisionMaker::getNearBerthDis(int x, int y)
     }
 }
 
-
 void DecisionMaker::getConnectedBerth(int berthID)
 {
-    int nearestBerthDis = 1000000000;    // 最近邻泊位的距离
+    int nearestBerthDis = 1000000000; // 最近邻泊位的距离
     int queueCount = 0;
     int queueIndex = 0;
-    Node* now = &nodes[queueCount++];
-    Node* target = nullptr; // 用于存储找到的目标节点
-    Node* child = nullptr;
+    Node *now = &nodes[queueCount++];
+    Node *target = nullptr; // 用于存储找到的目标节点
+    Node *child = nullptr;
     int x = berth[berthID].x, y = berth[berthID].y;
     now->setNode(x, y, 0, nullptr);
     memset(vis, 0, sizeof(vis));
@@ -139,14 +138,17 @@ void DecisionMaker::paintBerth(int x, int y, int berthID)
     queue<SimplePoint> q;
     q.push(SimplePoint(x, y));
     berthMap[x][y] = berthID;
-    while (!q.empty()) {
+    while (!q.empty())
+    {
         SimplePoint now = q.front();
         q.pop();
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++)
+        {
             int nx = now.x + dx[i];
             int ny = now.y + dy[i];
             // if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || gridMap[nx][ny] != BERTH || berthMap[nx][ny] != -1) continue;
-            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || oriMap[nx][ny] != 'B' || berthMap[nx][ny] != -1) continue;
+            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || oriMap[nx][ny] != 'B' || berthMap[nx][ny] != -1)
+                continue;
             q.push(SimplePoint(nx, ny));
             berthMap[nx][ny] = berthID;
         }
@@ -174,22 +176,89 @@ void DecisionMaker::analyzeMap()
         for (int j = 0; j < MAP_SIZE; j++)
         {
             // gridMap[i][j] = mp[oriMap[i][j]];
-            if (oriMap[i][j] == 'R') {
+            if (oriMap[i][j] == 'R')
+            {
                 robotShop.emplace_back(i, j);
+            }
+            if (oriMap[i][j] == 'S')
+            {
+                boatShop.emplace_back(i, j);
             }
         }
     }
-    for (int i = 0; i < berthNum; i++) {
+    for (int i = 0; i < berthNum; i++)
+    {
         paintBerth(berth[i].x, berth[i].y, i);
     }
+    getMapInfoBoat(); // 得到船运动的地图信息
 }
-
+void DecisionMaker::getMapInfoBoat()
+{
+    for (int i = 0; i < MAP_SIZE; i++)
+    {
+        for (int j = 0; j < MAP_SIZE; j++)
+        {
+            char s = oriMap[i][j];
+            if (s == '.' || s == '>' || s == '#' || s == 'R') // 不在船能走的区域
+                continue;
+            else
+                for (int dir = 0; dir < 4; ++dir)
+                    boatTimeForDifDir[dir][i][j] = BoatAvailable(i, j, dir);
+        }
+    }
+}
+int DecisionMaker::BoatAvailable(int x, int y, int dir) // 返回船在x,y处移动时间（1或2），不能放船则为0
+{
+    int row, col;
+    int rev = 1;
+    if (dir == 0 || dir == 1) // 0右  1左
+    {
+        row = 1;
+        col = 2;
+        if (dir == 1)
+            rev = -1;
+    }
+    else if (dir == 2 || dir == 3) // 2上 3下
+    {
+        row = 2;
+        col = -1;
+        if (dir == 2)
+            rev = -1;
+    }
+    int time = 1; // 默认需要1帧
+    for (int i = 0; i <= row; ++i)
+    {
+        for (int j = 0; j <= col; ++j)
+        {
+            int xx = x + i * rev;
+            int yy = y + j * rev;
+            if (xx < 0 || xx >= MAP_SIZE || yy < 0 || yy >= MAP_SIZE)
+                continue;
+            char s = oriMap[xx][yy];
+            if (s == '.' || s == '>' || s == '#' || s == 'R') // 在陆地上，返回零
+                return 0;
+            else if (s != 'c' && s != '*') // 如果有某一部分进入了主航道、靠泊区、泊位等，则时间为2
+            {                              // 对于交货点暂时认为时间为2
+                time = 2;
+            }
+        }
+    }
+    return time;
+}
 void DecisionMaker::purchaseDecision()
 {
-    if (robotNum < 9) {
+    if (robotNum < 9)
+    {
         for (int i = 0; i < robotShop.size(); i++)
         {
             printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
+        }
+    }
+    if (frame == 1)
+    {
+        for (int i = 0; i < boatShop.size(); i++)
+        {
+            printf("lboat %d %d\n", boatShop[i].x, boatShop[i].y);
         }
     }
 }

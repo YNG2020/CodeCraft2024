@@ -11,9 +11,8 @@
 #include <string>
 #include <ctime>
 #include <algorithm>
-//#include <chrono>
+// #include <chrono>
 using namespace std;
-
 
 std::ifstream myCin;
 bool Debug = false;
@@ -53,7 +52,7 @@ void Init()
         }
     }
     for (int i = 0; i < berthNum; ++i)
-    {   // 获得泊位间的连通性信息
+    { // 获得泊位间的连通性信息
         decisionMaker.getConnectedBerth(i);
     }
     // 必须在读入所有泊位信息后调用
@@ -97,9 +96,9 @@ int Input()
     else
         scanf("%d", &K);
     goodsNum += K;
-    //numCurGoods += K;
+    // numCurGoods += K;
     int frameModIdx = (frameId - 1) % 1000;
-    goodsInfo[frameModIdx].clear();  // 先把对应时刻的全部货物信息清空
+    goodsInfo[frameModIdx].clear(); // 先把对应时刻的全部货物信息清空
     for (int i = 1; i <= K; i++)
     {
         int x, y, val;
@@ -156,17 +155,19 @@ int Input()
 
 int main()
 {
-    //auto start = std::chrono::steady_clock::now();
-    // ofstream outputFile("data.csv");
-    //outputFile << "goodsNum, pickGoodsNum, shipGoodsNum" << endl;
+    // auto start = std::chrono::steady_clock::now();
+    //  ofstream outputFile("data.csv");
+    // outputFile << "goodsNum, pickGoodsNum, shipGoodsNum" << endl;
     Init();
     for (frame = 1; frame <= 15000; frame++)
     {
         int id = Input();
         decisionMaker.makeDecision();
         /* 打印 */
-        if (frame == 14999) {
-            for (int i = 0; i < robotNum; i++) {
+        if (frame == 14999)
+        {
+            for (int i = 0; i < robotNum; i++)
+            {
                 cerr << "robot[" << i << "].total_goods_val = " << robot[i].total_goods_val << endl;
             }
         }
@@ -176,7 +177,7 @@ int main()
         // outputFile << goodsNum << ", " << pickGoodsNum << ", " << shipGoodsNum << endl;
 
         for (int i = 0, x = 0, y = 0, idx = 0; i < 1000; ++i)
-        {   // 维护货物的剩余存在时间
+        { // 维护货物的剩余存在时间
             for (auto iter = goodsInfo[i].begin(); iter != goodsInfo[i].end(); ++iter)
             {
                 if (iter->second > 0)
@@ -185,15 +186,15 @@ int main()
                     idx = iter->first;
                     x = idx / MAP_SIZE;
                     y = idx - x * MAP_SIZE;
-                    if (goodsInMap[x][y] != 0)  // 说明该位置在此刻有货物存在（货物生成了，且暂时没被机器人取走）
+                    if (goodsInMap[x][y] != 0) // 说明该位置在此刻有货物存在（货物生成了，且暂时没被机器人取走）
                     {
                         goodsLeftTime[x][y] = iter->second;
                         if (goodsLeftTime[x][y] == 0)
-                        {   // 货物消失，货物价值归零
+                        { // 货物消失，货物价值归零
                             if (goodsInMap[x][y] > 0)
-                            {   // 该货物未被机器人选定为目标（选定为目标的话，场上货物数目已经减去一次1了）
+                            { // 该货物未被机器人选定为目标（选定为目标的话，场上货物数目已经减去一次1了）
                                 if (nearBerthDis[x][y] != 0)
-                                {   // if条件不成立，说明该货物对于所有泊位都不可达
+                                { // if条件不成立，说明该货物对于所有泊位都不可达
                                     --numCurGoods;
                                     int berthID = nearBerthID[x][y];
                                     int goodsID = goodsIDInBerthZone[x][y];
@@ -204,23 +205,22 @@ int main()
                         }
                     }
                     if (goodsInMap[x][y] == 0)
-                    {   // 货物在当前帧被机器人拿走或剩余存在时间刚好被归零，直接将货物剩余存在时间归零
+                    { // 货物在当前帧被机器人拿走或剩余存在时间刚好被归零，直接将货物剩余存在时间归零
                         iter->second = 0;
                         goodsLeftTime[x][y] = iter->second;
                     }
                 }
             }
         }
-
     }
     // outputFile.close();
     // 定义结束时间点
-    //auto end = std::chrono::steady_clock::now();
+    // auto end = std::chrono::steady_clock::now();
 
     //// 计算时间差
-    //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    // auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
     //// 输出时间差
-    //std::cerr << "Time taken: " << duration.count() << " milliseconds" << std::endl;
+    // std::cerr << "Time taken: " << duration.count() << " milliseconds" << std::endl;
     return 0;
 }
