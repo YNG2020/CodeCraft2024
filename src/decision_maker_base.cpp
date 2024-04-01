@@ -10,7 +10,12 @@ namespace decision_maker_base {
     };
 }
 
-DecisionMaker::DecisionMaker() : priority(robotNum, 0) { nodes = new Node[MAP_SIZE * MAP_SIZE]; }
+DecisionMaker::DecisionMaker() : priority(robotNum, 0)
+{
+    memset(vis, 0, sizeof(vis));
+    memset(berthMap, -1, sizeof(berthMap));
+    nodes = new Node[MAP_SIZE * MAP_SIZE];
+}
 
 void DecisionMaker::makeDecision()
 {
@@ -31,28 +36,12 @@ bool DecisionMaker::invalidForRobot(int x, int y)
 
 bool DecisionMaker::inBerth(int x, int y)
 {
-    for (int i = 0; i < berthNum; i++)
-    {
-        if (x >= berth[i].x && x < berth[i].x + 4 &&
-            y >= berth[i].y && y < berth[i].y + 4)
-        {
-            return true;
-        }
-    }
-    return false;
+    return map[x][y] == 'B';
 }
 
 int DecisionMaker::getBerthId(int x, int y)
 {
-    for (int i = 0; i < berthNum; i++)
-    {
-        if (x >= berth[i].x && x < berth[i].x + 4 &&
-            y >= berth[i].y && y < berth[i].y + 4)
-        {
-            return i;
-        }
-    }
-    return -1;
+    return berthMap[x][y];
 }
 
 void DecisionMaker::getNearBerthDis(int x, int y)
@@ -148,6 +137,24 @@ void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGood
     this->gainForSameBerth = gainForSameBerth;
 }
 
+void DecisionMaker::paintBerth(int x, int y, int berthID)
+{
+    queue<SimplePoint> q;
+    q.push(SimplePoint(x, y));
+    berthMap[x][y] = berthID;
+    while (!q.empty()) {
+        SimplePoint now = q.front();
+        q.pop();
+        for (int i = 0; i < 4; i++) {
+            int nx = now.x + dx[i];
+            int ny = now.y + dy[i];
+            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || map[nx][ny] != 'B' || berthMap[nx][ny] != -1) continue;
+            q.push(SimplePoint(nx, ny));
+            berthMap[nx][ny] = berthID;
+        }
+    }
+}
+
 void DecisionMaker::analyzeMap()
 {
     for (int i = 0; i < MAP_SIZE; i++)
@@ -158,6 +165,9 @@ void DecisionMaker::analyzeMap()
                 robotShop.emplace_back(i, j);
             }
         }
+    }
+    for (int i = 0; i < berthNum; i++) {
+        paintBerth(berth[i].x, berth[i].y, i);
     }
 }
 

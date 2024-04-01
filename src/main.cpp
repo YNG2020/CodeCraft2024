@@ -31,7 +31,6 @@ void Init()
         else
             scanf("%s", map[i]);
     }
-    decisionMaker.analyzeMap();
 
     // 读入泊位信息
     if (Debug)
@@ -57,6 +56,8 @@ void Init()
     {   // 获得泊位间的连通性信息
         decisionMaker.getConnectedBerth(i);
     }
+    // 必须在读入所有泊位信息后调用
+    decisionMaker.analyzeMap();
 
     if (Debug)
         myCin >> boatCapacity;

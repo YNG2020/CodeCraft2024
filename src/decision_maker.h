@@ -34,8 +34,10 @@ private:
     vector<int> priority;
     vector<SimplePoint> robotShop;
     bool vis[210][210];
+    int berthMap[210][210];
 
     bool inBerth(int x, int y);
+    void paintBerth(int x, int y, int id); //对泊位进行染色
     bool getNearestGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID);
     bool getNearestBerth(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID);
     bool getAvoidPath(int botID1, int botID2);
