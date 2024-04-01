@@ -1,6 +1,6 @@
 #ifndef DECISION_MAKER_H
 #define DECISION_MAKER_H
-#include "point.h"
+#include "global_struct.h"
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -35,8 +35,8 @@ private:
     bool vis[210][210];
 
     bool inBerth(int x, int y);
-    bool getNearestGoods(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID);
-    bool getNearestBerth(int x, int y, vector<Point> &pathPoint, vector<int> &pathDir, int botID);
+    bool getNearestGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID);
+    bool getNearestBerth(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID);
     bool getAvoidPath(int botID1, int botID2);
     bool getToTarPath(int botID, bool calFromJam);
     void moveControl();

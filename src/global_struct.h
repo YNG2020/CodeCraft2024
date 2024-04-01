@@ -42,6 +42,18 @@ enum BOT_PATH_STATE
 	NO_PATH	   // 无路径
 };
 
+class SimplePoint
+{
+public:
+    SimplePoint(int _x, int _y) :x(_x), y(_y) {}
+    SimplePoint() :x(0), y(0) {}
+    SimplePoint(const SimplePoint& point) {
+        x = point.x;
+        y = point.y;
+    }
+    int x, y;
+};
+
 class singleGoodsInfo
 {
 public:

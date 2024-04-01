@@ -163,7 +163,7 @@ void DecisionMaker::robotDecision()
                     bot.idxInPth = 0;
                     bot.curPropotion = -1;
                     vector<int>().swap(bot.pathDir);     // 清空
-                    vector<Point>().swap(bot.pathPoint); // 清空
+                    vector<SimplePoint>().swap(bot.pathPoint); // 清空
                     bot.tarX = -1;
                     bot.tarY = -1;
                     refreshJamBuffer(i);
@@ -190,7 +190,7 @@ void DecisionMaker::robotDecision()
                     //bot.botTarState = NO_TARGET;
                     bot.idxInPth = 0;
                     vector<int>().swap(bot.pathDir);     // 清空
-                    vector<Point>().swap(bot.pathPoint); // 清空
+                    vector<SimplePoint>().swap(bot.pathPoint); // 清空
                     bot.tarX = -1;
                     bot.tarY = -1;
                     refreshJamBuffer(i);
@@ -323,7 +323,7 @@ void DecisionMaker::moveControl()
     }
 }
 
-bool DecisionMaker::getNearestGoods(int x, int y, vector<Point>& pathPoint, vector<int>& pathDir, int botID, bool tryChangePath, int callingBerthID)
+bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint, vector<int>& pathDir, int botID, bool tryChangePath, int callingBerthID)
 {
     int queueCount = 0;
     int queueIndex = 0;
@@ -460,12 +460,12 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point>& pathPoint, vect
 
         pathPoint.resize(pathDir.size() + 1);
         int curX = x, curY = y;
-        pathPoint[0] = Point(curX, curY);
+        pathPoint[0] = SimplePoint(curX, curY);
         for (int i = 0; i < pathDir.size(); ++i)
         {
             curX += dx[pathDir[i]];
             curY += dy[pathDir[i]];
-            pathPoint[i + 1] = Point(curX, curY);
+            pathPoint[i + 1] = SimplePoint(curX, curY);
         }
     }
 
@@ -477,7 +477,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<Point>& pathPoint, vect
     return true;
 }
 
-bool DecisionMaker::getNearestBerth(int x, int y, vector<Point>& pathPoint, vector<int>& pathDir, int botID)
+bool DecisionMaker::getNearestBerth(int x, int y, vector<SimplePoint>& pathPoint, vector<int>& pathDir, int botID)
 {
     int queueCount = 0;
     int queueIndex = 0;
@@ -556,12 +556,12 @@ bool DecisionMaker::getNearestBerth(int x, int y, vector<Point>& pathPoint, vect
 
         pathPoint.resize(pathDir.size() + 1);
         int curX = x, curY = y;
-        pathPoint[0] = Point(curX, curY);
+        pathPoint[0] = SimplePoint(curX, curY);
         for (int i = 0; i < pathDir.size(); ++i)
         {
             curX += dx[pathDir[i]];
             curY += dy[pathDir[i]];
-            pathPoint[i + 1] = Point(curX, curY);
+            pathPoint[i + 1] = SimplePoint(curX, curY);
         }
     }
 
@@ -646,12 +646,12 @@ bool DecisionMaker::getToTarPath(int botID, bool calFromJam)
 
         bot.pathPoint.resize(bot.pathDir.size() + 1);
         int curX = x, curY = y;
-        bot.pathPoint[0] = Point(curX, curY);
+        bot.pathPoint[0] = SimplePoint(curX, curY);
         for (int i = 0; i < bot.pathDir.size(); ++i)
         {
             curX += dx[bot.pathDir[i]];
             curY += dy[bot.pathDir[i]];
-            bot.pathPoint[i + 1] = Point(curX, curY);
+            bot.pathPoint[i + 1] = SimplePoint(curX, curY);
         }
     }
     return true;

@@ -238,7 +238,7 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
 
             robot[botID1].idxInPth = 0;
             vector<int>().swap(robot[botID1].pathDir);     // 清空
-            vector<Point>().swap(robot[botID1].pathPoint); // 清空
+            vector<SimplePoint>().swap(robot[botID1].pathPoint); // 清空
             refreshJamBuffer(botID1);                      // 修改了路径，需要更新碰撞检测缓冲区
             // 这个变量留给寻找新路的时候用
             // robot[botID1].avoidBotID = -1;
@@ -261,7 +261,7 @@ void DecisionMaker::jamResolve(int botID1, int botID2)
 
             robot[botID2].idxInPth = 0;
             vector<int>().swap(robot[botID2].pathDir);     // 清空
-            vector<Point>().swap(robot[botID2].pathPoint); // 清空
+            vector<SimplePoint>().swap(robot[botID2].pathPoint); // 清空
             refreshJamBuffer(botID2);                      // 修改了路径，需要更新碰撞检测缓冲区
             // 这个变量留给寻找新路的时候用
             // robot[botID2].avoidBotID = -1;
@@ -384,12 +384,12 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
 
         robot[botID2].pathPoint.resize(robot[botID2].pathDir.size() + 1);
         int curX = x, curY = y;
-        robot[botID2].pathPoint[0] = Point(curX, curY);
+        robot[botID2].pathPoint[0] = SimplePoint(curX, curY);
         for (int i = 0; i < robot[botID2].pathDir.size(); ++i)
         {
             curX += dx[robot[botID2].pathDir[i]];
             curY += dy[robot[botID2].pathDir[i]];
-            robot[botID2].pathPoint[i + 1] = Point(curX, curY);
+            robot[botID2].pathPoint[i + 1] = SimplePoint(curX, curY);
         }
     }
     return true;
@@ -412,7 +412,7 @@ void DecisionMaker::unJam()
                     robot[i].botPathState = NO_PATH;
                     //robot[i].botTarState = NO_TARGET;
                     vector<int>().swap(robot[i].pathDir);     // 清空
-                    vector<Point>().swap(robot[i].pathPoint); // 清空
+                    vector<SimplePoint>().swap(robot[i].pathPoint); // 清空
                     if (robot[i].botMoveState == TOGOODS)
                     {
                         ++numCurGoods;

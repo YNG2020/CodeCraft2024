@@ -3,7 +3,6 @@
 
 #include "global_struct.h"
 #include "constants.h"
-#include "point.h"
 
 #include <vector>
 using std::vector;
@@ -28,7 +27,7 @@ public:
     int cntPropotion;                 // 机器人运送货物的性价比被改变的总次数
     int pullBerthID;                  // 机器人正在卸货的泊位ID
 
-    vector<Point> pathPoint;       // 存储路径点序列
+    vector<SimplePoint> pathPoint;       // 存储路径点序列
     vector<int> pathDir;           // 存储路径方向序列
     BOT_MOVE_STATE botMoveState;   // robot的移动状态
     BOT_TARGET_STATE botTarState;  // robot的是否有目标状态（货物目标或泊位目标）
