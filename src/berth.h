@@ -8,6 +8,7 @@ using std::deque;
 class Berth
 {
 public:
+    std::unordered_map<int, singleGoodsInfo> goodsInBerthInfo;    // 存储落在该泊位管理区内的货物信息，键是标识货物的ID，值是一些货物信息
     int x, y;                  // 泊位的左上角的位置
     int transportTime;         // 轮船运输到虚拟点的时间
     int loadingSpeed;          // 每帧可以装载的货物数
@@ -22,7 +23,6 @@ public:
     double meanGetGoodsRatio;     // 接收到的货物的平均性价比
     double totGetGoodsRatio;      // 接收到的货物的总性价比
     int totGoodsInBerthZone;   // 落在泊位管理区内的货物总量
-    std::unordered_map<int, singleGoodsInfo> goodsInBerthInfo;    // 存储落在该泊位管理区内的货物信息，键是标识货物的ID，值是一些货物信息
     // TODO
     bool connectedBerth[TEMP_BERTH_NUM];
     //
@@ -81,6 +81,7 @@ public:
         numServingRobot = 0;
         nearestBerth = 0;   // 其实是为了防止越界，正常的话，该值能被变更为正确值
         totGoodsInBerthZone = 0;
+        goodsInBerthInfo.clear();
     }
     Berth()
     {

@@ -1,0 +1,1 @@
+./SemiFinalJudge -m ./maps/map1.txt "./build/main"

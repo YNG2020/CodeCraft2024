@@ -51,12 +51,13 @@ void Init()
             scanf("%d %d %d", &berth[id].x, &berth[id].y, &berth[id].loadingSpeed);
         }
     }
+    // 必须在读入所有泊位信息后调用
+    decisionMaker.analyzeMap();
+
     for (int i = 0; i < berthNum; ++i)
     { // 获得泊位间的连通性信息
         decisionMaker.getConnectedBerth(i);
     }
-    // 必须在读入所有泊位信息后调用
-    decisionMaker.analyzeMap();
 
     if (Debug)
         myCin >> boatCapacity;
