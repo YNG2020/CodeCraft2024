@@ -8,7 +8,6 @@
 
 void DecisionMaker::shipDecision()
 {
-
     for (int i = 0; i < boatNum; ++i)
     {
         Boat& bot = boat[i];
@@ -36,7 +35,7 @@ void DecisionMaker::shipDecision()
         {
         case 0: // 正常行驶状态（状态 0）
             if (bot.boatTarState == BOAT_HAVE_TARGET && bot.boatPathState == BOAT_NO_PATH)
-            {   // 有目标，无路，分配路
+            {   // 有目标，无路，分配路（暂时不会进入这里）
                 bool findPathFlag = getBoatPathBFS(i, bot.tarX, bot.tarY, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)
                 {
@@ -53,6 +52,7 @@ void DecisionMaker::shipDecision()
                     vector<SimplePoint>().swap(bot.pathPoint); // 清空
                     bot.tarX = -1;
                     bot.tarY = -1;
+                    bot.tarBerthID = -2;
                 }
             }
             else if (bot.boatTarState == BOAT_NO_TARGET)
@@ -67,6 +67,7 @@ void DecisionMaker::shipDecision()
                     bot.lastY = bot.curY;
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
                     bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
+                    bot.tarBerthID = 0;
                 }
                 else
                 {
@@ -75,6 +76,7 @@ void DecisionMaker::shipDecision()
                     vector<SimplePoint>().swap(bot.pathPoint); // 清空
                     bot.tarX = -1;
                     bot.tarY = -1;
+                    bot.tarBerthID = -2;
                 }
             }
             break;
@@ -94,6 +96,7 @@ void DecisionMaker::shipDecision()
                     bot.lastY = bot.curY;
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
                     bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
+                    bot.tarBerthID = -2;
                 }
                 else
                 {
@@ -102,6 +105,7 @@ void DecisionMaker::shipDecision()
                     vector<SimplePoint>().swap(bot.pathPoint); // 清空
                     bot.tarX = -1;
                     bot.tarY = -1;
+                    bot.tarBerthID = -2;
                 }
                 //shipGoodsNum += bot.numBoatGoods;
                 //berth[bot.tarBerthID].boatIDInBerth = -1; // 更新泊位被占用的情况
@@ -131,6 +135,8 @@ void DecisionMaker::shipDecision()
 
 void DecisionMaker::refreshBoatState(int boatID)
 {
+    if (frame == 45)
+        int a = 1;
     Boat& bot = boat[boatID];
     if (((bot.curX != bot.lastX) || ((bot.curY != bot.lastY))))
     { // 发现变更了位置（旋转操作也必定变换位置）
@@ -170,6 +176,7 @@ bool DecisionMaker::getBoatPathBFS(int boatID, int tarx, int tary, vector<Simple
         if (now->x == tarx && now->y == tary)
         {
             target = now;
+            boat[boatID].idxInPth = 0;
             break;
         }
         for (int i = 0; i < 3; i++) // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进

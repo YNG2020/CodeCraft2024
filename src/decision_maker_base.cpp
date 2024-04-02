@@ -33,7 +33,6 @@ bool DecisionMaker::invalidForRobot(int x, int y)
 bool DecisionMaker::inBerth(int x, int y)
 {
     return gridMap[x][y] == BERTH;
-    // return oriMap[x][y] == 'B';
 }
 
 int DecisionMaker::getBerthId(int x, int y)

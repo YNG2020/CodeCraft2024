@@ -26,7 +26,7 @@ public:
     vector<SimplePoint> pathPoint; // 存储路径点序列
 
     Boat(int c) : 
-        numBoatGoods(0), tarBerthID(-1), boatStatus(1), capacity(c), tarX(0), tarY(0), curX(0), curY(0), 
+        numBoatGoods(0), tarBerthID(-2), boatStatus(1), capacity(c), tarX(0), tarY(0), curX(0), curY(0), 
         lastX(0), lastY(0), dire(0), idxInPth(0), boatMoveState(BOAT_WAITING), boatPathState(BOAT_NO_PATH),
         boatTarState(BOAT_NO_TARGET)
     {}
