@@ -28,35 +28,35 @@ void DecisionMaker::shipDecision()
             bot.boatPathState = BOAT_NO_PATH;
             bot.boatTarState = BOAT_NO_TARGET;
             bot.idxInPth = 0;
-            bot.numBoatGoods = 0;
+            bot.numBoatGoods = 0;               // 该值是系统更新的，但这里也手动更新一下
         }
 
         switch (bot.boatStatus)
         {
         case 0: // 正常行驶状态（状态 0）
-            if (bot.boatTarState == BOAT_HAVE_TARGET && bot.boatPathState == BOAT_NO_PATH)
-            {   // 有目标，无路，分配路（暂时不会进入这里）
-                bool findPathFlag = getBoatPathBFS(i, bot.tarX, bot.tarY, bot.pathPoint, bot.pathDir);
-                if (findPathFlag)
-                {
-                    bot.boatPathState = BOAT_HAVE_PATH;
-                    bot.lastX = bot.curX;
-                    bot.lastY = bot.curY;
-                    bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
-                    bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
-                }
-                else
-                {
-                    bot.idxInPth = 0;
-                    vector<int>().swap(bot.pathDir);     // 清空
-                    vector<SimplePoint>().swap(bot.pathPoint); // 清空
-                    bot.tarX = -1;
-                    bot.tarY = -1;
-                    bot.tarBerthID = -2;
-                }
-            }
-            else if (bot.boatTarState == BOAT_NO_TARGET)
-            {   // 无目标，直接在路径搜索的同时分配目标
+            //if (bot.boatTarState == BOAT_HAVE_TARGET && bot.boatPathState == BOAT_NO_PATH)
+            //{   // 有目标，无路，分配路（暂时不会进入这里）
+            //    bool findPathFlag = getBoatPathBFS(i, bot.tarX, bot.tarY, bot.pathPoint, bot.pathDir);
+            //    if (findPathFlag)
+            //    {
+            //        bot.boatPathState = BOAT_HAVE_PATH;
+            //        bot.lastX = bot.curX;
+            //        bot.lastY = bot.curY;
+            //        bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
+            //        bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
+            //    }
+            //    else
+            //    {
+            //        bot.idxInPth = 0;
+            //        vector<int>().swap(bot.pathDir);     // 清空
+            //        vector<SimplePoint>().swap(bot.pathPoint); // 清空
+            //        bot.tarX = -1;
+            //        bot.tarY = -1;
+            //        bot.tarBerthID = -2;
+            //    }
+            //}
+            if (bot.boatTarState == BOAT_NO_TARGET && bot.numBoatGoods == 0)    // 没货物时，找泊位
+            {   // 无目标，直接在路径搜索的同时分配目标（目前是强行设置泊位作为目标了）
                 bool findPathFlag = getBoatPathBFS(i, berth[0].x, berth[0].y, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)
                 {
@@ -71,6 +71,9 @@ void DecisionMaker::shipDecision()
                 }
                 else
                 {
+                    bot.boatPathState = BOAT_NO_PATH;
+                    bot.boatTarState = BOAT_NO_TARGET;
+                    bot.boatMoveState = BOAT_WAITING;
                     bot.idxInPth = 0;
                     vector<int>().swap(bot.pathDir);     // 清空
                     vector<SimplePoint>().swap(bot.pathPoint); // 清空
@@ -100,6 +103,9 @@ void DecisionMaker::shipDecision()
                 }
                 else
                 {
+                    bot.boatPathState = BOAT_NO_PATH;
+                    bot.boatTarState = BOAT_NO_TARGET;
+                    bot.boatMoveState = BOAT_WAITING;
                     bot.idxInPth = 0;
                     vector<int>().swap(bot.pathDir);     // 清空
                     vector<SimplePoint>().swap(bot.pathPoint); // 清空
@@ -135,8 +141,6 @@ void DecisionMaker::shipDecision()
 
 void DecisionMaker::refreshBoatState(int boatID)
 {
-    if (frame == 45)
-        int a = 1;
     Boat& bot = boat[boatID];
     if (((bot.curX != bot.lastX) || ((bot.curY != bot.lastY))))
     { // 发现变更了位置（旋转操作也必定变换位置）
@@ -150,7 +154,7 @@ void DecisionMaker::refreshBoatState(int boatID)
         bot.boatMoveState = BOAT_ARRIVEBERTH;
     }
 
-    if (gridMap[bot.curX][bot.curY] == TRADE && bot.numBoatGoods > 0)
+    if (gridMap[bot.curX][bot.curY] == TRADE && bot.boatMoveState == BOAT_TOTRADE)
     {   // 抵达交易点，且船上有货物
         bot.boatMoveState = BOAT_ARRIVETRADE;
     }
@@ -290,8 +294,6 @@ void DecisionMaker::boatMoveControl()
         if (bot.pathDir.size() > 0)
         {
             int para = bot.pathDir[bot.idxInPth];
-            if (para < 0 || para > 2)
-                int a = 1;
             if (para == 2)
                 printf("ship %d %d\n", i, para);
             else
