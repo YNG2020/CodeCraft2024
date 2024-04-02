@@ -25,15 +25,15 @@ bool DecisionMaker::invalidForBoat(int x, int y)
 
 bool DecisionMaker::invalidForRobot(int x, int y)
 {
-    // return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || gridMap[x][y] > ROAD_MIX;
-    return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || oriMap[x][y] == '#' || oriMap[x][y] == '*' || oriMap[x][y] == '~'
-        || oriMap[x][y] == 'S' || oriMap[x][y] == 'K' || oriMap[x][y] == 'T';
+    return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || gridMap[x][y] > ROAD_MIX;
+    // return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || oriMap[x][y] == '#' || oriMap[x][y] == '*' || oriMap[x][y] == '~'
+        // || oriMap[x][y] == 'S' || oriMap[x][y] == 'K' || oriMap[x][y] == 'T';
 }
 
 bool DecisionMaker::inBerth(int x, int y)
 {
-    // return gridMap[x][y] == BERTH;
-    return oriMap[x][y] == 'B';
+    return gridMap[x][y] == BERTH;
+    // return oriMap[x][y] == 'B';
 }
 
 int DecisionMaker::getBerthId(int x, int y)
@@ -173,9 +173,24 @@ void DecisionMaker::analyzeMap()
     {
         for (int j = 0; j < MAP_SIZE; j++)
         {
-            // gridMap[i][j] = mp[oriMap[i][j]];
             if (oriMap[i][j] == 'R') {
                 robotShop.emplace_back(i, j);
+            }
+            switch (oriMap[i][j])
+            {
+                case 'B': gridMap[i][j] = BERTH; break;
+                case 'K': gridMap[i][j] = ANCHORAGE; break;
+                case 'S': gridMap[i][j] = BOAT_SHOP; break;
+                case 'T': gridMap[i][j] = TRADE; break;
+                case 'R': gridMap[i][j] = ROBOT_SHOP; break;
+                case '#': gridMap[i][j] = BLOCK; break;
+                case '*': gridMap[i][j] = WATER; break;
+                case '~': gridMap[i][j] = ROAD_WATER; break;
+                case '.': gridMap[i][j] = LAND; break;
+                case '>': gridMap[i][j] = ROAD_LAND; break;
+                case 'C': gridMap[i][j] = MIX; break;
+                case 'c': gridMap[i][j] = ROAD_MIX; break;
+                default: break;
             }
         }
     }
