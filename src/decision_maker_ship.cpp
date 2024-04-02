@@ -5,6 +5,7 @@
 #include <cstring>
 #include <cmath>
 #include <string>
+
 void DecisionMaker::shipDecision()
 {
 
@@ -15,7 +16,20 @@ void DecisionMaker::shipDecision()
     }
 }
 
-// 得到船去目标点的序列,BFS
+void DecisionMaker::refreshBoatState(int boatID)
+{
+    Boat& bot = boat[boatID];
+    if (((bot.curX != bot.lastX) || ((bot.curY != bot.lastY))))
+    { // 发现变更了位置
+        ++bot.idxInPth;
+        bot.lastX = bot.curX;
+        bot.lastY = bot.curY;
+    }
+
+
+}
+
+// 得到船去目标点的序列(BFS)
 bool DecisionMaker::getBoatPathBFS(int boatID, int tarx, int tary, vector<SimplePoint> &pathPoint, vector<int> &pathDir)
 {
     int queueCount = 0;
@@ -51,10 +65,6 @@ bool DecisionMaker::getBoatPathBFS(int boatID, int tarx, int tary, vector<Simple
         }
     }
 
-    if (target)
-    {
-        int goodsNearBerthID = nearBerthID[target->x][target->y];
-    }
     if (target == nullptr) // 找不到路直接返回
         return false;
 
@@ -139,6 +149,7 @@ bool DecisionMaker::getBoatPathDijkstra(int boatID, int tarx, int tary, vector<S
     }
     return true;
 }
+
 int DecisionMaker::berth_select(int boatID, int oriLocation)
 {
 

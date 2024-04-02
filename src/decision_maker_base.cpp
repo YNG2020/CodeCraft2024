@@ -198,8 +198,10 @@ void DecisionMaker::analyzeMap()
     {
         paintBerth(berth[i].x, berth[i].y, i);
     }
-    getMapInfoBoat(); // 得到船运动的地图信息
+    getMapInfoBoat();   // 得到船运动的地图信息
 }
+
+// 得到船运动的地图信息
 void DecisionMaker::getMapInfoBoat()
 {
     for (int i = 0; i < MAP_SIZE; i++)
@@ -215,37 +217,55 @@ void DecisionMaker::getMapInfoBoat()
         }
     }
 }
+
 int DecisionMaker::BoatAvailable(int x, int y, int dir) // 返回船在x,y处移动时间（1或2），不能放船则为0
 {
-    int row, col;
-    int rev = 1;
+    int row = 0, col = 0;
+    int revX = 1, revY = 1;
     if (dir == 0 || dir == 1) // 0右  1左
     {
         row = 1;
         col = 2;
-        if (dir == 1)
-            rev = -1;
+        if (dir == 0)
+        {
+            revX = 1;
+            revY = 1;
+        }
+        else
+        {
+            revX = -1;
+            revY = -1;
+        }
+            
     }
     else if (dir == 2 || dir == 3) // 2上 3下
     {
         row = 2;
-        col = -1;
+        col = 1;
         if (dir == 2)
-            rev = -1;
+        {
+            revX = -1;
+            revY = 1;
+        }
+        else
+        {
+            revX = 1;
+            revY = -1;
+        }
     }
     int time = 1; // 默认需要1帧
     for (int i = 0; i <= row; ++i)
     {
         for (int j = 0; j <= col; ++j)
         {
-            int xx = x + i * rev;
-            int yy = y + j * rev;
+            int xx = x + i * revX;
+            int yy = y + j * revY;
             if (xx < 0 || xx >= MAP_SIZE || yy < 0 || yy >= MAP_SIZE)
-                continue;
+                return 0;
             char s = oriMap[xx][yy];
             if (s == '.' || s == '>' || s == '#' || s == 'R') // 在陆地上，返回零
                 return 0;
-            else if (s != 'c' && s != '*') // 如果有某一部分进入了主航道、靠泊区、泊位等，则时间为2
+            else if (s != 'C' && s != '*') // 如果有某一部分进入了主航道、靠泊区、泊位等，则时间为2
             {                              // 对于交货点暂时认为时间为2
                 time = 2;
             }
@@ -253,6 +273,7 @@ int DecisionMaker::BoatAvailable(int x, int y, int dir) // 返回船在x,y处移
     }
     return time;
 }
+
 void DecisionMaker::purchaseDecision()
 {
     if (robotNum < 9)

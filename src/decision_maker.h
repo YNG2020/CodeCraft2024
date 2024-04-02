@@ -57,22 +57,30 @@ private:
 
     bool inBerth(int x, int y);
     void paintBerth(int x, int y, int id); // 对泊位进行染色
+    
     bool getNearestGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID);
     bool getNearestBerth(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID);
-    bool getBoatPathBFS(int boatID, int tarx, int tary, vector<SimplePoint> &pathPoint, vector<int> &pathDir);
-    bool getBoatPathDijkstra(int boatID, int tarx, int tary, vector<SimplePoint> &pathPoint, vector<int> &pathDir);
     bool getAvoidPath(int botID1, int botID2);
     bool getToTarPath(int botID, bool calFromJam);
+
+    bool getBoatPathBFS(int boatID, int tarX, int tarY, vector<SimplePoint>& pathPoint, vector<int>& pathDir);
+    bool getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<SimplePoint>& pathPoint, vector<int>& pathDir);
+    
     void moveControl();
+    void boatMoveControl();
+
     void setPriority();
+    void setBoatPriority();
+
     int berth_select(int boat_id, int oriLocation);
+
     void refreshJamBuffer(int botID);
     bool jamDetect(int botID1, int botID2);
     bool unJamDetect(int botID1, int botID2);
-
     void jamControl();
     void jamResolve(int botID1, int botID2);
     void unJam();
+
     bool invalidForBoat(int x, int y);
     bool invalidForRobot(int x, int y);
 
@@ -83,11 +91,15 @@ public:
     void getMapInfoBoat();
     int BoatAvailable(int x, int y, int dir);
     void purchaseDecision();
+
     void makeDecision();
     void shipDecision();
     void robotDecision();
+
     void refreshRobotState(int botID);
     void refreshBerthState();
+    void refreshBoatState(int boatID);
+
     void getNearBerthDis(int x, int y);  // 计算点到最近的泊位的距离
     void getConnectedBerth(int berthID); // 计算相互邻接的泊位的距离
     int getBerthId(int x, int y);
