@@ -274,7 +274,7 @@ int DecisionMaker::BoatAvailable(int x, int y, int dir) // 返回船在x,y处移
 
 void DecisionMaker::purchaseDecision()
 {
-    if (robotNum < 9)
+    if (money > 2000 && robotNum < 13)
     {
         for (int i = 0; i < robotShop.size(); i++)
         {

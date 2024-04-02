@@ -30,6 +30,7 @@ void DecisionMaker::shipDecision()
             bot.idxInPth = 0;
             bot.numBoatGoods = 0;               // 该值是系统更新的，但这里也手动更新一下
         }
+        int threshold;
 
         switch (bot.boatStatus)
         {
@@ -87,7 +88,10 @@ void DecisionMaker::shipDecision()
             break;
         case 2: // 装载状态（状态 2）
             berth[bot.tarBerthID].boatIDInBerth = i;
-            if (bot.numBoatGoods == bot.capacity)
+            
+            if (robotNum < 13) threshold = 20;
+            else threshold = boatCapacity * 0.8;
+            if (bot.numBoatGoods >= threshold)
             { // 如果装满了，去虚拟点
                 bool findPathFlag = getBoatPathBFS(i, tradePoint[0].x, tradePoint[0].y, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)

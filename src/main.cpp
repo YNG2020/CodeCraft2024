@@ -16,6 +16,7 @@ using namespace std;
 
 std::ifstream myCin;
 bool Debug = false;
+void printData();
 DecisionMaker decisionMaker;
 
 void Init()
@@ -164,15 +165,7 @@ int main()
     {
         int id = Input();
         decisionMaker.makeDecision();
-        /* 打印 */
-        //if (frame == 14999)
-        //{
-        //    for (int i = 0; i < robotNum; i++)
-        //    {
-        //        cerr << "robot[" << i << "].total_goods_val = " << robot[i].total_goods_val << endl;
-        //    }
-        //}
-        /* 打印 */
+        if (frame == 15000) printData();
         printf("OK\n");
         fflush(stdout);
         // outputFile << goodsNum << ", " << pickGoodsNum << ", " << shipGoodsNum << endl;
@@ -224,4 +217,15 @@ int main()
     //// 输出时间差
     // std::cerr << "Time taken: " << duration.count() << " milliseconds" << std::endl;
     return 0;
+}
+
+void printData()
+{
+    int sum = 0;
+    for (int i = 0; i < robotNum; i++)
+    {
+        cerr << "robot[" << i << "].total_goods_val = " << robot[i].total_goods_val << endl;
+        sum += robot[i].total_goods_val;
+    }
+    cerr << "sum = " << sum << endl;
 }
