@@ -13,10 +13,9 @@ DecisionMaker::DecisionMaker() : priority(robotNum, 0)
 
 void DecisionMaker::makeDecision()
 {
-
+    purchaseDecision();
     robotDecision();
     shipDecision();
-    purchaseDecision();
 }
 
 bool DecisionMaker::invalidForBoat(int x, int y)
@@ -285,7 +284,8 @@ void DecisionMaker::purchaseDecision()
     }
     if (frame == 1)
     {
-        for (int i = 0; i < boatShop.size(); i++)
+        //for (int i = 0; i < boatShop.size(); i++)
+        for (int i = 0; i < 1; i++)
         {
             printf("lboat %d %d\n", boatShop[i].x, boatShop[i].y);
         }

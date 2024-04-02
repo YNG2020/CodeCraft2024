@@ -10,7 +10,7 @@ public:
     int id;
     int numBoatGoods;              // 船目前装载的货物量
     int tarBerthID;                    // 船的目标泊位，如果目标泊位是虚拟点，则为-1（系统维护）
-    int boatStatus;                // 0表示移动（运输）中，1 表示正常运行状态(即装货状态或运输完成状态)，2表示泊位外等待状态
+    int boatStatus;                // 正常行驶状态（状态 0）,恢复状态（状态1）,装载状态（状态 2）
     int capacity;                  // 船的最大装载量
     
     int tarX, tarY;                // 目标位置
