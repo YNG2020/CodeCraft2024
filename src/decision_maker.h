@@ -33,7 +33,7 @@ private:
 
         bool operator<(const Node other) const
         {
-            return dis < other.dis; // 这里使用小于号，表示距离越小，优先级越高
+            return dis > other.dis; // 这里使用小于号，表示距离越小，优先级越高
         }
     };
 
@@ -57,15 +57,15 @@ private:
 
     bool inBerth(int x, int y);
     void paintBerth(int x, int y, int id); // 对泊位进行染色
-    
+
     bool getNearestGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID);
     bool getNearestBerth(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID);
     bool getAvoidPath(int botID1, int botID2);
     bool getToTarPath(int botID, bool calFromJam);
 
-    bool getBoatPathBFS(int boatID, int tarX, int tarY, vector<SimplePoint>& pathPoint, vector<int>& pathDir);
-    bool getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<SimplePoint>& pathPoint, vector<int>& pathDir);
-    
+    bool getBoatPathBFS(int boatID, int tarX, int tarY, vector<SimplePoint> &pathPoint, vector<int> &pathDir);
+    bool getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<SimplePoint> &pathPoint, vector<int> &pathDir);
+
     void moveControl();
     void boatMoveControl();
 

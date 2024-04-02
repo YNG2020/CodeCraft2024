@@ -165,13 +165,13 @@ int main()
         int id = Input();
         decisionMaker.makeDecision();
         /* 打印 */
-        //if (frame == 14999)
+        // if (frame == 14999)
         //{
-        //    for (int i = 0; i < robotNum; i++)
-        //    {
-        //        cerr << "robot[" << i << "].total_goods_val = " << robot[i].total_goods_val << endl;
-        //    }
-        //}
+        //     for (int i = 0; i < robotNum; i++)
+        //     {
+        //         cerr << "robot[" << i << "].total_goods_val = " << robot[i].total_goods_val << endl;
+        //     }
+        // }
         /* 打印 */
         printf("OK\n");
         fflush(stdout);
