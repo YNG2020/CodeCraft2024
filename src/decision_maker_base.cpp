@@ -147,9 +147,9 @@ void DecisionMaker::paintBerth(int x, int y, int berthID)
         {
             int nx = now.x + dx[i];
             int ny = now.y + dy[i];
-            // if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || gridMap[nx][ny] != BERTH || berthMap[nx][ny] != -1) continue;
-            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || oriMap[nx][ny] != 'B' || berthMap[nx][ny] != -1)
-                continue;
+             if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || (gridMap[nx][ny] != BERTH && gridMap[nx][ny] != ANCHORAGE) || berthMap[nx][ny] != -1) continue;
+            //if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || (oriMap[nx][ny] != 'B' && oriMap[nx][ny] != 'K') || berthMap[nx][ny] != -1)
+                //continue;
             q.push(SimplePoint(nx, ny));
             berthMap[nx][ny] = berthID;
         }

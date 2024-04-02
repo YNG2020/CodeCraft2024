@@ -11,6 +11,59 @@ void DecisionMaker::shipDecision()
 
     for (int i = 0; i < boatNum; ++i)
     {
+        Boat& bot = boat[i];
+        refreshBoatState(i);
+
+        if (bot.boatMoveState == BOAT_ARRIVEBERTH)
+        {
+            printf("berth %d\n", i);
+            bot.boatMoveState = BOAT_WAITING;   // 手动更新为原地等待的状态（等路径分配）
+            bot.boatPathState = BOAT_NO_PATH;
+            bot.boatTarState = BOAT_NO_TARGET;
+            bot.idxInPth = 0;
+        }
+        if (bot.boatMoveState == BOAT_ARRIVETRADE)
+        {
+            bot.boatMoveState = BOAT_WAITING;   // 手动更新为原地等待的状态（等路径分配）
+            bot.boatPathState = BOAT_NO_PATH;
+            bot.boatTarState = BOAT_NO_TARGET;
+            bot.idxInPth = 0;
+            bot.numBoatGoods = 0;
+        }
+
+        switch (bot.boatStatus)
+        {
+        case 0: // 正常行驶状态（状态 0）            if (bot.boatTarState == BOAT_HAVE_TARGET && bot.boatPathState == BOAT_NO_PATH)            {   // 有目标，无路，分配路                bool findPathFlag = getBoatPathBFS(i, bot.tarX, bot.tarY, boat[i].pathPoint, boat[i].pathDir);                if (findPathFlag)                    bot.boatPathState = BOAT_HAVE_PATH;            }            else if (bot.boatTarState == BOAT_NO_TARGET)            {   // 无目标，直接在路径搜索的同时分配目标            }            break;
+        case 1: // 恢复状态（状态1）
+            break;
+        case 2: // 装载状态（状态 2）
+            berth[bot.tarBerthID].boatIDInBerth = i;
+            if (bot.numBoatGoods == bot.capacity)
+            { // 如果装满了，去虚拟点
+                //printf("go %d\n", boatID);
+                //shipGoodsNum += bot.numBoatGoods;
+                //berth[bot.tarBerthID].boatIDInBerth = -1; // 更新泊位被占用的情况
+                //berth[bot.tarBerthID].boatIDToBerth = -1; // 更新泊位被指向的情况
+            }
+            else
+            { // 没有满则继续装
+                int loadNum = berth[bot.tarBerthID].load(bot.capacity - bot.numBoatGoods);
+                bot.numBoatGoods += loadNum;
+                int newBerth = bot.tarBerthID;
+                if (loadNum == 0) // 尝试比较跑去别的泊位去装货的性价比
+                    newBerth = berth_select(i, bot.tarBerthID);
+                if (newBerth != bot.tarBerthID)
+                {
+                    //berth[bot.tarBerthID].boatIDInBerth = -1; // 更新泊位被占用的情况
+                    //berth[bot.tarBerthID].boatIDToBerth = -1; // 更新泊位被指向的情况
+                    //berth[newBerth].boatIDToBerth = i;        // 更新泊位被指向的情况
+                }
+            }
+            break;
+        default:
+            break;
+        }
+
         if (boat[i].capacity == boat[i].numBoatGoods)
             getBoatPathBFS(i, tradePoint[0].x, tradePoint[0].y, boat[i].pathPoint, boat[i].pathDir);
     }
@@ -20,13 +73,21 @@ void DecisionMaker::refreshBoatState(int boatID)
 {
     Boat& bot = boat[boatID];
     if (((bot.curX != bot.lastX) || ((bot.curY != bot.lastY))))
-    { // 发现变更了位置
+    { // 发现变更了位置（旋转操作也必定变换位置）
         ++bot.idxInPth;
         bot.lastX = bot.curX;
         bot.lastY = bot.curY;
     }
 
+    if (getBerthId(bot.curX, bot.curY) == bot.tarBerthID && bot.boatMoveState == BOAT_TOBERTH)
+    {   // 如果抵达了目标泊位所覆盖的范围
+        bot.boatMoveState = BOAT_ARRIVEBERTH;
+    }
 
+    if (gridMap[bot.curX][bot.curY] == TRADE && bot.numBoatGoods > 0)
+    {   // 抵达交易点，且船上有货物
+        bot.boatMoveState = BOAT_ARRIVETRADE;
+    }
 }
 
 // 得到船去目标点的序列(BFS)

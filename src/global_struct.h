@@ -70,9 +70,16 @@ enum BOAT_MOVE_STATE
 // 船路径状态
 enum BOAT_PATH_STATE
 {
-	HAVE_BOAT_PATH, // 有路径
-	NO_BOAT_PATH	// 无路径
+	BOAT_HAVE_PATH, // 有路径
+	BOAT_NO_PATH	// 无路径
 };
+// 船有无目标状态
+enum BOAT_TARGET_STATE
+{
+	BOAT_HAVE_TARGET,	// 有目标
+	BOAT_NO_TARGET		// 无目标
+};
+
 class SimplePoint
 {
 public:
