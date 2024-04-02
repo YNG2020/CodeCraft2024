@@ -61,7 +61,8 @@ void DecisionMaker::shipDecision()
                 if (findPathFlag)
                 {
                     bot.boatPathState = BOAT_HAVE_PATH;
-                    bot.boatTarState == BOAT_HAVE_TARGET;
+                    bot.boatTarState = BOAT_HAVE_TARGET;
+                    bot.boatMoveState = BOAT_TOBERTH;
                     bot.lastX = bot.curX;
                     bot.lastY = bot.curY;
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
@@ -198,7 +199,7 @@ bool DecisionMaker::getBoatPathBFS(int boatID, int tarx, int tary, vector<Simple
         {
             for (int i = 0; i < 3; i++)
             {
-                if (p->x == p->parent->x + dirBoatDx[i][now->dir] && p->y == p->parent->y + dirBoatDx[i][now->dir])
+                if (p->x == p->parent->x + dirBoatDx[i][p->parent->dir] && p->y == p->parent->y + dirBoatDy[i][p->parent->dir])
                 {
                     pathDir.push_back(i);
                     pathPoint.push_back(SimplePoint(p->parent->x, p->parent->y));
@@ -273,7 +274,7 @@ bool DecisionMaker::getBoatPathDijkstra(int boatID, int tarx, int tary, vector<S
 
 void DecisionMaker::boatMoveControl()
 {
-    for (int i = 0; i < robotNum; ++i)
+    for (int i = 0; i < boatNum; ++i)
     {
         Boat& bot = boat[i];
 
@@ -281,7 +282,13 @@ void DecisionMaker::boatMoveControl()
             continue;
         if (bot.pathDir.size() > 0)
         {
-            printf("move %d %d\n", i, bot.pathDir[bot.idxInPth]);
+            int para = bot.pathDir[bot.idxInPth];
+            if (para < 0 || para > 2)
+                int a = 1;
+            if (para == 2)
+                printf("ship %d %d\n", i, para);
+            else
+                printf("rot %d %d\n", i, para);
         }
     }
 }
