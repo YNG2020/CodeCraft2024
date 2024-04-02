@@ -7,12 +7,16 @@
 #include <string>
 void DecisionMaker::shipDecision()
 {
+
     for (int i = 0; i < boatNum; ++i)
     {
+        if (boat[i].capacity == boat[i].numBoatGoods)
+            getBoatPathBFS(i, tradePoint[0].x, tradePoint[0].y, boat[i].pathPoint, boat[i].pathDir);
     }
 }
-// 得到船去目标点的序列
-bool DecisionMaker::getBoatPath(int boatID, int tarx, int tary, vector<SimplePoint> &pathPoint, vector<int> &pathDir)
+
+// 得到船去目标点的序列,BFS
+bool DecisionMaker::getBoatPathBFS(int boatID, int tarx, int tary, vector<SimplePoint> &pathPoint, vector<int> &pathDir)
 {
     int queueCount = 0;
     int queueIndex = 0;
@@ -20,7 +24,7 @@ bool DecisionMaker::getBoatPath(int boatID, int tarx, int tary, vector<SimplePoi
     Node *now = &nodes[queueCount++];
     Node *target = nullptr; // 用于存储找到的目标节点
     Node *child = nullptr;
-    now->setNode(boat[boatID].curX, boat[boatID].curY, nullptr, boat[boatID].dire);
+    now->setNode(boat[boatID].curX, boat[boatID].curY, 0, nullptr, boat[boatID].dire);
 
     memset(visBoat, 0, sizeof(visBoat));
     visBoat[boat[boatID].dire][boat[boatID].curX][boat[boatID].curY] = true;
@@ -43,7 +47,7 @@ bool DecisionMaker::getBoatPath(int boatID, int tarx, int tary, vector<SimplePoi
                 continue;
             visBoat[curDir][nx][ny] = true;
             child = &nodes[queueCount++];
-            child->setNode(nx, ny, now, curDir);
+            child->setNode(nx, ny, 0, now, curDir);
         }
     }
 
@@ -54,6 +58,64 @@ bool DecisionMaker::getBoatPath(int boatID, int tarx, int tary, vector<SimplePoi
     if (target == nullptr) // 找不到路直接返回
         return false;
 
+    vector<int>().swap(pathDir);           // 清空
+    vector<SimplePoint>().swap(pathPoint); // 清空
+    if (target != nullptr)
+    {
+        pathPoint.push_back(SimplePoint(target->x, target->y));
+        // 从目标节点回溯到起始节点，构建路径
+        for (Node *p = target; p->parent != nullptr; p = p->parent)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                if (p->x == p->parent->x + dirBoatDx[i][now->dir] && p->y == p->parent->y + dirBoatDx[i][now->dir])
+                {
+                    pathDir.push_back(i);
+                    pathPoint.push_back(SimplePoint(p->parent->x, p->parent->y));
+                    break;
+                }
+            }
+        }
+        reverse(pathDir.begin(), pathDir.end());     // 反转路径，使其从起始节点开始
+        reverse(pathPoint.begin(), pathPoint.end()); // 反转路径，使其从起始节点开始
+    }
+    return true;
+}
+// 得到船去目标点的序列,Dijkstra
+bool DecisionMaker::getBoatPathDijkstra(int boatID, int tarx, int tary, vector<SimplePoint> &pathPoint, vector<int> &pathDir)
+{
+    memset(visBoat, 0, sizeof(visBoat)); // 这里visBoat起确定最短路径集合的作用
+    priority_queue<Node> candidate;
+    int queueCount = 0;
+    int firstDis = 0;
+    Node *now = &nodes[queueCount++];
+    Node *target = nullptr;
+    now->setNode(boat[boatID].curX, boat[boatID].curY, 0, nullptr, boat[boatID].dire);
+    candidate.push(*now);
+    while (!target || !candidate.empty()) // 如果没找到目标或者优先级队列不为空
+    {
+        now = &nodes[queueCount++];
+        *now = candidate.top(); // 取出最短的节点now
+        candidate.pop();
+        visBoat[now->dir][now->x][now->y] = 1; // 确定为最短路径集合
+        if (now->x == tarx && now->y == tary)
+        {
+            target = now;
+            break;
+        }
+        for (int i = 0; i < 3; i++) // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
+        {
+            int nx = now->x + dirBoatDx[i][now->dir];
+            int ny = now->y + dirBoatDy[i][now->dir];
+
+            int curDir = i == 2 ? now->dir : clockWiseDir[i][now->dir];
+            if (boatTimeForDifDir[curDir][nx][ny] == 0 || visBoat[curDir][nx][ny])
+                continue;
+            now = &nodes[queueCount++]; // 这里只是为了用申请的空间
+            now->setNode(nx, ny, boatTimeForDifDir[curDir][nx][ny] + now->dis, now, curDir);
+            candidate.push(*now);
+        }
+    }
     vector<int>().swap(pathDir);           // 清空
     vector<SimplePoint>().swap(pathPoint); // 清空
     if (target != nullptr)

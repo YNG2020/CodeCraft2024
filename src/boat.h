@@ -14,10 +14,13 @@ public:
     int capacity;                  // 船的最大装载量
     int curX, curY;                // 当前位置
     int dire;                      // 船的方向
+    BOAT_MOVE_STATE boatMoveState; // boat的移动状态
+    BOAT_PATH_STATE boatPathState; // boat的是否是否找到移动路径状态
     vector<SimplePoint> pathPoint; // 存储路径点序列
     vector<int> pathDir;           // 存储路径方向序列
     int idxInPth = 0;              // 当前走到路径的第几个点
-    Boat(int c) : numBoatGoods(0), tarPos(-1), boatStatus(1), capacity(c) {}
+    Boat(int c) : numBoatGoods(0), tarPos(-1), boatStatus(1), capacity(c), boatMoveState(BOAT_WAITING),
+                  boatPathState(NO_BOAT_PATH) {}
 };
 
 #endif // BOAT_H

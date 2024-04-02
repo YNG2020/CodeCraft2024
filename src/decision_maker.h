@@ -22,12 +22,18 @@ private:
             dis = d;
             parent = p;
         }
-        void setNode(int xx, int yy, Node *p, int direction)
+        void setNode(int xx, int yy, int d, Node *p, int direction)
         {
             x = xx;
             y = yy;
             dir = direction;
+            dis = d;
             parent = p;
+        }
+
+        bool operator<(const Node other) const
+        {
+            return dis < other.dis; // 这里使用小于号，表示距离越小，优先级越高
         }
     };
 
@@ -39,9 +45,11 @@ private:
     double globalMeanGoodsRatio; // 全场泊位接收的货物的平均性价比
 
     Node *nodes;
+    Node boatMapDis[MAP_SIZE][MAP_SIZE];
     vector<int> priority;
     vector<SimplePoint> robotShop;
     vector<SimplePoint> boatShop;
+    vector<SimplePoint> tradePoint;
     bool vis[MAP_SIZE][MAP_SIZE];
     bool visBoat[4][MAP_SIZE][MAP_SIZE];
     int berthMap[MAP_SIZE][MAP_SIZE]; // 记录对应的泊位ID
@@ -51,7 +59,8 @@ private:
     void paintBerth(int x, int y, int id); // 对泊位进行染色
     bool getNearestGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID);
     bool getNearestBerth(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID);
-    bool getBoatPath(int boatID, int tarx, int tary, vector<SimplePoint> &pathPoint, vector<int> &pathDir);
+    bool getBoatPathBFS(int boatID, int tarx, int tary, vector<SimplePoint> &pathPoint, vector<int> &pathDir);
+    bool getBoatPathDijkstra(int boatID, int tarx, int tary, vector<SimplePoint> &pathPoint, vector<int> &pathDir);
     bool getAvoidPath(int botID1, int botID2);
     bool getToTarPath(int botID, bool calFromJam);
     void moveControl();

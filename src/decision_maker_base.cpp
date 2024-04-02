@@ -157,20 +157,7 @@ void DecisionMaker::paintBerth(int x, int y, int berthID)
 
 void DecisionMaker::analyzeMap()
 {
-    // std::map<char, GRID_TYPE> mp = {
-    //     {'#', BLOCK},
-    //     {'*', WATER},
-    //     {'~', ROAD_WATER},
-    //     {'.', LAND},
-    //     {'>', ROAD_LAND},
-    //     {'R', ROBOT_SHOP},
-    //     {'S', BOAT_SHOP},
-    //     {'T', TRADE},
-    //     {'B', BERTH},
-    //     {'K', ANCHORAGE},
-    //     {'C', MIX},
-    //     {'c', ROAD_MIX}
-    // };
+
     for (int i = 0; i < MAP_SIZE; i++)
     {
         for (int j = 0; j < MAP_SIZE; j++)
@@ -183,6 +170,10 @@ void DecisionMaker::analyzeMap()
             if (oriMap[i][j] == 'S')
             {
                 boatShop.emplace_back(i, j);
+            }
+            if (oriMap[i][j] == 'T')
+            {
+                tradePoint.emplace_back(i, j);
             }
         }
     }

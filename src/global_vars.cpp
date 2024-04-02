@@ -19,8 +19,8 @@ int nearBerthID[N][N];
 int goodsIDInBerthZone[N][N];
 int dx[4] = {0, 0, -1, 1};
 int dy[4] = {1, -1, 0, 0};
-int dirBoatDx[3][4] = {{0, 0, -2, 2}, {1, -1, -1, 1}, {0, 0, -2, 2}}; // 第一个index：0顺时针 1逆时针 2前进；第二个index表示原本的方向
-int dirBoatDy[3][4] = {{2, -2, 0, 0}, {1, -1, 1, -1}, {2, -1, 0, 0}};
+int dirBoatDx[3][4] = {{0, 0, -2, 2}, {1, -1, -1, 1}, {0, 0, -1, 1}}; // 第一个index：0顺时针 1逆时针 2前进；第二个index表示原本的方向
+int dirBoatDy[3][4] = {{2, -2, 0, 0}, {1, -1, 1, -1}, {1, -1, 0, 0}};
 int clockWiseDir[2][4] = {{3, 2, 0, 1}, {2, 3, 1, 0}}; // 0顺时针方向映射 1逆时针方向映射
 int goodsNum;
 int pickGoodsNum;
