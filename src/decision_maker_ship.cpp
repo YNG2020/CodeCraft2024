@@ -30,12 +30,13 @@ void DecisionMaker::shipDecision()
             bot.idxInPth = 0;
             bot.numBoatGoods = 0; // 该值是系统更新的，但这里也手动更新一下
         }
+        int threshold;
 
         switch (bot.boatStatus)
         {
         case 0: // 正常行驶状态（状态 0）
             // if (bot.boatTarState == BOAT_HAVE_TARGET && bot.boatPathState == BOAT_NO_PATH)
-            //{   // 有目标，无路，分配路（暂时不会进入这里）
+            //{   // 有目标，无路，分配路（应该迟早会适用于避让处理）
             //     bool findPathFlag = getBoatPathBFS(i, bot.tarX, bot.tarY, bot.pathPoint, bot.pathDir);
             //     if (findPathFlag)
             //     {
@@ -52,7 +53,6 @@ void DecisionMaker::shipDecision()
             //         vector<SimplePoint>().swap(bot.pathPoint); // 清空
             //         bot.tarX = -1;
             //         bot.tarY = -1;
-            //         bot.tarBerthID = -2;
             //     }
             // }
             if (bot.boatTarState == BOAT_NO_TARGET && bot.numBoatGoods == 0) // 没货物时，找泊位
@@ -87,7 +87,12 @@ void DecisionMaker::shipDecision()
             break;
         case 2: // 装载状态（状态 2）
             berth[bot.tarBerthID].boatIDInBerth = i;
-            if (bot.numBoatGoods == bot.capacity)
+
+            if (robotNum < 13)
+                threshold = 20;
+            else
+                threshold = boatCapacity * 0.8;
+            if (bot.numBoatGoods >= threshold)
             { // 如果装满了，去虚拟点
                 bool findPathFlag = getBoatPathDijkstra(i, tradePoint[0].x, tradePoint[0].y, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)
@@ -161,7 +166,7 @@ void DecisionMaker::refreshBoatState(int boatID)
 }
 
 // 得到船去目标点的序列(BFS)
-bool DecisionMaker::getBoatPathBFS(int boatID, int tarx, int tary, vector<SimplePoint> &pathPoint, vector<int> &pathDir)
+bool DecisionMaker::getBoatPathBFS(int boatID, int tarX, int tarY, vector<SimplePoint> &pathPoint, vector<int> &pathDir)
 {
     int queueCount = 0;
     int queueIndex = 0;
@@ -177,7 +182,7 @@ bool DecisionMaker::getBoatPathBFS(int boatID, int tarx, int tary, vector<Simple
     while (queueCount > queueIndex)
     {
         now = &nodes[queueIndex++];
-        if (now->x == tarx && now->y == tary)
+        if (now->x == tarX && now->y == tarY)
         {
             target = now;
             boat[boatID].idxInPth = 0;
@@ -224,8 +229,8 @@ bool DecisionMaker::getBoatPathBFS(int boatID, int tarx, int tary, vector<Simple
     return true;
 }
 
-// 得到船去目标点的序列,Dijkstra
-bool DecisionMaker::getBoatPathDijkstra(int boatID, int tarx, int tary, vector<SimplePoint> &pathPoint, vector<int> &pathDir)
+// 得到船去目标点的序列(Dijkstra)
+bool DecisionMaker::getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<SimplePoint> &pathPoint, vector<int> &pathDir)
 {
     memset(visBoat, 0, sizeof(visBoat)); // 这里visBoat起确定最短路径集合的作用
     priority_queue<Node> candidate;
@@ -244,7 +249,7 @@ bool DecisionMaker::getBoatPathDijkstra(int boatID, int tarx, int tary, vector<S
         if (visBoat[now->dir][now->x][now->y] == 1) // 如果已经是最短路径集合，跳过
             continue;
         visBoat[now->dir][now->x][now->y] = 1; // 确定为最短路径集合
-        if (now->x == tarx && now->y == tary)
+        if (now->x == tarX && now->y == tarY)
         {
             target = now;
             boat[boatID].idxInPth = 0;
