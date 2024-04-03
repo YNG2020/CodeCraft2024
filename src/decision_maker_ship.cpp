@@ -107,6 +107,7 @@ void DecisionMaker::shipDecision()
                 bool findPathFlag = getBoatPathBFS(i, tradePoint[0].x, tradePoint[0].y, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)
                 {
+                    berth[bot.tarBerthID].boatIDInBerth = -1; // 更新泊位被占用的情况
                     bot.boatPathState = BOAT_HAVE_PATH;
                     bot.boatTarState = BOAT_HAVE_TARGET;
                     bot.boatMoveState = BOAT_TOTRADE;
@@ -168,6 +169,8 @@ void DecisionMaker::refreshBoatState(int boatID)
     if (getBerthId(bot.curX, bot.curY) == bot.tarBerthID && bot.boatMoveState == BOAT_TOBERTH && bot.boatStatus == 0)
     {   // 如果抵达了目标泊位所覆盖的范围
         bot.boatMoveState = BOAT_ARRIVEBERTH;
+        berth[bot.tarBerthID].boatIDInBerth = boatID;
+        berth[bot.tarBerthID].boatIDToBerth = -1;
     }
 
     if (gridMap[bot.curX][bot.curY] == TRADE && bot.boatMoveState == BOAT_TOTRADE)
