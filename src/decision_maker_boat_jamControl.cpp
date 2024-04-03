@@ -44,17 +44,15 @@ bool DecisionMaker::boatJamDetect(int boatID1, int boatID2)
 {
     if (boatID1 == boatID2)
         return false;
-    if (boat[boatID1].boatStatus != 0 || boat[boatID2].boatStatus != 0) // 只要双方其中一个不是移动状态，保证不撞（装货时船只必在主航道，恢复时船只相当于消失）
+    if ((boat[boatID1].boatStatus != 0 || boat[boatID1].boatPathState == BOAT_NO_PATH || boat[boatID1].boatAvoidState == BOAT_AVOIDED) &&
+        (boat[boatID2].boatStatus != 0 || boat[boatID2].boatPathState == BOAT_NO_PATH || boat[boatID2].boatAvoidState == BOAT_AVOIDED)) // 此刻双方都不动
         return false;
-    if ((boat[boatID1].boatPathState == BOAT_NO_PATH || boat[boatID1].boatAvoidState == BOAT_AVOIDED) &&
-        (boat[boatID2].boatPathState == BOAT_NO_PATH || boat[boatID2].boatAvoidState == BOAT_AVOIDED)) // 此刻双方都不动
-        return false;
-    if (boat[boatID2].boatPathState == BOAT_NO_PATH || boat[boatID2].boatAvoidState == BOAT_AVOIDED)  // 此刻boat[boatID2]停止不动
+    if (boat[boatID2].boatStatus != 0 || boat[boatID2].boatPathState == BOAT_NO_PATH || boat[boatID2].boatAvoidState == BOAT_AVOIDED)  // 此刻boat[boatID2]停止不动
         if (checkOverLap(boat[boatID1].jamDetectBuffer[1], boat[boatID2].jamDetectBuffer[0]))
             return true;
         else
             return false;
-    if (boat[boatID1].boatPathState == BOAT_NO_PATH || boat[boatID1].boatAvoidState == BOAT_AVOIDED) // 此刻boat[boatID1]停止不动
+    if (boat[boatID1].boatStatus != 0 || boat[boatID1].boatPathState == BOAT_NO_PATH || boat[boatID1].boatAvoidState == BOAT_AVOIDED) // 此刻boat[boatID1]停止不动
 		if (checkOverLap(boat[boatID2].jamDetectBuffer[1], boat[boatID1].jamDetectBuffer[0]))
             return true;
         else
