@@ -21,14 +21,18 @@ void DecisionMaker::shipDecision()
             bot.boatTarState = BOAT_NO_TARGET;
             bot.boatStatus = 1;     // 输入了指令berth，手动将boatStatus置1
             bot.idxInPth = 0;
+            vector<int>().swap(bot.pathDir);     // 清空
+            vector<BoatPoint>().swap(bot.pathPoint); // 清空
         }
         if (bot.boatMoveState == BOAT_ARRIVETRADE)
         {
             bot.boatMoveState = BOAT_WAITING;   // 手动更新为原地等待的状态（等路径分配）
             bot.boatPathState = BOAT_NO_PATH;
             bot.boatTarState = BOAT_NO_TARGET;
-            bot.idxInPth = 0;
             bot.numBoatGoods = 0;               // 该值是系统更新的，但这里也手动更新一下
+            bot.idxInPth = 0;
+            vector<int>().swap(bot.pathDir);     // 清空
+            vector<BoatPoint>().swap(bot.pathPoint); // 清空
         }
         int threshold;
 
