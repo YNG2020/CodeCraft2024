@@ -331,6 +331,7 @@ int DecisionMaker::berthSelect(int boatID)
     // 为当前的boat选择泊位ID，目的是平均到每一帧的收益最大
     int moveTimeToBerth;                                                    // 到泊位的时间
     int moveTimeToVir;                                                      // 从虚拟点到泊位的时间
+    // TODO 计算泊位间距离
     int moveTimeFromBerth = 500;                                            // 从泊位到另外一个泊位的时间
     double loadGoodsTime1;                                                  // 预计的装载货物的时间（装满的情况，假设泊位上的货物充足）
     double loadGoodsTime2;                                                  // 预计的装载货物的时间（装满的情况，假设泊位上的货物不充足）
@@ -401,8 +402,12 @@ int DecisionMaker::berthSelect(int boatID)
             minIdx = berthID;
         }
     }
-    if (minIdx == oriLocation)
+    if (minIdx == oriLocation) {
+        // 暂时没有更新boatIDTo/InBerth，做一个特殊处理
+        if (minIdx == -1)
+            return 0;
         return minIdx;
+    }
 
     berth[minIdx].boatIDToBerth = boatID;
     printf("ship %d %d\n", boatID, minIdx);
