@@ -44,6 +44,8 @@ bool DecisionMaker::boatJamDetect(int boatID1, int boatID2)
 {
     if (boatID1 == boatID2)
         return false;
+    if (boat[boatID1].boatFlashState == BOAT_FLASHING || boat[boatID2].boatFlashState == BOAT_FLASHING) // 闪现状态，肯定撞不了
+        return false;
     if ((boat[boatID1].boatStatus != 0 || boat[boatID1].boatPathState == BOAT_NO_PATH || boat[boatID1].boatAvoidState == BOAT_AVOIDED) &&
         (boat[boatID2].boatStatus != 0 || boat[boatID2].boatPathState == BOAT_NO_PATH || boat[boatID2].boatAvoidState == BOAT_AVOIDED)) // 此刻双方都不动
         return false;
@@ -97,10 +99,10 @@ bool DecisionMaker::boatUnJamDetect(int boatID1, int boatID2)
 void DecisionMaker::boatJamControl()
 {
     boatUnJam();
-    boatSetPriority(); // 计算每一个机器人的移动优先级
-    for (int i = 0; i < berthNum; ++i)
+    boatSetPriority(); // 计算每一个船只的移动优先级
+    for (int i = 0; i < boatNum; ++i)
     {
-        for (int j = i + 1; j < berthNum; ++j)
+        for (int j = i + 1; j < boatNum; ++j)
         {
             if (boatJamDetect(i, j))
             {                               // 预计会发生碰撞，boat_j去寻找避让点（将考虑boat_i的堵塞检测缓冲区），boat_i则保持原来的轨迹
@@ -111,8 +113,8 @@ void DecisionMaker::boatJamControl()
                     boatID1 = boatID2;
                     boatID2 = tmp;
                 }
-                if (boat[boatID1].boatPathState == BOAT_NO_PATH)
-                { // 不可能二者同为该状态，否则在boatJamDetect的时候就pass掉，此时让没路的避让有路的
+                if (boat[boatID1].boatTarState == BOAT_NO_TARGET && boat[boatID2].boatTarState == BOAT_HAVE_TARGET)
+                { // 二者同时为该状态，不用管，只有一个是没目标的话，让没目标的避让有目标的
                     int tmp = boatID1;
                     boatID1 = boatID2;
                     boatID2 = tmp;
@@ -171,14 +173,18 @@ void DecisionMaker::boatJamResolve(int boatID1, int boatID2)
                 superior = inferior;
                 inferior = tmp;
             }
-            boat[inferior].boatAvoidState = BOAT_NO_AVOIDING;
-            boat[inferior].boatPathState = BOAT_NO_PATH;
-            boat[inferior].idxInPth = 0;
-            vector<int>().swap(boat[inferior].pathDir);     // 清空
-            vector<BoatPoint>().swap(boat[inferior].pathPoint); // 清空
-            boatRefreshJamBuffer(inferior);                      // 修改了路径，需要更新碰撞检测缓冲区
-            printf("dept %d\n", inferior);
-            boat[inferior].boatStatus = 1;      // 手动置为恢复状态（碰撞检测会用到）
+            if (boat[inferior].boatStatus == 0)     // 保险处理
+            {
+                boat[inferior].boatAvoidState = BOAT_NO_AVOIDING;
+                boat[inferior].boatPathState = BOAT_NO_PATH;
+                boat[inferior].idxInPth = 0;
+                vector<int>().swap(boat[inferior].pathDir);     // 清空
+                vector<BoatPoint>().swap(boat[inferior].pathPoint); // 清空
+                boatRefreshJamBuffer(inferior);                      // 修改了路径，需要更新碰撞检测缓冲区
+                boat[inferior].boatFlashState = BOAT_FLASHING;    // 进入闪现状态
+                printf("dept %d\n", inferior);
+                boat[inferior].boatStatus = 1;      // 手动置为恢复状态
+            }
         }
     }
 }
@@ -186,32 +192,135 @@ void DecisionMaker::boatJamResolve(int boatID1, int boatID2)
 // 寻找避让路径，默认是botID2去寻找避让boatID1的路径
 bool DecisionMaker::boatGetAvoidPath(int boatID1, int boatID2)
 {
+    int queueCount = 0;
+    int queueIndex = 0;
+    int x = boat[boatID2].curX, y = boat[boatID2].curY, dire = boat[boatID2].dire;
+    Node* now = &nodes[queueCount++];
+    Node* target = nullptr; // 用于存储找到的目标节点
+    Node* child = nullptr;
+    now->setNode(x, y, 0, nullptr, dire);
+    memset(visBoat, 0, sizeof(visBoat));
+    visBoat[dire][x][y] = true;
+    visBoat[boat[boatID1].dire][boat[boatID1].curX][boat[boatID1].curY] = true; // 不经过要避让的boat此刻所在的位置
+
+    int tmpX, tmpY, tmpDire;
+    for (int i = 0; i < boat[boatID1].jamDetectBufferLen - 1; ++i)
+    {   // 构建寻路屏障，不让避让路径与boatID1的路径有冲突
+        if (checkOverLap(boat[boatID1].jamDetectBuffer[i + 1], boat[boatID2].jamDetectBuffer[i + 1]))
+        { // 二者下一个目标位置会发生碰撞
+            tmpX = boat[boatID2].jamDetectBuffer[i + 1].x;
+            tmpY = boat[boatID2].jamDetectBuffer[i + 1].y;
+            for (tmpDire = 0; tmpDire <= 3; ++tmpDire)
+            {   // 如果该位置会发生碰撞，那么四个方向都检测一下有无碰撞风险
+                if (checkOverLap(boat[boatID1].jamDetectBuffer[i + 1], BoatPoint(tmpX, tmpY, tmpDire)))
+                    visBoat[tmpDire][tmpX][tmpY] = true;
+            }
+        }
+    }
+
+    bool pointAvailable = true; // 用于标识找到的避让点是否可行
+
+    while (queueCount > queueIndex)
+    {
+        now = &nodes[queueIndex++];
+
+        pointAvailable = true;
+        for (int i = boat[boatID1].idxInPth; i < boat[boatID1].pathPoint.size(); ++i)
+        { // 检查在boat[boatID1]接下来的全体路径点
+            if (checkOverLap(boat[boatID1].pathPoint[i], BoatPoint(now->x, now->y, now->dir)))
+            {
+                pointAvailable = false;
+                break;
+            }
+        }
+
+        if (pointAvailable)
+            for (int i = 0; i < boatNum; ++i) // 检查该避让点是否已经被别人所占据
+                if (boat[i].boatAvoidState != BOAT_NO_AVOIDING && i != boatID2)
+                    if (checkOverLap(boat[i].pathPoint[boat[i].pathPoint.size() - 1], BoatPoint(now->x, now->y, now->dir)))
+                    {
+                        pointAvailable = false;
+                        break;
+                    }
+        if (pointAvailable)
+        {
+            target = now;               // 找到避让点
+            boat[boatID2].idxInPth = 0; // 更新路径点序列
+            break;
+        }
+
+        for (int i = 0; i < 3; i++) // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
+        {
+            int nx = now->x + dirBoatDx[i][now->dir];
+            int ny = now->y + dirBoatDy[i][now->dir];
+
+            int curDir = i == 2 ? now->dir : clockWiseDir[i][now->dir];
+            if (boatTimeForDifDir[curDir][nx][ny] == 0 || visBoat[curDir][nx][ny])
+                continue;
+            visBoat[curDir][nx][ny] = true;
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, 0, now, curDir);
+        }
+    }
+
+    if (target == nullptr) // 找不到路直接返回
+        return false;
+
+    vector<int>().swap(boat[boatID2].pathDir);           // 清空
+    vector<BoatPoint>().swap(boat[boatID2].pathPoint);  // 清空
+    if (target != nullptr)
+    {
+        boat[boatID2].pathPoint.push_back(BoatPoint(target->x, target->y, target->dir));
+        // 从目标节点回溯到起始节点，构建路径
+        for (Node* p = target; p->parent != nullptr; p = p->parent)
+        {
+            for (int i = 0; i < 3; i++)
+            {
+                if (p->x == p->parent->x + dirBoatDx[i][p->parent->dir] && p->y == p->parent->y + dirBoatDy[i][p->parent->dir])
+                {
+                    boat[boatID2].pathDir.push_back(i);
+                    boat[boatID2].pathPoint.push_back(BoatPoint(p->parent->x, p->parent->y, p->parent->dir));
+                    break;
+                }
+            }
+        }
+        reverse(boat[boatID2].pathDir.begin(), boat[boatID2].pathDir.end());     // 反转路径，使其从起始节点开始
+        reverse(boat[boatID2].pathPoint.begin(), boat[boatID2].pathPoint.end()); // 反转路径，使其从起始节点开始
+    }
     return true;
 }
 
 // 检测是否可以解除堵塞状态
 void DecisionMaker::boatUnJam()
 {
-    for (int i = 0; i < berthNum; ++i)
+    for (int i = 0; i < boatNum; ++i)
     {
-        if (boat[i].boatAvoidState == AVOIDING)
+        if (boat[i].boatAvoidState == BOAT_AVOIDING)
         { // 正处于避让状态,TODO
             if (boat[i].idxInPth == boat[i].pathDir.size() - 1)
             {
-                boat[i].boatAvoidState = BOAT_AVOIDED;
-                bool findPathFlag = getToTarPath(i, true);
+                bool findPathFlag = getBoatPathBFS(i, boat[i].tarX, boat[i].tarY, boat[i].pathPoint, boat[i].pathDir);
                 if (!findPathFlag)
-                { // 应该只用处理找不到的情况，找到路的话，状态变量似乎没有什么需要特地更新的
-                    // 还是找不到路，则在当前帧不动，且放弃当前的目标货物（如果有），在下一帧中寻找新的目标，直到能找到为止
-                    boat[i].boatPathState = BOAT_NO_PATH;
-                    vector<int>().swap(boat[i].pathDir);     // 清空
-                    vector<BoatPoint>().swap(boat[i].pathPoint); // 清空
-                    boat[i].idxInPth = 0;
+                {   // 找不到路的话，使用dept指令
+                    if (boat[i].boatStatus == 0)     // 保险处理
+                    {
+                        boat[i].boatAvoidState = BOAT_NO_AVOIDING;
+                        boat[i].boatPathState = BOAT_NO_PATH;
+                        boat[i].idxInPth = 0;
+                        vector<int>().swap(boat[i].pathDir);     // 清空
+                        vector<BoatPoint>().swap(boat[i].pathPoint); // 清空
+                        boatRefreshJamBuffer(i);                      // 修改了路径，需要更新碰撞检测缓冲区
+                        boat[i].boatFlashState = BOAT_FLASHING;    // 进入闪现状态
+                        printf("dept %d\n", i);
+                        boat[i].boatStatus = 1;      // 手动置为恢复状态
+                    }
                 }
-                boatRefreshJamBuffer(i); // 修改了路径，需要更新碰撞检测缓冲区
+                else
+                {
+                    boat[i].boatAvoidState = BOAT_AVOIDED;
+                    boatRefreshJamBuffer(i); // 路径状态有变动，需要更新碰撞检测缓冲区
+                }
             }
-            else
-                continue;
         }
         if (boat[i].boatAvoidState == BOAT_AVOIDED)
         { // 正处于避让结束，原地等待的状态

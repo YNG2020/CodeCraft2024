@@ -16,6 +16,11 @@ void DecisionMaker::shipDecision()
         if (bot.boatMoveState == BOAT_ARRIVEBERTH)
         {
             printf("berth %d\n", i);
+            if (bot.boatStatus == 0)    // 保险处理（其实不保险，要保证berth指令能成功执行）
+            {
+                bot.boatFlashState = BOAT_FLASHING;    // 进入闪现状态
+            }
+                
             bot.boatMoveState = BOAT_WAITING;   // 手动更新为原地等待的状态（等路径分配）
             bot.boatPathState = BOAT_NO_PATH;
             bot.boatTarState = BOAT_NO_TARGET;
@@ -169,6 +174,12 @@ void DecisionMaker::refreshBoatState(int boatID)
     {   // 抵达交易点，且船上有货物
         bot.boatMoveState = BOAT_ARRIVETRADE;
     }
+
+    if (bot.boatStatus != 1)
+    {   // 及时解除闪现状态
+        bot.boatFlashState = BOAT_NO_FLASH;
+    }
+
 }
 
 // 得到船去目标点的序列(BFS)
@@ -295,11 +306,13 @@ bool DecisionMaker::getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<B
 
 void DecisionMaker::boatMoveControl()
 {
+    boatJamControl();
+    boatJamControl(); // 先这样吧（在同一帧内，前面的robot无法及时读取到后面的robot的可能已更新的堵塞检测缓冲区的信息，导致潜在的堵塞风险）
     for (int i = 0; i < boatNum; ++i)
     {
         Boat& bot = boat[i];
 
-        if (bot.boatPathState == BOAT_NO_PATH)
+        if (bot.boatPathState == BOAT_NO_PATH || bot.boatAvoidState == BOAT_AVOIDED)
             continue;
         if (bot.pathDir.size() > 0)
         {
@@ -318,7 +331,6 @@ int DecisionMaker::berthSelect(int boatID)
     // 为当前的boat选择泊位ID，目的是平均到每一帧的收益最大
     int moveTimeToBerth;                                                    // 到泊位的时间
     int moveTimeToVir;                                                      // 从虚拟点到泊位的时间
-    // TODO 计算泊位间距离
     int moveTimeFromBerth = 500;                                            // 从泊位到另外一个泊位的时间
     double loadGoodsTime1;                                                  // 预计的装载货物的时间（装满的情况，假设泊位上的货物充足）
     double loadGoodsTime2;                                                  // 预计的装载货物的时间（装满的情况，假设泊位上的货物不充足）
@@ -389,12 +401,8 @@ int DecisionMaker::berthSelect(int boatID)
             minIdx = berthID;
         }
     }
-    if (minIdx == oriLocation) {
-        // 暂时没有更新boatIDTo/InBerth，做一个特殊处理
-        if (minIdx == -1)
-            return 0;
+    if (minIdx == oriLocation)
         return minIdx;
-    }
 
     berth[minIdx].boatIDToBerth = boatID;
     printf("ship %d %d\n", boatID, minIdx);

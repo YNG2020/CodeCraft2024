@@ -291,7 +291,7 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
     vis[robot[botID1].curX][robot[botID1].curY] = true; // 不经过要避让的robot此刻所在的位置
     int tmpX, tmpY;
     for (int i = 0; i < robot[botID1].jamDetectBufferLen - 1; ++i)
-    {                                                                                 // 构建寻路屏障，不让避让路径与botID1的路径有冲突
+    {   // 构建寻路屏障，不让避让路径与botID1的路径有冲突
         if (robot[botID2].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i]) // robot[botID2]将在此处停下，这一点仍能被路径搜索（也就是让它动起来）
             continue;
         if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i + 1])
@@ -335,16 +335,6 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
 
         if (pointAvailable)
         {
-            for (int i = 0; i < robotNum; ++i)
-            { // 检查该避让点是否已经被别人所占据
-                if (robot[i].botAvoidState != NO_AVOIDING)
-                {
-                    if (now->x == robot[i].tmpTarX && now->y == robot[i].tmpTarY)
-                    {
-                        pointAvailable = true;
-                    }
-                }
-            }
             target = now;               // 找到避让点
             robot[botID2].idxInPth = 0; // 更新路径点序列
             break;
