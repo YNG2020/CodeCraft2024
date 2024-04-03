@@ -57,8 +57,9 @@ private:
     GRID_TYPE gridMap[MAP_SIZE][MAP_SIZE];
 
     bool inBerth(int x, int y);
-    void paintBerth(int x, int y, int id); // 对泊位进行染色
-    
+    void paintBerth(int berthID); // 对泊位进行染色
+    void findTrade(int berthID);  // 找到与泊位最近的交易点
+
     bool getNearestGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID);
     bool getNearestBerth(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID);
     bool getToTarPath(int botID, bool calFromJam);
@@ -69,7 +70,7 @@ private:
     void moveControl();
     void boatMoveControl();
 
-    int berth_select(int boat_id, int oriLocation);
+    int berthSelect(int boatID);
 
     void setPriority();
     void refreshJamBuffer(int botID);

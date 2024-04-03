@@ -61,7 +61,7 @@ void DecisionMaker::shipDecision()
             //}
             if (bot.boatTarState == BOAT_NO_TARGET && bot.numBoatGoods == 0)    // 没货物时，找泊位
             {   // 无目标，直接在路径搜索的同时分配目标（目前是强行设置泊位作为目标了）
-                int tarBerthID = 2; // 应该有程序决定，这里先手动设置
+                int tarBerthID = berthSelect(i);
                 bool findPathFlag = getBoatPathBFS(i, berth[tarBerthID].x, berth[tarBerthID].y, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)
                 {
@@ -94,7 +94,7 @@ void DecisionMaker::shipDecision()
             berth[bot.tarBerthID].boatIDInBerth = i;
 
             if (phase == 0)
-                threshold = 20;
+                threshold = 40;
             else
                 threshold = boatCapacity * 0.8;
             if (bot.numBoatGoods >= threshold)
@@ -312,7 +312,7 @@ void DecisionMaker::boatMoveControl()
     }
 }
 
-int DecisionMaker::berth_select(int boatID, int oriLocation)
+int DecisionMaker::berthSelect(int boatID)
 {
 
     // 为当前的boat选择泊位ID，目的是平均到每一帧的收益最大
@@ -327,7 +327,8 @@ int DecisionMaker::berth_select(int boatID, int oriLocation)
     double numAddGoods;                                                     // 在boat驶向泊位期间，泊位增加的货物数
     // int minTime = 100000000;
     double MaxMeanGetValue = 0; // 平均每帧得到最大的价值，初始化为0
-    int minIdx = oriLocation;   // 存储将要被选择的泊位ID
+    int oriLocation = getBerthId(boat[boatID].curX, boat[boatID].curY);   // boat当前所在的泊位ID
+    int minIdx = oriLocation;  // 存储将要被选择的泊位ID
     double timeToGetMoney;      // 到预计拿到资金的时间
     int Money;
 

@@ -10,7 +10,6 @@ class Berth
 {
 public:
     int x, y;                  // 泊位的左上角的位置
-    int transportTime;         // 轮船运输到虚拟点的时间
     int loadingSpeed;          // 每帧可以装载的货物数
     int numBerthGoods;         // 泊位当前拥有的货物量
     int boatIDInBerth;         // 当前停泊在该泊位的船的ID
@@ -22,6 +21,8 @@ public:
     int nearestBerth;          // 最近邻的泊位ID
     int servingRobot[20];      // 正在为该泊位服务的机器人ID，每一帧更新一次
     int numServingRobot;       // 正在为该泊位服务的机器人数量，每一帧更新一次
+    int transportTime;         // 轮船运输到虚拟点的时间
+    int transportTarget;           // 该泊位对应的交易点ID
 
     double timeOfGoodsToBerth;         // 期望的robot把货物运送到berth的时间（帧/个），需要动态维护
     double meanGetGoodsRatio;          // 接收到的货物的平均性价比
