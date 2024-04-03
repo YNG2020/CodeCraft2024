@@ -92,6 +92,13 @@ enum BOAT_AVOID_STATE
 	BOAT_NO_AVOIDING // 解除了避让状态
 };
 
+// 船闪现状态
+enum BOAT_FLASH_STATE
+{
+	BOAT_NO_FLASH,	// 没在闪现
+	BOAT_FLASHING	// 闪现中
+};
+
 class SimplePoint
 {
 public:
