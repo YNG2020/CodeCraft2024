@@ -13,6 +13,7 @@ DecisionMaker::DecisionMaker() : priority(robotNum, 0)
 
 void DecisionMaker::makeDecision()
 {
+    phaseDecision();
     purchaseDecision();
     robotDecision();
     shipDecision();
@@ -297,21 +298,31 @@ int DecisionMaker::BoatAvailable(int x, int y, int dir) // 返回船在x,y处移
     return time;
 }
 
+void DecisionMaker::phaseDecision()
+{
+    if (robotNum < 13)
+    {
+        phase = 0;
+    }
+    else
+    {
+        phase = 1;
+    }
+}
+
 void DecisionMaker::purchaseDecision()
 {
-    if (money > 2000 && robotNum < 13)
+    if (phase == 0)
     {
         for (int i = 0; i < robotShop.size(); i++)
         {
             printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
         }
+        // TODO 买船
     }
+    // 第一帧有两种策略，买1/2艘船，具体效果待观察
     if (frame == 1)
     {
-        // for (int i = 0; i < boatShop.size(); i++)
-        for (int i = 0; i < 1; i++)
-        {
-            printf("lboat %d %d\n", boatShop[i].x, boatShop[i].y);
-        }
+        printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
 }

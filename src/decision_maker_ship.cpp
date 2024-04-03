@@ -88,7 +88,7 @@ void DecisionMaker::shipDecision()
         case 2: // 装载状态（状态 2）
             berth[bot.tarBerthID].boatIDInBerth = i;
 
-            if (robotNum < 13)
+            if (phase == 0)
                 threshold = 20;
             else
                 threshold = boatCapacity * 0.8;

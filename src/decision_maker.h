@@ -41,6 +41,7 @@ private:
     int extraSearchTime;                          // getNearestGoods中的额外搜索轮次
     int blockBerthTime;                           // 提前屏蔽berth的时间
     int meanGoodsValue;
+    int phase; // 根据租赁情况判断当前阶段
     double gainForSameBerth;     // 本区增益
     double globalMeanGoodsRatio; // 全场泊位接收的货物的平均性价比
 
@@ -84,13 +85,15 @@ private:
     bool invalidForBoat(int x, int y);
     bool invalidForRobot(int x, int y);
 
+    void phaseDecision();
+    void purchaseDecision();
+
 public:
     DecisionMaker();
     void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, int blockBerthTime, int meanGoodsValue, double gainForSameBerth);
     void analyzeMap();
     void getMapInfoBoat();
     int BoatAvailable(int x, int y, int dir);
-    void purchaseDecision();
 
     void makeDecision();
     void shipDecision();
