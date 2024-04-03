@@ -33,7 +33,7 @@ private:
 
         bool operator<(const Node other) const
         {
-            return dis > other.dis; // 这里使用小于号，表示距离越小，优先级越高
+            return dis < other.dis; // 这里使用小于号，表示距离越小，优先级越高
         }
     };
 
@@ -58,32 +58,40 @@ private:
 
     bool inBerth(int x, int y);
     void paintBerth(int x, int y, int id); // 对泊位进行染色
-
+    
     bool getNearestGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID);
     bool getNearestBerth(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID);
-    bool getAvoidPath(int botID1, int botID2);
     bool getToTarPath(int botID, bool calFromJam);
 
-    bool getBoatPathBFS(int boatID, int tarX, int tarY, vector<SimplePoint> &pathPoint, vector<int> &pathDir);
-    bool getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<SimplePoint> &pathPoint, vector<int> &pathDir);
-
+    bool getBoatPathBFS(int boatID, int tarX, int tarY, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
+    bool getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
+    
     void moveControl();
     void boatMoveControl();
 
-    void setPriority();
-    void setBoatPriority();
-
     int berth_select(int boat_id, int oriLocation);
 
+    void setPriority();
     void refreshJamBuffer(int botID);
     bool jamDetect(int botID1, int botID2);
     bool unJamDetect(int botID1, int botID2);
     void jamControl();
     void jamResolve(int botID1, int botID2);
+    bool getAvoidPath(int botID1, int botID2);
     void unJam();
 
     bool invalidForBoat(int x, int y);
     bool invalidForRobot(int x, int y);
+
+    void boatSetPriority();
+    void boatRefreshJamBuffer(int boatID);
+    bool boatJamDetect(int boatID1, int boatID2);
+    bool boatUnJamDetect(int boatID1, int boatID2);
+    void boatJamControl();
+    void boatJamResolve(int boatID1, int boatID2);
+    bool boatGetAvoidPath(int boatID1, int boatID2);
+    void boatUnJam();
+    bool checkOverLap(const BoatPoint& boat1, const BoatPoint& boat2);
 
     void phaseDecision();
     void purchaseDecision();

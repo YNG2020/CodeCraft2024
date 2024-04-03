@@ -10,54 +10,55 @@ void DecisionMaker::shipDecision()
 {
     for (int i = 0; i < boatNum; ++i)
     {
-        Boat &bot = boat[i];
+        Boat& bot = boat[i];
         refreshBoatState(i);
 
         if (bot.boatMoveState == BOAT_ARRIVEBERTH)
         {
             printf("berth %d\n", i);
-            bot.boatMoveState = BOAT_WAITING; // 手动更新为原地等待的状态（等路径分配）
+            bot.boatMoveState = BOAT_WAITING;   // 手动更新为原地等待的状态（等路径分配）
             bot.boatPathState = BOAT_NO_PATH;
             bot.boatTarState = BOAT_NO_TARGET;
-            bot.boatStatus = 1; // 输入了指令berth，手动将boatStatus置1
+            bot.boatStatus = 1;     // 输入了指令berth，手动将boatStatus置1
             bot.idxInPth = 0;
         }
         if (bot.boatMoveState == BOAT_ARRIVETRADE)
         {
-            bot.boatMoveState = BOAT_WAITING; // 手动更新为原地等待的状态（等路径分配）
+            bot.boatMoveState = BOAT_WAITING;   // 手动更新为原地等待的状态（等路径分配）
             bot.boatPathState = BOAT_NO_PATH;
             bot.boatTarState = BOAT_NO_TARGET;
             bot.idxInPth = 0;
-            bot.numBoatGoods = 0; // 该值是系统更新的，但这里也手动更新一下
+            bot.numBoatGoods = 0;               // 该值是系统更新的，但这里也手动更新一下
         }
         int threshold;
 
         switch (bot.boatStatus)
         {
         case 0: // 正常行驶状态（状态 0）
-            // if (bot.boatTarState == BOAT_HAVE_TARGET && bot.boatPathState == BOAT_NO_PATH)
+            //if (bot.boatTarState == BOAT_HAVE_TARGET && bot.boatPathState == BOAT_NO_PATH)
             //{   // 有目标，无路，分配路（应该迟早会适用于避让处理）
-            //     bool findPathFlag = getBoatPathBFS(i, bot.tarX, bot.tarY, bot.pathPoint, bot.pathDir);
-            //     if (findPathFlag)
-            //     {
-            //         bot.boatPathState = BOAT_HAVE_PATH;
-            //         bot.lastX = bot.curX;
-            //         bot.lastY = bot.curY;
-            //         bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
-            //         bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
-            //     }
-            //     else
-            //     {
-            //         bot.idxInPth = 0;
-            //         vector<int>().swap(bot.pathDir);     // 清空
-            //         vector<SimplePoint>().swap(bot.pathPoint); // 清空
-            //         bot.tarX = -1;
-            //         bot.tarY = -1;
-            //     }
-            // }
-            if (bot.boatTarState == BOAT_NO_TARGET && bot.numBoatGoods == 0) // 没货物时，找泊位
-            {                                                                // 无目标，直接在路径搜索的同时分配目标（目前是强行设置泊位作为目标了）
-                bool findPathFlag = getBoatPathDijkstra(i, berth[0].x, berth[0].y, bot.pathPoint, bot.pathDir);
+            //    bool findPathFlag = getBoatPathBFS(i, bot.tarX, bot.tarY, bot.pathPoint, bot.pathDir);
+            //    if (findPathFlag)
+            //    {
+            //        bot.boatPathState = BOAT_HAVE_PATH;
+            //        bot.lastX = bot.curX;
+            //        bot.lastY = bot.curY;
+            //        bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
+            //        bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
+            //    }
+            //    else
+            //    {
+            //        bot.idxInPth = 0;
+            //        vector<int>().swap(bot.pathDir);     // 清空
+            //        vector<BoatPoint>().swap(bot.pathPoint); // 清空
+            //        bot.tarX = -1;
+            //        bot.tarY = -1;
+            //    }
+            //}
+            if (bot.boatTarState == BOAT_NO_TARGET && bot.numBoatGoods == 0)    // 没货物时，找泊位
+            {   // 无目标，直接在路径搜索的同时分配目标（目前是强行设置泊位作为目标了）
+                int tarBerthID = 2; // 应该有程序决定，这里先手动设置
+                bool findPathFlag = getBoatPathBFS(i, berth[tarBerthID].x, berth[tarBerthID].y, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)
                 {
                     bot.boatPathState = BOAT_HAVE_PATH;
@@ -67,7 +68,7 @@ void DecisionMaker::shipDecision()
                     bot.lastY = bot.curY;
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
                     bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
-                    bot.tarBerthID = 0;
+                    bot.tarBerthID = tarBerthID;
                 }
                 else
                 {
@@ -75,8 +76,8 @@ void DecisionMaker::shipDecision()
                     bot.boatTarState = BOAT_NO_TARGET;
                     bot.boatMoveState = BOAT_WAITING;
                     bot.idxInPth = 0;
-                    vector<int>().swap(bot.pathDir);           // 清空
-                    vector<SimplePoint>().swap(bot.pathPoint); // 清空
+                    vector<int>().swap(bot.pathDir);     // 清空
+                    vector<BoatPoint>().swap(bot.pathPoint); // 清空
                     bot.tarX = -1;
                     bot.tarY = -1;
                     bot.tarBerthID = -2;
@@ -94,7 +95,7 @@ void DecisionMaker::shipDecision()
                 threshold = boatCapacity * 0.8;
             if (bot.numBoatGoods >= threshold)
             { // 如果装满了，去虚拟点
-                bool findPathFlag = getBoatPathDijkstra(i, tradePoint[0].x, tradePoint[0].y, bot.pathPoint, bot.pathDir);
+                bool findPathFlag = getBoatPathBFS(i, tradePoint[0].x, tradePoint[0].y, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)
                 {
                     bot.boatPathState = BOAT_HAVE_PATH;
@@ -112,29 +113,29 @@ void DecisionMaker::shipDecision()
                     bot.boatTarState = BOAT_NO_TARGET;
                     bot.boatMoveState = BOAT_WAITING;
                     bot.idxInPth = 0;
-                    vector<int>().swap(bot.pathDir);           // 清空
-                    vector<SimplePoint>().swap(bot.pathPoint); // 清空
+                    vector<int>().swap(bot.pathDir);     // 清空
+                    vector<BoatPoint>().swap(bot.pathPoint); // 清空
                     bot.tarX = -1;
                     bot.tarY = -1;
                     bot.tarBerthID = -2;
                 }
-                // shipGoodsNum += bot.numBoatGoods;
-                // berth[bot.tarBerthID].boatIDInBerth = -1; // 更新泊位被占用的情况
-                // berth[bot.tarBerthID].boatIDToBerth = -1; // 更新泊位被指向的情况
+                //shipGoodsNum += bot.numBoatGoods;
+                //berth[bot.tarBerthID].boatIDInBerth = -1; // 更新泊位被占用的情况
+                //berth[bot.tarBerthID].boatIDToBerth = -1; // 更新泊位被指向的情况
             }
             else
             { // 没有满则继续装
                 int loadNum = berth[bot.tarBerthID].load(bot.capacity - bot.numBoatGoods);
                 bot.numBoatGoods += loadNum;
                 int newBerth = bot.tarBerthID;
-                // if (loadNum == 0) // 尝试比较跑去别的泊位去装货的性价比
-                //     newBerth = berth_select(i, bot.tarBerthID);
-                // if (newBerth != bot.tarBerthID)
+                //if (loadNum == 0) // 尝试比较跑去别的泊位去装货的性价比
+                //    newBerth = berth_select(i, bot.tarBerthID);
+                //if (newBerth != bot.tarBerthID)
                 //{
-                //     //berth[bot.tarBerthID].boatIDInBerth = -1; // 更新泊位被占用的情况
-                //     //berth[bot.tarBerthID].boatIDToBerth = -1; // 更新泊位被指向的情况
-                //     //berth[newBerth].boatIDToBerth = i;        // 更新泊位被指向的情况
-                // }
+                //    //berth[bot.tarBerthID].boatIDInBerth = -1; // 更新泊位被占用的情况
+                //    //berth[bot.tarBerthID].boatIDToBerth = -1; // 更新泊位被指向的情况
+                //    //berth[newBerth].boatIDToBerth = i;        // 更新泊位被指向的情况
+                //}
             }
             break;
         default:
@@ -146,27 +147,28 @@ void DecisionMaker::shipDecision()
 
 void DecisionMaker::refreshBoatState(int boatID)
 {
-    Boat &bot = boat[boatID];
+    Boat& bot = boat[boatID];
     if (((bot.curX != bot.lastX) || ((bot.curY != bot.lastY))))
     { // 发现变更了位置（旋转操作也必定变换位置）
-        ++bot.idxInPth;
+        if (bot.boatPathState == BOAT_HAVE_PATH)
+            ++bot.idxInPth;
         bot.lastX = bot.curX;
         bot.lastY = bot.curY;
     }
 
-    if (getBerthId(bot.curX, bot.curY) == bot.tarBerthID && bot.boatMoveState == BOAT_TOBERTH)
-    { // 如果抵达了目标泊位所覆盖的范围
+    if (getBerthId(bot.curX, bot.curY) == bot.tarBerthID && bot.boatMoveState == BOAT_TOBERTH && bot.boatStatus == 0)
+    {   // 如果抵达了目标泊位所覆盖的范围
         bot.boatMoveState = BOAT_ARRIVEBERTH;
     }
 
     if (gridMap[bot.curX][bot.curY] == TRADE && bot.boatMoveState == BOAT_TOTRADE)
-    { // 抵达交易点，且船上有货物
+    {   // 抵达交易点，且船上有货物
         bot.boatMoveState = BOAT_ARRIVETRADE;
     }
 }
 
 // 得到船去目标点的序列(BFS)
-bool DecisionMaker::getBoatPathBFS(int boatID, int tarX, int tarY, vector<SimplePoint> &pathPoint, vector<int> &pathDir)
+bool DecisionMaker::getBoatPathBFS(int boatID, int tarX, int tarY, vector<BoatPoint> &pathPoint, vector<int> &pathDir)
 {
     int queueCount = 0;
     int queueIndex = 0;
@@ -178,7 +180,6 @@ bool DecisionMaker::getBoatPathBFS(int boatID, int tarX, int tarY, vector<Simple
 
     memset(visBoat, 0, sizeof(visBoat));
     visBoat[boat[boatID].dire][boat[boatID].curX][boat[boatID].curY] = true;
-
     while (queueCount > queueIndex)
     {
         now = &nodes[queueIndex++];
@@ -206,10 +207,10 @@ bool DecisionMaker::getBoatPathBFS(int boatID, int tarX, int tarY, vector<Simple
         return false;
 
     vector<int>().swap(pathDir);           // 清空
-    vector<SimplePoint>().swap(pathPoint); // 清空
+    vector<BoatPoint>().swap(pathPoint); // 清空
     if (target != nullptr)
     {
-        pathPoint.push_back(SimplePoint(target->x, target->y));
+        pathPoint.push_back(BoatPoint(target->x, target->y, target->dir));
         // 从目标节点回溯到起始节点，构建路径
         for (Node *p = target; p->parent != nullptr; p = p->parent)
         {
@@ -218,7 +219,7 @@ bool DecisionMaker::getBoatPathBFS(int boatID, int tarX, int tarY, vector<Simple
                 if (p->x == p->parent->x + dirBoatDx[i][p->parent->dir] && p->y == p->parent->y + dirBoatDy[i][p->parent->dir])
                 {
                     pathDir.push_back(i);
-                    pathPoint.push_back(SimplePoint(p->parent->x, p->parent->y));
+                    pathPoint.push_back(BoatPoint(p->parent->x, p->parent->y, p->parent->dir));
                     break;
                 }
             }
@@ -230,7 +231,7 @@ bool DecisionMaker::getBoatPathBFS(int boatID, int tarX, int tarY, vector<Simple
 }
 
 // 得到船去目标点的序列(Dijkstra)
-bool DecisionMaker::getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<SimplePoint> &pathPoint, vector<int> &pathDir)
+bool DecisionMaker::getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<BoatPoint> &pathPoint, vector<int> &pathDir)
 {
     memset(visBoat, 0, sizeof(visBoat)); // 这里visBoat起确定最短路径集合的作用
     priority_queue<Node> candidate;
@@ -238,21 +239,17 @@ bool DecisionMaker::getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<S
     int firstDis = 0;
     Node *now = &nodes[queueCount++];
     Node *target = nullptr;
-    Node *child = nullptr;
     now->setNode(boat[boatID].curX, boat[boatID].curY, 0, nullptr, boat[boatID].dire);
     candidate.push(*now);
-    while (!target && !candidate.empty()) // 如果没找到目标并且优先级队列不为空
+    while (!target || !candidate.empty()) // 如果没找到目标或者优先级队列不为空
     {
         now = &nodes[queueCount++];
         *now = candidate.top(); // 取出最短的节点now
         candidate.pop();
-        if (visBoat[now->dir][now->x][now->y] == 1) // 如果已经是最短路径集合，跳过
-            continue;
         visBoat[now->dir][now->x][now->y] = 1; // 确定为最短路径集合
         if (now->x == tarX && now->y == tarY)
         {
             target = now;
-            boat[boatID].idxInPth = 0;
             break;
         }
         for (int i = 0; i < 3; i++) // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
@@ -263,27 +260,25 @@ bool DecisionMaker::getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<S
             int curDir = i == 2 ? now->dir : clockWiseDir[i][now->dir];
             if (boatTimeForDifDir[curDir][nx][ny] == 0 || visBoat[curDir][nx][ny])
                 continue;
-            child = &nodes[queueCount++]; // 这里只是为了用申请的空间
-            child->setNode(nx, ny, boatTimeForDifDir[curDir][nx][ny] + now->dis, now, curDir);
-            candidate.push(*child);
+            now = &nodes[queueCount++]; // 这里只是为了用申请的空间
+            now->setNode(nx, ny, boatTimeForDifDir[curDir][nx][ny] + now->dis, now, curDir);
+            candidate.push(*now);
         }
     }
-    if (target == nullptr) // 找不到路直接返回
-        return false;
     vector<int>().swap(pathDir);           // 清空
-    vector<SimplePoint>().swap(pathPoint); // 清空
+    vector<BoatPoint>().swap(pathPoint); // 清空
     if (target != nullptr)
     {
-        pathPoint.push_back(SimplePoint(target->x, target->y));
+        pathPoint.push_back(BoatPoint(target->x, target->y, target->dir));
         // 从目标节点回溯到起始节点，构建路径
         for (Node *p = target; p->parent != nullptr; p = p->parent)
         {
             for (int i = 0; i < 3; i++)
             {
-                if (p->x == p->parent->x + dirBoatDx[i][p->parent->dir] && p->y == p->parent->y + dirBoatDy[i][p->parent->dir])
+                if (p->x == p->parent->x + dirBoatDx[i][now->dir] && p->y == p->parent->y + dirBoatDx[i][now->dir])
                 {
                     pathDir.push_back(i);
-                    pathPoint.push_back(SimplePoint(p->parent->x, p->parent->y));
+                    pathPoint.push_back(BoatPoint(p->parent->x, p->parent->y, p->parent->dir));
                     break;
                 }
             }
@@ -298,7 +293,7 @@ void DecisionMaker::boatMoveControl()
 {
     for (int i = 0; i < boatNum; ++i)
     {
-        Boat &bot = boat[i];
+        Boat& bot = boat[i];
 
         if (bot.boatPathState == BOAT_NO_PATH)
             continue;
@@ -306,7 +301,7 @@ void DecisionMaker::boatMoveControl()
         {
             int para = bot.pathDir[bot.idxInPth];
             if (para == 2)
-                printf("ship %d %d\n", i, para);
+                printf("ship %d\n", i);
             else
                 printf("rot %d %d\n", i, para);
         }
