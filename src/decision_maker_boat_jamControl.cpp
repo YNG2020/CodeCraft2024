@@ -1,5 +1,6 @@
 #include "decision_maker.h"
 #include "global_vars.h"
+#include <cstring>
 
 // 更新boat的避让优先级
 void DecisionMaker::boatSetPriority()

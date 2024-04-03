@@ -26,7 +26,7 @@ public:
     BOAT_FLASH_STATE boatFlashState;    // boat的是否在闪现的状态
     vector<BoatPoint> pathPoint; // 存储路径点序列
 
-    const int jamDetectBufferLen = BOAT_JAM_BUFFER_SIZE; // 堵塞检测缓冲区的长度
+    int jamDetectBufferLen = BOAT_JAM_BUFFER_SIZE; // 堵塞检测缓冲区的长度
     int avoidPriority;                // 自身当前的避让优先级
     int avoidBoatID;                  // 当前正在避让的boat的ID，没有避让的robot时，值为-1，当前仅允许boat同时只能有一个避让boat
     int tmpTarX, tmpTarY;             // 中途点，作为避让路径的终点
