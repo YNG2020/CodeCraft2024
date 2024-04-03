@@ -33,7 +33,7 @@ private:
 
         bool operator<(const Node other) const
         {
-            return dis < other.dis; // 这里使用小于号，表示距离越小，优先级越高
+            return dis > other.dis; // 这里使用小于号，表示距离越小，优先级越高
         }
     };
 
@@ -41,7 +41,7 @@ private:
     int extraSearchTime;                          // getNearestGoods中的额外搜索轮次
     int blockBerthTime;                           // 提前屏蔽berth的时间
     int meanGoodsValue;
-    int phase; // 根据租赁情况判断当前阶段
+    int phase;                   // 根据租赁情况判断当前阶段
     double gainForSameBerth;     // 本区增益
     double globalMeanGoodsRatio; // 全场泊位接收的货物的平均性价比
 
@@ -64,9 +64,9 @@ private:
     bool getNearestBerth(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID);
     bool getToTarPath(int botID, bool calFromJam);
 
-    bool getBoatPathBFS(int boatID, int tarX, int tarY, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
-    bool getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
-    
+    bool getBoatPathBFS(int boatID, int tarX, int tarY, vector<BoatPoint> &pathPoint, vector<int> &pathDir);
+    bool getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<BoatPoint> &pathPoint, vector<int> &pathDir);
+
     void moveControl();
     void boatMoveControl();
 
@@ -92,7 +92,7 @@ private:
     void boatJamResolve(int boatID1, int boatID2);
     bool boatGetAvoidPath(int boatID1, int boatID2);
     void boatUnJam();
-    bool checkOverLap(const BoatPoint& boat1, const BoatPoint& boat2);
+    bool checkOverLap(const BoatPoint &boat1, const BoatPoint &boat2);
 
     void phaseDecision();
     void purchaseDecision();
