@@ -58,13 +58,13 @@ bool DecisionMaker::jamDetect(int botID1, int botID2)
     if ((robot[botID1].robotStatus == 0 || robot[botID1].botPathState == NO_PATH || robot[botID1].botAvoidState == AVOIDED) &&
         (robot[botID2].robotStatus == 0 || robot[botID2].botPathState == NO_PATH || robot[botID2].botAvoidState == AVOIDED)) // 此刻双方都不动
         return false;
-    if (robot[botID2].robotStatus == 0 || robot[botID2].botPathState == NO_PATH || robot[botID2].botAvoidState == AVOIDED) // // 此刻robto[botID2]停止不动
-        if (robot[botID1].jamDetectBuffer[1] == (robot[botID2].curX * MAP_SIZE + robot[botID2].curY))
+    if (robot[botID2].robotStatus == 0 || robot[botID2].botPathState == NO_PATH || robot[botID2].botAvoidState == AVOIDED) // // 此刻robot[botID2]停止不动
+        if (robot[botID1].jamDetectBuffer[1] == (robot[botID2].jamDetectBuffer[0]))
             return true;
         else
             return false;
-    if (robot[botID1].robotStatus == 0 || robot[botID1].botPathState == NO_PATH || robot[botID1].botAvoidState == AVOIDED) // // 此刻robto[botID1]停止不动
-        if (robot[botID2].jamDetectBuffer[1] == (robot[botID1].curX * MAP_SIZE + robot[botID1].curY))
+    if (robot[botID1].robotStatus == 0 || robot[botID1].botPathState == NO_PATH || robot[botID1].botAvoidState == AVOIDED) // // 此刻robot[botID1]停止不动
+        if (robot[botID2].jamDetectBuffer[1] == (robot[botID1].jamDetectBuffer[0]))
             return true;
         else
             return false;
@@ -183,18 +183,18 @@ void DecisionMaker::jamControl()
 void DecisionMaker::jamResolve(int botID1, int botID2)
 {
     bool findPathFlag;
-    if (robot[botID1].botMoveState == AVOIDED)
-    {                                        // 此时botID2不可能也处于AVOIDED的状态，因为此时jamDetect将返回false的结果
-        findPathFlag = getToTarPath(botID2, true); // botID2直接不进行避让动作，而是找路去既定目标
-        if (findPathFlag)
-        {
-            robot[botID2].avoidBotID = -1;
-            robot[botID2].botAvoidState = NO_AVOIDING;
-            robot[botID2].botPathState = HAVE_PATH;
-            refreshJamBuffer(botID2); // 修改了路径，需要更新碰撞检测缓冲区
-            return;
-        }
-    }
+    //if (robot[botID1].botMoveState == AVOIDED)
+    //{                                        // 此时botID2不可能也处于AVOIDED的状态，因为此时jamDetect将返回false的结果
+    //    findPathFlag = getToTarPath(botID2, true); // botID2直接不进行避让动作，而是找路去既定目标
+    //    if (findPathFlag)
+    //    {
+    //        robot[botID2].avoidBotID = -1;
+    //        robot[botID2].botAvoidState = NO_AVOIDING;
+    //        robot[botID2].botPathState = HAVE_PATH;
+    //        refreshJamBuffer(botID2); // 修改了路径，需要更新碰撞检测缓冲区
+    //        return;
+    //    }
+    //}
 
     findPathFlag = getAvoidPath(botID1, botID2);
     if (findPathFlag)

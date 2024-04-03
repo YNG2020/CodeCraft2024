@@ -8,7 +8,7 @@ DecisionMaker::DecisionMaker() : priority(robotNum, 0)
 {
     memset(vis, 0, sizeof(vis));
     memset(berthMap, -1, sizeof(berthMap));
-    nodes = new Node[MAP_SIZE * MAP_SIZE * 4];
+    nodes = new Node[3 * MAP_SIZE * MAP_SIZE];
 }
 
 void DecisionMaker::makeDecision()
@@ -27,7 +27,7 @@ bool DecisionMaker::invalidForRobot(int x, int y)
 {
     return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || gridMap[x][y] > ROAD_MIX;
     // return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || oriMap[x][y] == '#' || oriMap[x][y] == '*' || oriMap[x][y] == '~'
-    // || oriMap[x][y] == 'S' || oriMap[x][y] == 'K' || oriMap[x][y] == 'T';
+        // || oriMap[x][y] == 'S' || oriMap[x][y] == 'K' || oriMap[x][y] == 'T';
 }
 
 bool DecisionMaker::inBerth(int x, int y)
@@ -145,10 +145,9 @@ void DecisionMaker::paintBerth(int x, int y, int berthID)
         {
             int nx = now.x + dx[i];
             int ny = now.y + dy[i];
-            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || (gridMap[nx][ny] != BERTH && gridMap[nx][ny] != ANCHORAGE) || berthMap[nx][ny] != -1)
-                continue;
-            // if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || (oriMap[nx][ny] != 'B' && oriMap[nx][ny] != 'K') || berthMap[nx][ny] != -1)
-            // continue;
+             if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || (gridMap[nx][ny] != BERTH && gridMap[nx][ny] != ANCHORAGE) || berthMap[nx][ny] != -1) continue;
+            //if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || (oriMap[nx][ny] != 'B' && oriMap[nx][ny] != 'K') || berthMap[nx][ny] != -1)
+                //continue;
             q.push(SimplePoint(nx, ny));
             berthMap[nx][ny] = berthID;
         }
@@ -177,44 +176,19 @@ void DecisionMaker::analyzeMap()
             }
             switch (oriMap[i][j])
             {
-            case 'B':
-                gridMap[i][j] = BERTH;
-                break;
-            case 'K':
-                gridMap[i][j] = ANCHORAGE;
-                break;
-            case 'S':
-                gridMap[i][j] = BOAT_SHOP;
-                break;
-            case 'T':
-                gridMap[i][j] = TRADE;
-                break;
-            case 'R':
-                gridMap[i][j] = ROBOT_SHOP;
-                break;
-            case '#':
-                gridMap[i][j] = BLOCK;
-                break;
-            case '*':
-                gridMap[i][j] = WATER;
-                break;
-            case '~':
-                gridMap[i][j] = ROAD_WATER;
-                break;
-            case '.':
-                gridMap[i][j] = LAND;
-                break;
-            case '>':
-                gridMap[i][j] = ROAD_LAND;
-                break;
-            case 'C':
-                gridMap[i][j] = MIX;
-                break;
-            case 'c':
-                gridMap[i][j] = ROAD_MIX;
-                break;
-            default:
-                break;
+                case 'B': gridMap[i][j] = BERTH; break;
+                case 'K': gridMap[i][j] = ANCHORAGE; break;
+                case 'S': gridMap[i][j] = BOAT_SHOP; break;
+                case 'T': gridMap[i][j] = TRADE; break;
+                case 'R': gridMap[i][j] = ROBOT_SHOP; break;
+                case '#': gridMap[i][j] = BLOCK; break;
+                case '*': gridMap[i][j] = WATER; break;
+                case '~': gridMap[i][j] = ROAD_WATER; break;
+                case '.': gridMap[i][j] = LAND; break;
+                case '>': gridMap[i][j] = ROAD_LAND; break;
+                case 'C': gridMap[i][j] = MIX; break;
+                case 'c': gridMap[i][j] = ROAD_MIX; break;
+                default: break;
             }
         }
     }
@@ -222,7 +196,7 @@ void DecisionMaker::analyzeMap()
     {
         paintBerth(berth[i].x, berth[i].y, i);
     }
-    getMapInfoBoat(); // 得到船运动的地图信息
+    getMapInfoBoat();   // 得到船运动的地图信息
 }
 
 // 得到船运动的地图信息
@@ -260,6 +234,7 @@ int DecisionMaker::BoatAvailable(int x, int y, int dir) // 返回船在x,y处移
             revX = -1;
             revY = -1;
         }
+            
     }
     else if (dir == 2 || dir == 3) // 2上 3下
     {
@@ -308,7 +283,7 @@ void DecisionMaker::purchaseDecision()
     }
     if (frame == 1)
     {
-        // for (int i = 0; i < boatShop.size(); i++)
+        //for (int i = 0; i < boatShop.size(); i++)
         for (int i = 0; i < 1; i++)
         {
             printf("lboat %d %d\n", boatShop[i].x, boatShop[i].y);

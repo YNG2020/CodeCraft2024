@@ -9,7 +9,7 @@ class Boat
 public:
     int id;
     int numBoatGoods;              // 船目前装载的货物量
-    int tarBerthID;                    // 船的目标泊位，如果目标泊位是虚拟点，则为-1（系统维护）
+    int tarBerthID;                // 船的目标泊位
     int boatStatus;                // 正常行驶状态（状态 0）,恢复状态（状态1）,装载状态（状态 2）
     int capacity;                  // 船的最大装载量
     
@@ -23,12 +23,20 @@ public:
     BOAT_MOVE_STATE boatMoveState; // boat的移动状态
     BOAT_PATH_STATE boatPathState; // boat的是否是否找到移动路径状态
     BOAT_TARGET_STATE boatTarState;// boat的是否有目标的状态
-    vector<SimplePoint> pathPoint; // 存储路径点序列
+    vector<BoatPoint> pathPoint; // 存储路径点序列
+
+    const int jamDetectBufferLen = BOAT_JAM_BUFFER_SIZE; // 堵塞检测缓冲区的长度
+    int avoidPriority;                // 自身当前的避让优先级
+    int avoidBoatID;                  // 当前正在避让的boat的ID，没有避让的robot时，值为-1，当前仅允许boat同时只能有一个避让boat
+    int tmpTarX, tmpTarY;             // 中途点，作为避让路径的终点
+    BOAT_AVOID_STATE boatAvoidState;  // boat的是否正在避让状态
+    BoatPoint jamDetectBuffer[BOAT_JAM_BUFFER_SIZE];        // 堵塞检测缓冲区，存储的是boat的路径点
 
     Boat(int c) : 
         numBoatGoods(0), tarBerthID(-2), boatStatus(1), capacity(c), tarX(0), tarY(0), curX(0), curY(0), 
         lastX(0), lastY(0), dire(0), idxInPth(0), boatMoveState(BOAT_WAITING), boatPathState(BOAT_NO_PATH),
-        boatTarState(BOAT_NO_TARGET)
+        boatTarState(BOAT_NO_TARGET), avoidPriority(0), avoidBoatID(-1), tmpTarX(0), tmpTarY(0),
+        boatAvoidState(BOAT_NO_AVOIDING)
     {}
 };
 

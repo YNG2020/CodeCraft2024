@@ -1,5 +1,7 @@
 #ifndef GLOBAL_STRUCT_H
 #define GLOBAL_STRUCT_H
+
+#include <algorithm>
 // 声明一些影响全局的结构
 
 /// <summary>
@@ -21,7 +23,7 @@ enum BOT_AVOID_STATE
 {
 	AVOIDING,	 // 碰撞避免中
 	AVOIDED,	 // 避让完成，停止不动
-	NO_AVOIDING, // 解除了避让状态
+	NO_AVOIDING	 // 解除了避让状态
 };
 
 /// <summary>
@@ -67,17 +69,27 @@ enum BOAT_MOVE_STATE
 	BOAT_TOTRADE,	  // 奔赴交易点所在地
 	BOAT_TOBERTH	  // 奔赴泊位所在地
 };
+
 // 船路径状态
 enum BOAT_PATH_STATE
 {
 	BOAT_HAVE_PATH, // 有路径
 	BOAT_NO_PATH	// 无路径
 };
+
 // 船有无目标状态
 enum BOAT_TARGET_STATE
 {
 	BOAT_HAVE_TARGET,	// 有目标
 	BOAT_NO_TARGET		// 无目标
+};
+
+// 船避让状态
+enum BOAT_AVOID_STATE
+{
+	BOAT_AVOIDING,	 // 碰撞避免中
+	BOAT_AVOIDED,	 // 避让完成，停止不动
+	BOAT_NO_AVOIDING // 解除了避让状态
 };
 
 class SimplePoint
@@ -91,6 +103,38 @@ public:
 		y = point.y;
 	}
 	int x, y;
+};
+
+
+class BoatPoint
+{
+public:
+	BoatPoint(int _x, int _y, int _dire) : x(_x), y(_y), dire(_dire) {}
+	BoatPoint() : x(0), y(0), dire(0) {}
+	BoatPoint(const BoatPoint& point)
+	{
+		x = point.x;
+		y = point.y;
+		dire = point.dire;
+	}
+
+	// 重载"=="运算符
+	bool operator==(const BoatPoint& other) const
+	{
+		return (x == other.x) && (y == other.y) && (dire == other.dire);
+	}
+
+	// 赋值构造函数
+	BoatPoint& operator=(const BoatPoint& other)
+	{
+		if (this != &other) {
+			x = other.x;
+			y = other.y;
+			dire = other.dire;
+		}
+		return *this;
+	}
+	int x, y, dire;	// x,y船核心点坐标，dire船的正方向
 };
 
 class singleGoodsInfo
