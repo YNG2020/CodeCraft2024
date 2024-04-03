@@ -133,9 +133,10 @@ void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGood
     this->gainForSameBerth = gainForSameBerth;
 }
 
-void DecisionMaker::paintBerth(int x, int y, int berthID)
+void DecisionMaker::paintBerth(int berthID)
 {
     queue<SimplePoint> q;
+    int x = berth[berthID].x, y = berth[berthID].y;
     q.push(SimplePoint(x, y));
     berthMap[x][y] = berthID;
     while (!q.empty())
@@ -153,6 +154,24 @@ void DecisionMaker::paintBerth(int x, int y, int berthID)
             berthMap[nx][ny] = berthID;
         }
     }
+}
+
+void DecisionMaker::findTrade(int berthID)
+{
+    int x = berth[berthID].x, y = berth[berthID].y;
+    int minDis = 0x7fffffff;
+    int minTradeID = -1;
+    for (int i = 0; i < tradePoint.size(); i++)
+    {
+        int dis = abs(tradePoint[i].x - x) + abs(tradePoint[i].y - y);
+        if (dis < minDis)
+        {
+            minDis = dis;
+            minTradeID = i;
+        }
+    }
+    berth[berthID].transportTime = minDis;
+    berth[berthID].transportTarget = minTradeID;
 }
 
 void DecisionMaker::analyzeMap()
@@ -195,7 +214,8 @@ void DecisionMaker::analyzeMap()
     }
     for (int i = 0; i < berthNum; i++)
     {
-        paintBerth(berth[i].x, berth[i].y, i);
+        paintBerth(i);
+        findTrade(i);
     }
     getMapInfoBoat();   // 得到船运动的地图信息
 }
