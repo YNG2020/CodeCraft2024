@@ -81,6 +81,8 @@ bool DecisionMaker::boatJamDetect(int boatID1, int boatID2)
 bool DecisionMaker::boatUnJamDetect(int boatID1, int boatID2)
 {
 	bool jamFlag = false; // 标识可能发生的堵塞情况
+    if (boat[boatID1].pathPoint.size() == 0 || boat[boatID2].pathPoint.size() == 0)
+        return true;    // 双方其中有一个没有路，这种情况交给boatJamDetect判断
 	for (int i = 0; i < boat[boatID1].jamDetectBufferLen - 1; ++i)
 	{
 		if (boat[boatID2].jamDetectBuffer[i + 1] == boat[boatID2].jamDetectBuffer[i])
@@ -178,6 +180,7 @@ void DecisionMaker::boatJamResolve(int boatID1, int boatID2)
             {
                 boat[inferior].boatAvoidState = BOAT_NO_AVOIDING;
                 boat[inferior].boatPathState = BOAT_NO_PATH;
+                boat[inferior].avoidBoatID = -1;
                 boat[inferior].idxInPth = 0;
                 vector<int>().swap(boat[inferior].pathDir);     // 清空
                 vector<BoatPoint>().swap(boat[inferior].pathPoint); // 清空
@@ -307,6 +310,7 @@ void DecisionMaker::boatUnJam()
                     {
                         boat[i].boatAvoidState = BOAT_NO_AVOIDING;
                         boat[i].boatPathState = BOAT_NO_PATH;
+                        boat[i].avoidBoatID = -1;
                         boat[i].idxInPth = 0;
                         vector<int>().swap(boat[i].pathDir);     // 清空
                         vector<BoatPoint>().swap(boat[i].pathPoint); // 清空
