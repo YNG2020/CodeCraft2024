@@ -338,7 +338,8 @@ void DecisionMaker::purchaseDecision()
     {
         for (int i = 0; i < robotShop.size(); i++)
         {
-            printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
+            for (int i = 0; i < 2; i++)
+                printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
         }
         // TODO 买船
     }
