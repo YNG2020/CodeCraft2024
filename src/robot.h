@@ -38,7 +38,7 @@ public:
     BOT_MOVE_STATE botMoveState;   // robot的移动状态
     BOT_PATH_STATE botPathState;   // robot的是否是否找到移动路径状态
     BOT_AVOID_STATE botAvoidState; // robot的是否正在避让状态
-    int jamDetectBuffer[ROBOT_JAM_BUFFER_SIZE];        // 堵塞检测缓冲区，存储的是robot的路径的点在map的序号（二维化一维）
+    SimplePoint jamDetectBuffer[ROBOT_JAM_BUFFER_SIZE];        // 堵塞检测缓冲区，存储的是robot的路径的点在map的序号（二维化一维）
 
     Robot(int startX = 0, int startY = 0) :
         curX(startX), curY(startY), carryGoods(0), robotStatus(1), tarX(0), tarY(0),

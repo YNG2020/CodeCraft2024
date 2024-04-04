@@ -32,12 +32,14 @@ public:
     int tmpTarX, tmpTarY;             // 中途点，作为避让路径的终点
     BOAT_AVOID_STATE boatAvoidState;  // boat的是否正在避让状态
     BoatPoint jamDetectBuffer[BOAT_JAM_BUFFER_SIZE];        // 堵塞检测缓冲区，存储的是boat的路径点
+    bool setMove;                     // 记录前一帧是否有下达移动指令
+    int jamTime;                      // 堵塞时长计数
 
     Boat(int c) : 
         numBoatGoods(0), tarBerthID(-2), boatStatus(1), capacity(c), tarX(0), tarY(0), curX(0), curY(0), 
         lastX(0), lastY(0), dire(0), idxInPth(0), boatMoveState(BOAT_WAITING), boatPathState(BOAT_NO_PATH),
         boatTarState(BOAT_NO_TARGET), boatFlashState(BOAT_NO_FLASH), avoidPriority(0), avoidBoatID(-1), 
-        tmpTarX(0), tmpTarY(0), boatAvoidState(BOAT_NO_AVOIDING)
+        tmpTarX(0), tmpTarY(0), boatAvoidState(BOAT_NO_AVOIDING), setMove(false), jamTime(0)
     {}
 };
 

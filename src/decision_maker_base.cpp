@@ -152,8 +152,6 @@ void DecisionMaker::paintBerth(int berthID)
             int ny = now.y + dy[i];
             if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || (gridMap[nx][ny] != BERTH && gridMap[nx][ny] != ANCHORAGE) || berthMap[nx][ny] != -1)
                 continue;
-            // if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || (oriMap[nx][ny] != 'B' && oriMap[nx][ny] != 'K') || berthMap[nx][ny] != -1)
-            // continue;
             q.push(SimplePoint(nx, ny));
             berthMap[nx][ny] = berthID;
         }
@@ -185,7 +183,6 @@ void DecisionMaker::analyzeMap()
     {
         for (int j = 0; j < MAP_SIZE; j++)
         {
-            // gridMap[i][j] = mp[oriMap[i][j]];
             if (oriMap[i][j] == 'R')
             {
                 robotShop.emplace_back(i, j);
@@ -527,7 +524,8 @@ void DecisionMaker::purchaseDecision()
     {
         for (int i = 0; i < robotShop.size(); i++)
         {
-            printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
+            for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit); ++j)
+                printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
         }
         // TODO 买船
     }
@@ -536,7 +534,7 @@ void DecisionMaker::purchaseDecision()
     {
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
-    if (robotNum == robotNumLimit && boatNum < boatNumLimit)
+    if (robotNum >= robotNumLimit && boatNum < boatNumLimit)
     {
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
