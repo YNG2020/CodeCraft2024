@@ -9,6 +9,8 @@ DecisionMaker::DecisionMaker() : priority(robotNum, 0)
     memset(vis, 0, sizeof(vis));
     memset(berthMap, -1, sizeof(berthMap));
     nodes = new Node[100 * MAP_SIZE * MAP_SIZE];
+    boatNumLimit = 2;
+    robotNumLimit = 13;
 }
 
 void DecisionMaker::makeDecision()
@@ -320,7 +322,7 @@ int DecisionMaker::BoatAvailable(int x, int y, int dir) // 返回船在x,y处移
 
 void DecisionMaker::phaseDecision()
 {
-    if (robotNum < 13)
+    if (robotNum < robotNumLimit)
     {
         phase = 0;
     }
@@ -345,9 +347,8 @@ void DecisionMaker::purchaseDecision()
     {
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
-    if (frame >= 4853)
+    if (robotNum == robotNumLimit && boatNum < boatNumLimit)
     {
-        if (boatNum < 2)
-            printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
+        printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
 }

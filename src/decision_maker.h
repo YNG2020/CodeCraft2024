@@ -42,6 +42,8 @@ private:
     int blockBerthTime;                           // 提前屏蔽berth的时间
     int meanGoodsValue;
     int phase;                   // 根据租赁情况判断当前阶段
+    int boatNumLimit;            // 船只数量限制
+    int robotNumLimit;           // 机器人数量限制
     double gainForSameBerth;     // 本区增益
     double globalMeanGoodsRatio; // 全场泊位接收的货物的平均性价比
 
