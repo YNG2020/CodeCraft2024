@@ -56,8 +56,8 @@ private:
     bool vis[MAP_SIZE][MAP_SIZE];
     bool visBoat[4][MAP_SIZE][MAP_SIZE];
     int berthMap[MAP_SIZE][MAP_SIZE];    // 记录对应的泊位ID
-    int berthMapSea[MAP_SIZE][MAP_SIZE]; // 记录海上对应的泊位ID
-    int tradeMapSea[MAP_SIZE][MAP_SIZE]; // 记录海上对应的交易点ID
+    int berthMapSea[MAP_SIZE][MAP_SIZE]; // 记录海上对应的最近泊位ID
+    int tradeMapSea[MAP_SIZE][MAP_SIZE]; // 记录海上对应的最近交易点ID
     GRID_TYPE gridMap[MAP_SIZE][MAP_SIZE];
 
     bool inBerth(int x, int y);
