@@ -253,7 +253,7 @@ void DecisionMaker::analyzeMap()
     getNearBerthInfo();      // 得到地图上的点最近泊位
     getNearTradeInfo();      // 得到地图上的点最近交货点
     generateBerthTradeDis(); // 生成泊位交货点距离邻接矩阵
-    test_print();
+    // test_print();
 }
 void DecisionMaker::generateBerthTradeDis()
 {
