@@ -169,7 +169,7 @@ void DecisionMaker::refreshBoatState(int boatID)
     if (((bot.curX != bot.lastX) || ((bot.curY != bot.lastY))))
     { // 发现变更了位置（旋转操作也必定变换位置）
         if (bot.boatPathState == BOAT_HAVE_PATH)
-        {   // 多一层对闪现状态的处理
+        { // 多一层对闪现状态的处理
             ++bot.idxInPth;
             boatRefreshJamBuffer(boatID);
         }
@@ -293,7 +293,7 @@ bool DecisionMaker::getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<B
             if (boatTimeForDifDir[curDir][nx][ny] == 0 || visBoat[curDir][nx][ny])
                 continue;
             child = &nodes[queueCount++]; // 这里只是为了用申请的空间
-            child->setNode(nx, ny, boatTimeForDifDir[curDir][nx][ny] + now->dis, now, curDir);
+            child->setNode(nx, ny, boatTimeForDifDir[now->dir][now->x][now->y] + now->dis, now, curDir);
             candidate.push(*child);
         }
     }

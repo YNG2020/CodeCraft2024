@@ -55,7 +55,9 @@ private:
     vector<SimplePoint> tradePoint;
     bool vis[MAP_SIZE][MAP_SIZE];
     bool visBoat[4][MAP_SIZE][MAP_SIZE];
-    int berthMap[MAP_SIZE][MAP_SIZE]; // 记录对应的泊位ID
+    int berthMap[MAP_SIZE][MAP_SIZE];    // 记录对应的泊位ID
+    int berthMapSea[MAP_SIZE][MAP_SIZE]; // 记录海上对应的泊位ID
+    int tradeMapSea[MAP_SIZE][MAP_SIZE]; // 记录海上对应的交易点ID
     GRID_TYPE gridMap[MAP_SIZE][MAP_SIZE];
 
     bool inBerth(int x, int y);
@@ -103,7 +105,13 @@ public:
     DecisionMaker();
     void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, int blockBerthTime, int meanGoodsValue, double gainForSameBerth);
     void analyzeMap();
-    void getMapInfoBoat();
+    void getMapInfoBoat();   // 得到船运动的地图信息
+    void getMapDisBerth();   // 得到泊位的海上距离map
+    void getMapDisTrade();   // 得到交货点的海上距离map
+    void getNearBerthInfo(); // 得到地图上的点最近泊位
+    void getNearTradeInfo(); // 得到地图上的点最近交货点
+    void generateBerthTradeDis();
+
     int BoatAvailable(int x, int y, int dir);
 
     void makeDecision();
@@ -117,6 +125,7 @@ public:
     void getNearBerthDis(int x, int y);  // 计算点到最近的泊位的距离
     void getConnectedBerth(int berthID); // 计算相互邻接的泊位的距离
     int getBerthId(int x, int y);
+    void test_print();
 };
 
 #endif // DECISION_MAKER_H

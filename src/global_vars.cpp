@@ -3,16 +3,19 @@
 vector<Robot> robot;
 vector<Boat> boat;
 vector<Berth> berth;
-
+vector<vector<int>> berthTradeDis;
 int robotNum;
 int boatNum;
 int berthNum;
+int tradeNum;
 
 int money, boatCapacity, frameId, frame, K, numCurGoods = 0;
 char oriMap[N][N];
 int goodsInMap[N][N];
 vector<std::unordered_map<int, int>> goodsInfo(1000);
 int boatTimeForDifDir[4][N][N];
+int berthDis[20][MAP_SIZE][MAP_SIZE]; // 记录每个点到不同泊位的距离（海上），20是泊位数目上限
+int tradeDis[10][MAP_SIZE][MAP_SIZE]; // 记录每个点到不同交货点的距离（海上）10是交货点目上限
 int goodsLeftTime[N][N];
 int nearBerthDis[N][N];
 int nearBerthID[N][N];
