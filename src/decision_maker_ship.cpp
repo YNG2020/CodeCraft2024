@@ -170,8 +170,8 @@ void DecisionMaker::refreshBoatState(int boatID)
     { // 发现变更了位置（旋转操作也必定变换位置）
         if (bot.boatPathState == BOAT_HAVE_PATH)
         {   // 多一层对闪现状态的处理
-            boatRefreshJamBuffer(boatID);
             ++bot.idxInPth;
+            boatRefreshJamBuffer(boatID);
         }
         bot.lastX = bot.curX;
         bot.lastY = bot.curY;
@@ -430,6 +430,5 @@ int DecisionMaker::berthSelect(int boatID)
     }
 
     berth[minIdx].boatIDToBerth = boatID;
-    printf("ship %d %d\n", boatID, minIdx);
     return minIdx;
 }
