@@ -353,7 +353,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint
 
     int botInberthID = getBerthId(x, y);
     double factor = 2.0;
-    double gainForCallingBerth = 100.0;
+    double gainForCallingBerth = 1.0;
 
     while (queueCount > queueIndex)
     {
