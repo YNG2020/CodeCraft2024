@@ -345,4 +345,9 @@ void DecisionMaker::purchaseDecision()
     {
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
+    if (frame >= 4853)
+    {
+        if (boatNum < 2)
+            printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
+    }
 }

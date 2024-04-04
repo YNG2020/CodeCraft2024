@@ -297,8 +297,8 @@ void DecisionMaker::boatUnJam()
     for (int i = 0; i < boatNum; ++i)
     {
         if (boat[i].boatAvoidState == BOAT_AVOIDING)
-        { // 正处于避让状态,TODO
-            if (boat[i].idxInPth == boat[i].pathDir.size() - 1)
+        { // 正处于避让状态
+            if (boat[i].idxInPth == boat[i].pathDir.size())
             {
                 bool findPathFlag = getBoatPathBFS(i, boat[i].tarX, boat[i].tarY, boat[i].pathPoint, boat[i].pathDir);
                 if (!findPathFlag)

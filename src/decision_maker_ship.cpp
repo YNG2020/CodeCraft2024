@@ -28,6 +28,7 @@ void DecisionMaker::shipDecision()
             bot.idxInPth = 0;
             vector<int>().swap(bot.pathDir);         // 清空
             vector<BoatPoint>().swap(bot.pathPoint); // 清空
+            boatRefreshJamBuffer(i);
         }
         if (bot.boatMoveState == BOAT_ARRIVETRADE)
         {
@@ -38,6 +39,7 @@ void DecisionMaker::shipDecision()
             bot.idxInPth = 0;
             vector<int>().swap(bot.pathDir);         // 清空
             vector<BoatPoint>().swap(bot.pathPoint); // 清空
+            boatRefreshJamBuffer(i);
         }
         int threshold;
 
@@ -54,12 +56,14 @@ void DecisionMaker::shipDecision()
             //         bot.lastY = bot.curY;
             //         bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
             //         bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
+            //         boatRefreshJamBuffer(i);
             //     }
             //     else
             //     {
             //         bot.idxInPth = 0;
             //         vector<int>().swap(bot.pathDir);     // 清空
             //         vector<BoatPoint>().swap(bot.pathPoint); // 清空
+            //         boatRefreshJamBuffer(i);
             //         bot.tarX = -1;
             //         bot.tarY = -1;
             //     }
@@ -78,6 +82,7 @@ void DecisionMaker::shipDecision()
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
                     bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
                     bot.tarBerthID = tarBerthID;
+                    boatRefreshJamBuffer(i);
                 }
                 else
                 {
@@ -87,6 +92,7 @@ void DecisionMaker::shipDecision()
                     bot.idxInPth = 0;
                     vector<int>().swap(bot.pathDir);         // 清空
                     vector<BoatPoint>().swap(bot.pathPoint); // 清空
+                    boatRefreshJamBuffer(i);
                     bot.tarX = -1;
                     bot.tarY = -1;
                     bot.tarBerthID = -2;
@@ -116,6 +122,7 @@ void DecisionMaker::shipDecision()
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
                     bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
                     bot.tarBerthID = -2;
+                    boatRefreshJamBuffer(i);
                 }
                 else
                 {
@@ -125,6 +132,7 @@ void DecisionMaker::shipDecision()
                     bot.idxInPth = 0;
                     vector<int>().swap(bot.pathDir);         // 清空
                     vector<BoatPoint>().swap(bot.pathPoint); // 清空
+                    boatRefreshJamBuffer(i);
                     bot.tarX = -1;
                     bot.tarY = -1;
                     bot.tarBerthID = -2;
@@ -161,7 +169,10 @@ void DecisionMaker::refreshBoatState(int boatID)
     if (((bot.curX != bot.lastX) || ((bot.curY != bot.lastY))))
     { // 发现变更了位置（旋转操作也必定变换位置）
         if (bot.boatPathState == BOAT_HAVE_PATH)
+        {   // 多一层对闪现状态的处理
+            boatRefreshJamBuffer(boatID);
             ++bot.idxInPth;
+        }
         bot.lastX = bot.curX;
         bot.lastY = bot.curY;
     }
