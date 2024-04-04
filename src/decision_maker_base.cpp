@@ -338,7 +338,7 @@ void DecisionMaker::purchaseDecision()
     {
         for (int i = 0; i < robotShop.size(); i++)
         {
-            for (int i = 0; i < 2; i++)
+            for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit); ++j)
                 printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
         }
         // TODO 买船
@@ -348,7 +348,7 @@ void DecisionMaker::purchaseDecision()
     {
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
-    if (robotNum == robotNumLimit && boatNum < boatNumLimit)
+    if (robotNum >= robotNumLimit && boatNum < boatNumLimit)
     {
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }

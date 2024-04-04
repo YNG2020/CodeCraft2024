@@ -109,6 +109,20 @@ public:
 		x = point.x;
 		y = point.y;
 	}
+	// 重载"=="运算符
+	bool operator==(const SimplePoint& other) const
+	{
+		return (x == other.x) && (y == other.y);
+	}
+	// 赋值构造函数
+	SimplePoint& operator=(const SimplePoint& other)
+	{
+		if (this != &other) {
+			x = other.x;
+			y = other.y;
+		}
+		return *this;
+	}
 	int x, y;
 };
 
