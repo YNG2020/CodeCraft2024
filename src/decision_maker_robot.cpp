@@ -222,7 +222,7 @@ void DecisionMaker::refreshRobotState(int botID)
     }
 
     if (inBerth(bot.curX, bot.curY))
-    { // 自己本身有货物，且抵达到泊位，不必考虑这个货物是否就是目标泊位
+    { // 自己本身有货物，且抵达到泊位，不必考虑这个泊位是否就是目标泊位
         if (bot.carryGoods > 0)
         {   // 刚好抵达泊位
             bot.botMoveState = ARRIVEBERTH;
@@ -353,7 +353,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint
 
     int botInberthID = getBerthId(x, y);
     double factor = 2.0;
-    double gainForCallingBerth = 100.0;
+    double gainForCallingBerth = 1.0;
 
     while (queueCount > queueIndex)
     {
