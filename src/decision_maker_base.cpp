@@ -252,6 +252,24 @@ void DecisionMaker::analyzeMap()
     generateBerthTradeDis(); // 生成泊位交货点距离邻接矩阵
     // test_print();
 }
+
+// 得到船运动的地图信息
+void DecisionMaker::getMapInfoBoat()
+{
+    for (int i = 0; i < MAP_SIZE; i++)
+    {
+        for (int j = 0; j < MAP_SIZE; j++)
+        {
+            char s = oriMap[i][j];
+            if (s == '.' || s == '>' || s == '#' || s == 'R') // 不在船能走的区域
+                continue;
+            else
+                for (int dir = 0; dir < 4; ++dir)
+                    boatTimeForDifDir[dir][i][j] = BoatAvailable(i, j, dir);
+        }
+    }
+}
+
 void DecisionMaker::generateBerthTradeDis()
 {
     // 调整berthTradeDis大小
@@ -292,68 +310,7 @@ void DecisionMaker::test_print()
     }
     f.close();
 }
-void DecisionMaker::getNearBerthInfo()
-{
-    for (int x = 0; x < MAP_SIZE; ++x)
-    {
-        for (int y = 0; y < MAP_SIZE; ++y)
-        {
-            int curID = -1;
-            int curDis = -1;
-            if (boatTimeForDifDir[0][x][y] || boatTimeForDifDir[1][x][y] || boatTimeForDifDir[2][x][y] || boatTimeForDifDir[3][x][y])
-            { // 如果船在此点的某个方向可以容下，计算此点的最近泊位ID
-                for (int i = 0; i < berthNum; ++i)
-                {
 
-                    if (curID == -1 && berthDis[i][x][y] != 0)
-                    {
-                        curID = i;
-                        curDis = berthDis[i][x][y];
-                    }
-                    else if (curDis > berthDis[i][x][y] && berthDis[i][x][y] != 0)
-                    {
-                        curID = i;
-                        curDis = berthDis[i][x][y];
-                    }
-                }
-                berthMapSea[x][y] = curID; // 使用前要判定合法boatTimeForDifDir
-            }
-            else
-                berthMapSea[x][y] = -1;
-        }
-    }
-}
-void DecisionMaker::getNearTradeInfo()
-{
-    for (int x = 0; x < MAP_SIZE; ++x)
-    {
-        for (int y = 0; y < MAP_SIZE; ++y)
-        {
-            int curID = -1;
-            int curDis = -1;
-            if (boatTimeForDifDir[0][x][y] || boatTimeForDifDir[1][x][y] || boatTimeForDifDir[2][x][y] || boatTimeForDifDir[3][x][y])
-            { // 如果船在此点的某个方向可以容下，计算此点的最近交货点
-                for (int i = 0; i < tradeNum; ++i)
-                {
-
-                    if (curID == -1 && tradeDis[i][x][y] != 0)
-                    {
-                        curID = i;
-                        curDis = tradeDis[i][x][y];
-                    }
-                    else if (curDis > tradeDis[i][x][y] && tradeDis[i][x][y] != 0)
-                    {
-                        curID = i;
-                        curDis = tradeDis[i][x][y];
-                    }
-                }
-                tradeMapSea[x][y] = curID; // 使用前要判定合法boatTimeForDifDir
-            }
-            else
-                tradeMapSea[x][y] = -1;
-        }
-    }
-}
 void DecisionMaker::getMapDisBerth()
 {
     for (int i = 0; i < berthNum; ++i)
@@ -394,6 +351,7 @@ void DecisionMaker::getMapDisBerth()
         }
     }
 }
+
 void DecisionMaker::getMapDisTrade()
 {
     for (int i = 0; i < tradeNum; ++i)
@@ -434,19 +392,65 @@ void DecisionMaker::getMapDisTrade()
         }
     }
 }
-// 得到船运动的地图信息
-void DecisionMaker::getMapInfoBoat()
+
+void DecisionMaker::getNearBerthInfo()
 {
-    for (int i = 0; i < MAP_SIZE; i++)
+    for (int x = 0; x < MAP_SIZE; ++x)
     {
-        for (int j = 0; j < MAP_SIZE; j++)
+        for (int y = 0; y < MAP_SIZE; ++y)
         {
-            char s = oriMap[i][j];
-            if (s == '.' || s == '>' || s == '#' || s == 'R') // 不在船能走的区域
-                continue;
+            int curID = -1;
+            int curDis = -1;
+            if (boatTimeForDifDir[0][x][y] || boatTimeForDifDir[1][x][y] || boatTimeForDifDir[2][x][y] || boatTimeForDifDir[3][x][y])
+            { // 如果船在此点的某个方向可以容下，计算此点的最近泊位ID
+                for (int i = 0; i < berthNum; ++i)
+                {
+                    if (curID == -1 && berthDis[i][x][y] != 0)
+                    {
+                        curID = i;
+                        curDis = berthDis[i][x][y];
+                    }
+                    else if (curDis > berthDis[i][x][y] && berthDis[i][x][y] != 0)
+                    {
+                        curID = i;
+                        curDis = berthDis[i][x][y];
+                    }
+                }
+                berthMapSea[x][y] = curID; // 使用前要判定合法boatTimeForDifDir
+            }
             else
-                for (int dir = 0; dir < 4; ++dir)
-                    boatTimeForDifDir[dir][i][j] = BoatAvailable(i, j, dir);
+                berthMapSea[x][y] = -1;
+        }
+    }
+}
+
+void DecisionMaker::getNearTradeInfo()
+{
+    for (int x = 0; x < MAP_SIZE; ++x)
+    {
+        for (int y = 0; y < MAP_SIZE; ++y)
+        {
+            int curID = -1;
+            int curDis = -1;
+            if (boatTimeForDifDir[0][x][y] || boatTimeForDifDir[1][x][y] || boatTimeForDifDir[2][x][y] || boatTimeForDifDir[3][x][y])
+            { // 如果船在此点的某个方向可以容下，计算此点的最近交货点
+                for (int i = 0; i < tradeNum; ++i)
+                {
+                    if (curID == -1 && tradeDis[i][x][y] != 0)
+                    {
+                        curID = i;
+                        curDis = tradeDis[i][x][y];
+                    }
+                    else if (curDis > tradeDis[i][x][y] && tradeDis[i][x][y] != 0)
+                    {
+                        curID = i;
+                        curDis = tradeDis[i][x][y];
+                    }
+                }
+                tradeMapSea[x][y] = curID; // 使用前要判定合法boatTimeForDifDir
+            }
+            else
+                tradeMapSea[x][y] = -1;
         }
     }
 }
