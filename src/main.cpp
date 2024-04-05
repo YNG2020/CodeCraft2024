@@ -17,6 +17,9 @@ using namespace std;
 std::ifstream myCin;
 bool Debug = false;
 void printData();
+vector<int> goods_val;
+vector<int> goods_frame;
+vector<int> goods_region;
 DecisionMaker decisionMaker;
 
 void Init()
@@ -122,6 +125,9 @@ int Input()
             berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, singleGoodsInfo(goodsInMap[x][y], 2 * nearBerthDis[x][y], x, y));
             ++numCurGoods;
         }
+        goods_frame.push_back(frameId);
+        goods_val.push_back(val);
+        goods_region.push_back(nearBerthID[x][y]);
         goodsInfo[frameModIdx].emplace(x * MAP_SIZE + y, 1000);
     }
     if (Debug)
@@ -236,4 +242,10 @@ void printData()
         sum += berth[i].getBerthGoodsValueOfNum(berth[i].numBerthGoods, 0, 0);
     }
     cerr << "sum = " << sum << endl;
+    // ofstream outputFile("goodsInfo.csv");
+    // outputFile << "goodsValue, goodsRegion, Frame" << endl;
+    // for (int i = 0; i < goods_val.size(); i++)
+    // {
+        // outputFile << goods_val[i] << ", " << goods_region[i] << ", " << goods_frame[i] << endl;
+    // }
 }
