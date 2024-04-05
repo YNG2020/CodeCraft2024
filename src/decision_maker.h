@@ -73,6 +73,7 @@ private:
     bool getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
     bool getBoatNearestBerthDijkstra(int boatID, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
     bool getBoatNearestTradeDijkstra(int boatID, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
+    bool getDetourPath(int botID1, int botID2);
 
 
     void moveControl();
@@ -82,10 +83,10 @@ private:
 
     void setPriority();
     void refreshJamBuffer(int botID);
-    bool jamDetect(int botID1, int botID2);
+    int jamDetect(int botID1, int botID2);
     bool unJamDetect(int botID1, int botID2);
     void jamControl();
-    void jamResolve(int botID1, int botID2);
+    void jamResolve(int botID1, int botID2, int jamPos);
     bool getAvoidPath(int botID1, int botID2);
     void unJam();
 

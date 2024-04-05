@@ -584,7 +584,6 @@ bool DecisionMaker::getToTarPath(int botID, bool calFromJam)
 {
     int queueCount = 0;
     int queueIndex = 0;
-    //if (robot[botID].botTarState == NO_TARGET)
     if (robot[botID].botMoveState == WAITING)
         return false;
 

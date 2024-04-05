@@ -51,40 +51,40 @@ void DecisionMaker::refreshJamBuffer(int botID)
 }
 
 // 对每对robot进行堵塞检测
-bool DecisionMaker::jamDetect(int botID1, int botID2)
+int DecisionMaker::jamDetect(int botID1, int botID2)
 {
     int tmpX, tmpY, tmpX1, tmpY1, tmpX2, tmpY2, tmpX3, tmpY3;
     if (botID1 == botID2)
-        return false;
+        return 0;
     if ((robot[botID1].robotStatus == 0 || robot[botID1].botPathState == NO_PATH || robot[botID1].botAvoidState == AVOIDED) &&
         (robot[botID2].robotStatus == 0 || robot[botID2].botPathState == NO_PATH || robot[botID2].botAvoidState == AVOIDED)) // 此刻双方都不动
-        return false;
+        return 0;
     if (robot[botID2].robotStatus == 0 || robot[botID2].botPathState == NO_PATH || robot[botID2].botAvoidState == AVOIDED) // // 此刻robot[botID2]停止不动
         if (robot[botID1].jamDetectBuffer[1] == (robot[botID2].jamDetectBuffer[0]))
         {
             tmpX = robot[botID2].jamDetectBuffer[0].x;
             tmpY = robot[botID2].jamDetectBuffer[0].y;
             if (gridMap[tmpX][tmpY] == ROBOT_SHOP || gridMap[tmpX][tmpY] == ROAD_LAND || gridMap[tmpX][tmpY] == ROAD_MIX)
-                return false;
+                return 0;
             else
-                return true;
+                return 1;
         }
         else
-            return false;
+            return 0;
     if (robot[botID1].robotStatus == 0 || robot[botID1].botPathState == NO_PATH || robot[botID1].botAvoidState == AVOIDED) // // 此刻robot[botID1]停止不动
         if (robot[botID2].jamDetectBuffer[1] == (robot[botID1].jamDetectBuffer[0]))
         {
             tmpX = robot[botID1].jamDetectBuffer[0].x;
             tmpY = robot[botID1].jamDetectBuffer[0].y;
             if (gridMap[tmpX][tmpY] == ROBOT_SHOP || gridMap[tmpX][tmpY] == ROAD_LAND || gridMap[tmpX][tmpY] == ROAD_MIX)
-                return false;
+                return 0;
             else
-                return true;
+                return 1;
         }
         else
-            return false;
+            return 0;
 
-    bool jamFlag = false; // 标识可能发生的堵塞情况
+    int jamFlag = 0; // 标识可能发生的堵塞情况
     for (int i = 0; i < robot[botID1].jamDetectBufferLen - 1; ++i)
     {
         if (robot[botID2].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i])
@@ -109,7 +109,7 @@ bool DecisionMaker::jamDetect(int botID1, int botID2)
             tmpY = robot[botID2].jamDetectBuffer[i + 1].y;
             if (gridMap[tmpX][tmpY] == ROBOT_SHOP || gridMap[tmpX][tmpY] == ROAD_LAND || gridMap[tmpX][tmpY] == ROAD_MIX)
                 continue;                           // 二者同时位于主干道
-            jamFlag = true;
+            return i + 1;
         }
         else if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i] && robot[botID1].jamDetectBuffer[i] == robot[botID2].jamDetectBuffer[i + 1]) // 对撞
         {
@@ -130,7 +130,7 @@ bool DecisionMaker::jamDetect(int botID1, int botID2)
                 (gridMap[tmpX2][tmpY2] == ROBOT_SHOP || gridMap[tmpX2][tmpY2] == ROAD_LAND || gridMap[tmpX2][tmpY2] == ROAD_MIX) &&
                 (gridMap[tmpX3][tmpY3] == ROBOT_SHOP || gridMap[tmpX3][tmpY3] == ROAD_LAND || gridMap[tmpX3][tmpY3] == ROAD_MIX))
                 continue;       // 发生对撞的区域落在主干道
-            jamFlag = true;
+            return i + 1;
         }
     }
     return jamFlag;
@@ -200,7 +200,8 @@ void DecisionMaker::jamControl()
     {
         for (int j = i + 1; j < robotNum; ++j)
         {
-            if (jamDetect(i, j))
+            int jamPos = jamDetect(i, j);
+            if (jamPos)
             {                               // 预计会发生碰撞，robot_j去寻找避让点（将考虑robot_i的堵塞检测缓冲区），robot_i则保持原来的轨迹
                 int botID1 = i, botID2 = j; // 默认botID1的优先级高于botID2
                 if (robot[botID1].avoidPriority < robot[botID2].avoidPriority)
@@ -229,16 +230,16 @@ void DecisionMaker::jamControl()
                 }
                 if (robot[botID2].avoidBotID == -1 || robot[botID2].avoidBotID == botID1)
                 { // botID2没有避让对象，或避让对象就是botID1
-                    jamResolve(botID1, botID2);
+                    jamResolve(botID1, botID2, jamPos);
                 }
                 else
                 { // botID2有避让对象
                     if (robot[botID1].avoidBotID == -1)
-                        jamResolve(botID2, botID1);
+                        jamResolve(botID2, botID1, jamPos);
                     else if (robot[botID1].avoidPriority > robot[robot[botID2].avoidBotID].avoidPriority)
-                        jamResolve(botID1, botID2);
+                        jamResolve(botID1, botID2, jamPos);
                     else
-                        jamResolve(botID2, botID1);
+                        jamResolve(botID2, botID1, jamPos);
                 }
             }
         }
@@ -246,21 +247,22 @@ void DecisionMaker::jamControl()
 }
 
 // 堵塞消解，默认是botID2去寻找避让botID1的路径，且默认botID2没有避让对象
-void DecisionMaker::jamResolve(int botID1, int botID2)
+void DecisionMaker::jamResolve(int botID1, int botID2, int jamPos)
 {
     bool findPathFlag;
-    //if (robot[botID1].botMoveState == AVOIDED)
-    //{                                        // 此时botID2不可能也处于AVOIDED的状态，因为此时jamDetect将返回false的结果
-    //    findPathFlag = getToTarPath(botID2, true); // botID2直接不进行避让动作，而是找路去既定目标
-    //    if (findPathFlag)
-    //    {
-    //        robot[botID2].avoidBotID = -1;
-    //        robot[botID2].botAvoidState = NO_AVOIDING;
-    //        robot[botID2].botPathState = HAVE_PATH;
-    //        refreshJamBuffer(botID2); // 修改了路径，需要更新碰撞检测缓冲区
-    //        return;
-    //    }
-    //}
+    if (jamPos + 1 > ROBOT_NEARER_JAM_BUFFER_SIZE)
+    {
+        findPathFlag = getDetourPath(botID1, botID2); // botID2直接不进行避让动作，而是找路去既定目标
+        if (findPathFlag)
+        {
+            robot[botID2].avoidBotID = -1;
+            robot[botID2].botAvoidState = NO_AVOIDING;
+            robot[botID2].botPathState = HAVE_PATH;
+            refreshJamBuffer(botID2); // 修改了路径，需要更新碰撞检测缓冲区
+            return;
+        }
+        return;
+    }
 
     findPathFlag = getAvoidPath(botID1, botID2);
     if (findPathFlag)
@@ -420,6 +422,122 @@ bool DecisionMaker::getAvoidPath(int botID1, int botID2)
                     }
 
         if (pointAvailable)
+        {
+            target = now;               // 找到避让点
+            robot[botID2].idxInPth = 0; // 更新路径点序列
+            break;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = now->x + dx[i];
+            int ny = now->y + dy[i];
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
+                continue;
+            vis[nx][ny] = true;
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now->dis + 1, now);
+        }
+    }
+
+    if (target == nullptr) // 找不到路直接返回
+        return false;
+
+    robot[botID2].pathDir.clear(); // 清空
+    if (target != nullptr)
+    {
+        // 从目标节点回溯到起始节点，构建路径
+        for (Node* p = target; p->parent != nullptr; p = p->parent)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (p->x == p->parent->x + dx[i] && p->y == p->parent->y + dy[i])
+                {
+                    robot[botID2].pathDir.push_back(i);
+                    break;
+                }
+            }
+        }
+        reverse(robot[botID2].pathDir.begin(), robot[botID2].pathDir.end()); // 反转路径，使其从起始节点开始
+
+        robot[botID2].pathPoint.resize(robot[botID2].pathDir.size() + 1);
+        int curX = x, curY = y;
+        robot[botID2].pathPoint[0] = SimplePoint(curX, curY);
+        for (int i = 0; i < robot[botID2].pathDir.size(); ++i)
+        {
+            curX += dx[robot[botID2].pathDir[i]];
+            curY += dy[robot[botID2].pathDir[i]];
+            robot[botID2].pathPoint[i + 1] = SimplePoint(curX, curY);
+        }
+    }
+    return true;
+}
+
+// 寻找绕路路径，默认是botID2去寻找绕过botID1的路径
+bool DecisionMaker::getDetourPath(int botID1, int botID2)
+{
+    int queueCount = 0;
+    int queueIndex = 0;
+    if (robot[botID2].robotStatus == 0)
+        return false;
+    int x = robot[botID2].curX, y = robot[botID2].curY;
+    Node* now = &nodes[queueCount++];
+    Node* target = nullptr; // 用于存储找到的目标节点
+    Node* child = nullptr;
+    now->setNode(x, y, 0, nullptr);
+    memset(vis, 0, sizeof(vis));
+    for (int i = 0; i < robotNum; i++)
+    {
+        if (robot[i].robotStatus == 0 && (abs(robot[i].curX - x) + abs(robot[i].curY - y) < BOT_EXRECOVER_DIST))
+            vis[robot[i].curX][robot[i].curY] = true;
+    }
+    vis[x][y] = true;
+    vis[robot[botID1].curX][robot[botID1].curY] = true; // 不经过要避让的robot此刻所在的位置
+    int tmpX, tmpY, tmpX1, tmpY1, tmpX2, tmpY2, tmpX3, tmpY3;
+    for (int i = 0; i < robot[botID1].jamDetectBufferLen - 1; ++i)
+    {   // 构建寻路屏障，不让绕路路径与botID1的路径有冲突
+        if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i + 1])
+        { // 二者下一个目标位置都相同
+            tmpX = robot[botID2].jamDetectBuffer[i + 1].x;
+            tmpY = robot[botID2].jamDetectBuffer[i + 1].y;
+            if (gridMap[tmpX][tmpY] == ROBOT_SHOP || gridMap[tmpX][tmpY] == ROAD_LAND || gridMap[tmpX][tmpY] == ROAD_MIX)
+                continue;                           // 二者同时位于主干道
+            vis[tmpX][tmpY] = true;
+        }
+        else if (robot[botID1].jamDetectBuffer[i + 1] == robot[botID2].jamDetectBuffer[i] && robot[botID1].jamDetectBuffer[i] == robot[botID2].jamDetectBuffer[i + 1])
+        { // 对撞
+            tmpX = robot[botID1].jamDetectBuffer[i].x;
+            tmpY = robot[botID1].jamDetectBuffer[i].y;
+
+            tmpX1 = robot[botID2].jamDetectBuffer[i].x;
+            tmpY1 = robot[botID2].jamDetectBuffer[i].y;
+
+            tmpX2 = robot[botID1].jamDetectBuffer[i + 1].x;
+            tmpY2 = robot[botID1].jamDetectBuffer[i + 1].y;
+
+            tmpX3 = robot[botID2].jamDetectBuffer[i + 1].x;
+            tmpY3 = robot[botID2].jamDetectBuffer[i + 1].y;
+
+            if ((gridMap[tmpX][tmpY] == ROBOT_SHOP || gridMap[tmpX][tmpY] == ROAD_LAND || gridMap[tmpX][tmpY] == ROAD_MIX) &&
+                (gridMap[tmpX1][tmpY1] == ROBOT_SHOP || gridMap[tmpX1][tmpY1] == ROAD_LAND || gridMap[tmpX1][tmpY1] == ROAD_MIX) &&
+                (gridMap[tmpX2][tmpY2] == ROBOT_SHOP || gridMap[tmpX2][tmpY2] == ROAD_LAND || gridMap[tmpX2][tmpY2] == ROAD_MIX) &&
+                (gridMap[tmpX3][tmpY3] == ROBOT_SHOP || gridMap[tmpX3][tmpY3] == ROAD_LAND || gridMap[tmpX3][tmpY3] == ROAD_MIX))
+                continue;       // 发生对撞的区域落在主干道
+
+            vis[tmpX][tmpY] = true;
+        }
+    }
+
+    bool pointAvailable = true; // 用于标识找到的避让点是否可行
+
+    while (queueCount > queueIndex)
+    {
+        now = &nodes[queueIndex++];
+
+        if (now->dis + robot[botID2].idxInPth > robot[botID2].pathDir.size())
+            return false;
+
+        if (now->x == robot[botID2].tarX && now->y == robot[botID2].tarY)
         {
             target = now;               // 找到避让点
             robot[botID2].idxInPth = 0; // 更新路径点序列
