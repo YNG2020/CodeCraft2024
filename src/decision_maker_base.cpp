@@ -302,16 +302,22 @@ void DecisionMaker::generateBerthTradeDis()
     {
         for (int j = i + 1; j < berthNum; ++j)
         {
-            berthTradeDis[i][j] = berthDis[i][berth[j].x][berth[j].y];
-            berthTradeDis[j][i] = berthDis[j][berth[i].x][berth[i].y];
+            for (int dir = 0; dir < 4; ++dir)
+            {
+                berthTradeDis[i][j] = max(berthTradeDis[i][j], berthDis[i][dir][berth[j].x][berth[j].y]);
+                berthTradeDis[j][i] = max(berthTradeDis[j][i], berthDis[j][dir][berth[i].x][berth[i].y]);
+            }
         }
     }
     for (int i = 0; i < tradeNum; ++i)
     {
         for (int j = 0; j < berthNum; ++j)
         {
-            berthTradeDis[berthNum + i][j] = tradeDis[i][berth[j].x][berth[j].y];
-            berthTradeDis[j][berthNum + i] = tradeDis[i][berth[j].x][berth[j].y];
+            for (int dir = 0; dir < 4; ++dir)
+            {
+                berthTradeDis[berthNum + i][j] = max(berthTradeDis[berthNum + i][j], tradeDis[i][dir][berth[j].x][berth[j].y]);
+                berthTradeDis[j][berthNum + i] = max(berthTradeDis[j][berthNum + i], tradeDis[i][dir][berth[j].x][berth[j].y]);
+            }
         }
     }
 }
@@ -331,7 +337,7 @@ void DecisionMaker::test_print()
     f.close();
 }
 
-void DecisionMaker::getMapDisBerth()
+void DecisionMaker::getMapDisBerth() // 此处船从泊位处开始倒着走
 {
     for (int i = 0; i < berthNum; ++i)
     {
@@ -351,20 +357,20 @@ void DecisionMaker::getMapDisBerth()
                 now = &nodes[queueCount++];
                 *now = candidate.top(); // 取出最短的节点now
                 candidate.pop();
-                if (visBoat[now->dir][now->x][now->y] == 1) // 如果已经是最短路径集合，跳过
+                if (visBoat[DirRev[now->dir]][now->x][now->y] == 1) // 如果已经是最短路径集合，跳过
                     continue;
-                berthDis[i][now->x][now->y] = max(now->dis, berthDis[i][now->x][now->y]);
-                visBoat[now->dir][now->x][now->y] = 1; // 确定为最短路径集合
-                for (int j = 0; j < 3; j++)            // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
+                berthDis[i][DirRev[now->dir]][now->x][now->y] = max(now->dis, berthDis[i][DirRev[now->dir]][now->x][now->y]);
+                visBoat[DirRev[now->dir]][now->x][now->y] = 1; // 确定为最短路径集合
+                for (int j = 0; j < 3; j++)                    // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
                 {
-                    int nx = now->x + dirBoatDx[j][now->dir];
-                    int ny = now->y + dirBoatDy[j][now->dir];
+                    int nx = now->x + dirBoatDxRev[j][now->dir];
+                    int ny = now->y + dirBoatDyRev[j][now->dir];
 
-                    int curDir = j == 2 ? now->dir : clockWiseDir[j][now->dir];
-                    if (boatTimeForDifDir[curDir][nx][ny] == 0 || visBoat[curDir][nx][ny])
+                    int curDir = j == 2 ? now->dir : clockWiseDirRev[j][now->dir];
+                    if (boatTimeForDifDir[DirRev[curDir]][nx][ny] == 0 || visBoat[DirRev[curDir]][nx][ny])
                         continue;
                     child = &nodes[queueCount++]; // 这里只是为了用申请的空间
-                    child->setNode(nx, ny, boatTimeForDifDir[curDir][nx][ny] + now->dis, now, curDir);
+                    child->setNode(nx, ny, boatTimeForDifDir[DirRev[curDir]][nx][ny] + now->dis, now, curDir);
                     candidate.push(*child);
                 }
             }
@@ -392,20 +398,20 @@ void DecisionMaker::getMapDisTrade()
                 now = &nodes[queueCount++];
                 *now = candidate.top(); // 取出最短的节点now
                 candidate.pop();
-                if (visBoat[now->dir][now->x][now->y] == 1) // 如果已经是最短路径集合，跳过
+                if (visBoat[DirRev[now->dir]][now->x][now->y] == 1) // 如果已经是最短路径集合，跳过
                     continue;
-                tradeDis[i][now->x][now->y] = max(now->dis, tradeDis[i][now->x][now->y]);
-                visBoat[now->dir][now->x][now->y] = 1; // 确定为最短路径集合
-                for (int j = 0; j < 3; j++)            // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
+                tradeDis[i][DirRev[now->dir]][now->x][now->y] = max(now->dis, tradeDis[i][DirRev[now->dir]][now->x][now->y]);
+                visBoat[DirRev[now->dir]][now->x][now->y] = 1; // 确定为最短路径集合
+                for (int j = 0; j < 3; j++)                    // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
                 {
-                    int nx = now->x + dirBoatDx[j][now->dir];
-                    int ny = now->y + dirBoatDy[j][now->dir];
+                    int nx = now->x + dirBoatDxRev[j][now->dir];
+                    int ny = now->y + dirBoatDyRev[j][now->dir];
 
-                    int curDir = j == 2 ? now->dir : clockWiseDir[j][now->dir];
-                    if (boatTimeForDifDir[curDir][nx][ny] == 0 || visBoat[curDir][nx][ny])
+                    int curDir = j == 2 ? now->dir : clockWiseDirRev[j][now->dir];
+                    if (boatTimeForDifDir[DirRev[curDir]][nx][ny] == 0 || visBoat[DirRev[curDir]][nx][ny])
                         continue;
                     child = &nodes[queueCount++]; // 这里只是为了用申请的空间
-                    child->setNode(nx, ny, boatTimeForDifDir[curDir][nx][ny] + now->dis, now, curDir);
+                    child->setNode(nx, ny, boatTimeForDifDir[DirRev[curDir]][nx][ny] + now->dis, now, curDir);
                     candidate.push(*child);
                 }
             }
@@ -419,27 +425,26 @@ void DecisionMaker::getNearBerthInfo()
     {
         for (int y = 0; y < MAP_SIZE; ++y)
         {
-            int curID = -1;
-            int curDis = -1;
-            if (boatTimeForDifDir[0][x][y] || boatTimeForDifDir[1][x][y] || boatTimeForDifDir[2][x][y] || boatTimeForDifDir[3][x][y])
-            { // 如果船在此点的某个方向可以容下，计算此点的最近泊位ID
+
+            for (int dir = 0; dir < 4; ++dir)
+            {
+                int curID = -1;
+                int curDis = -1;
                 for (int i = 0; i < berthNum; ++i)
                 {
-                    if (curID == -1 && berthDis[i][x][y] != 0)
+                    if (curID == -1 && berthDis[i][dir][x][y] != 0)
                     {
                         curID = i;
-                        curDis = berthDis[i][x][y];
+                        curDis = berthDis[i][dir][x][y];
                     }
-                    else if (curDis > berthDis[i][x][y] && berthDis[i][x][y] != 0)
+                    else if (curDis > berthDis[i][dir][x][y] && berthDis[i][dir][x][y] != 0)
                     {
                         curID = i;
-                        curDis = berthDis[i][x][y];
+                        curDis = berthDis[i][dir][x][y];
                     }
                 }
-                berthMapSea[x][y] = curID; // 使用前要判定合法boatTimeForDifDir
+                berthMapSea[dir][x][y] = curID; // 使用前要判定合法boatTimeForDifDir
             }
-            else
-                berthMapSea[x][y] = -1;
         }
     }
 }
@@ -450,27 +455,25 @@ void DecisionMaker::getNearTradeInfo()
     {
         for (int y = 0; y < MAP_SIZE; ++y)
         {
-            int curID = -1;
-            int curDis = -1;
-            if (boatTimeForDifDir[0][x][y] || boatTimeForDifDir[1][x][y] || boatTimeForDifDir[2][x][y] || boatTimeForDifDir[3][x][y])
-            { // 如果船在此点的某个方向可以容下，计算此点的最近交货点
-                for (int i = 0; i < tradeNum; ++i)
+            for (int dir = 0; dir < 4; ++dir)
+            {
+                int curID = -1;
+                int curDis = -1;
+                for (int i = 0; i < berthNum; ++i)
                 {
-                    if (curID == -1 && tradeDis[i][x][y] != 0)
+                    if (curID == -1 && tradeDis[i][dir][x][y] != 0)
                     {
                         curID = i;
-                        curDis = tradeDis[i][x][y];
+                        curDis = tradeDis[i][dir][x][y];
                     }
-                    else if (curDis > tradeDis[i][x][y] && tradeDis[i][x][y] != 0)
+                    else if (curDis > tradeDis[i][dir][x][y] && tradeDis[i][dir][x][y] != 0)
                     {
                         curID = i;
-                        curDis = tradeDis[i][x][y];
+                        curDis = tradeDis[i][dir][x][y];
                     }
                 }
-                tradeMapSea[x][y] = curID; // 使用前要判定合法boatTimeForDifDir
+                tradeMapSea[dir][x][y] = curID; // 使用前要判定合法boatTimeForDifDir
             }
-            else
-                tradeMapSea[x][y] = -1;
         }
     }
 }

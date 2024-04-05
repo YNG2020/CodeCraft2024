@@ -30,10 +30,14 @@ extern int dx[4];
 extern int dy[4];
 extern int dirBoatDx[3][4]; // 第一个index：0顺时针 1逆时针 2前进；第二个index表示原本的方向
 extern int dirBoatDy[3][4];
-extern int clockWiseDir[2][4];               // 0顺时针,1逆时针映射
-extern int goodsNum;                         // 分析用，地图生成的货物总量
-extern int pickGoodsNum;                     // 分析用，机器人捡起的货物总量
-extern int shipGoodsNum;                     // 分析用，船运走的货物总量
-extern int berthDis[20][MAP_SIZE][MAP_SIZE]; // 记录每个点到泊位的距离（海上）暂定20上限
-extern int tradeDis[10][MAP_SIZE][MAP_SIZE]; // 记录每个点到交货点的距离（海上）暂定10上限
-#endif                                       // GLOBAL_VARS_H
+extern int clockWiseDir[2][4]; // 0顺时针,1逆时针映射
+extern int dirBoatDxRev[3][4]; // 第一个index：0顺时针 1逆时针 2前进；第二个index表示原本的方向
+extern int dirBoatDyRev[3][4];
+extern int clockWiseDirRev[2][4]; // 0顺时针,1逆时针映射
+extern int DirRev[4];
+extern int goodsNum;                            // 分析用，地图生成的货物总量
+extern int pickGoodsNum;                        // 分析用，机器人捡起的货物总量
+extern int shipGoodsNum;                        // 分析用，船运走的货物总量
+extern int berthDis[20][4][MAP_SIZE][MAP_SIZE]; // 记录每个点到泊位的距离（海上）暂定20上限
+extern int tradeDis[10][4][MAP_SIZE][MAP_SIZE]; // 记录每个点到交货点的距离（海上）暂定10上限
+#endif                                          // GLOBAL_VARS_H
