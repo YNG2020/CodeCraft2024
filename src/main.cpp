@@ -248,5 +248,11 @@ void printData()
             outputFile << goods_pull_value[i] << "," << goods_pull_region[i] << "," << goods_pull_frame[i] << endl;
         }
         outputFile.close();
+        ofstream outputFile2("goodsInfo.csv");
+        outputFile2 << "goodsValue,goodsRegion,Frame" << endl;
+        for (int i = 0; i < goods_val.size(); i++)
+        {
+            outputFile2 << goods_val[i] << "," << goods_region[i] << "," << goods_frame[i] << endl;
+        }
     }
 }
