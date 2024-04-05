@@ -228,12 +228,12 @@ void printData()
         cerr << "robot[" << i << "].total_goods_val = " << robot[i].total_goods_val << endl;
         sum += robot[i].total_goods_val;
     }
-    cerr << "sum = " << sum << endl;
+    cerr << "theory score = " << sum - boatNum * 8000 - robotNum * 2000 + 25000 << endl;
     sum = 0;
     for (int i = 0; i < berthNum; i++)
     {
         cerr << "berth[" << i << "].numBerthGoods = " << berth[i].numBerthGoods << endl;
-        sum += berth[i].numBerthGoods;
+        sum += berth[i].getBerthGoodsValueOfNum(berth[i].numBerthGoods, 0, 0);
     }
     cerr << "sum = " << sum << endl;
 }
