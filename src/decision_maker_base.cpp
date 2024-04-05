@@ -160,12 +160,11 @@ void DecisionMaker::paintBerth(int berthID)
 
 void DecisionMaker::findTrade(int berthID)
 {
-    int x = berth[berthID].x, y = berth[berthID].y;
     int minDis = 0x7fffffff;
     int minTradeID = -1;
-    for (int i = 0; i < tradePoint.size(); i++)
+    for (int i = 0; i < tradeNum; ++i)
     {
-        int dis = abs(tradePoint[i].x - x) + abs(tradePoint[i].y - y);
+        int dis = berthTradeDis[berthID][berthNum + i];
         if (dis < minDis)
         {
             minDis = dis;
@@ -174,6 +173,26 @@ void DecisionMaker::findTrade(int berthID)
     }
     berth[berthID].transportTime = minDis;
     berth[berthID].transportTarget = minTradeID;
+}
+
+// 找到与泊位berthID最近的泊位（自身不算）
+void DecisionMaker::findNearestBerth(int berthID)
+{
+    int minDis = 0x7fffffff;
+    int minBerthID = berthID;
+    for (int i = 0; i < berthNum; ++i)
+    {
+        if (i == berthID)
+            continue;
+        int dis = berthTradeDis[berthID][i];
+        if (dis < minDis)
+        {
+            minDis = dis;
+            minBerthID = i;
+        }
+    }
+    berth[berthID].nearestBerthTime = minDis;
+    berth[berthID].nearestBerthID = minBerthID;
 }
 
 void DecisionMaker::analyzeMap()
@@ -239,11 +258,6 @@ void DecisionMaker::analyzeMap()
         }
     }
     tradeNum = tradePoint.size();
-    for (int i = 0; i < berthNum; i++)
-    {
-        paintBerth(i);
-        findTrade(i);
-    }
     getMapInfoBoat();        // 得到船运动的地图信息
     getMapDisBerth();        // 得到泊位的海上距离map
     getMapDisTrade();        // 得到交货点的海上距离map
@@ -251,6 +265,12 @@ void DecisionMaker::analyzeMap()
     getNearTradeInfo();      // 得到地图上的点最近交货点
     generateBerthTradeDis(); // 生成泊位交货点距离邻接矩阵
     // test_print();
+    for (int i = 0; i < berthNum; i++)
+    {
+        paintBerth(i);
+        findTrade(i);
+        findNearestBerth(i);
+    }
 }
 
 // 得到船运动的地图信息

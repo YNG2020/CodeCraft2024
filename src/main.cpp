@@ -75,7 +75,7 @@ void Init()
     }
     else
     {
-        decisionMaker.setParams(0.4, 1.4, 50, 1000, 0, 4.0);
+        decisionMaker.setParams(0.4, 1.4, 50, 500, 0, 4.0);
     }
 
     string okk;
@@ -227,6 +227,13 @@ void printData()
     {
         cerr << "robot[" << i << "].total_goods_val = " << robot[i].total_goods_val << endl;
         sum += robot[i].total_goods_val;
+    }
+    cerr << "sum = " << sum << endl;
+    sum = 0;
+    for (int i = 0; i < berthNum; i++)
+    {
+        cerr << "berth[" << i << "].numBerthGoods = " << berth[i].numBerthGoods << endl;
+        sum += berth[i].numBerthGoods;
     }
     cerr << "sum = " << sum << endl;
 }

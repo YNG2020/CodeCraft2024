@@ -23,6 +23,8 @@ public:
     int numServingRobot;       // 正在为该泊位服务的机器人数量，每一帧更新一次
     int transportTime;         // 轮船运输到虚拟点的时间
     int transportTarget;           // 该泊位对应的交易点ID
+    int nearestBerthTime;      // 到最近的泊位（自身不算）的时间
+    int nearestBerthID;        // 最近的泊位（自身不算）的ID
 
     double timeOfGoodsToBerth;         // 期望的robot把货物运送到berth的时间（帧/个），需要动态维护
     double meanGetGoodsRatio;          // 接收到的货物的平均性价比

@@ -63,6 +63,7 @@ private:
     bool inBerth(int x, int y);
     void paintBerth(int berthID); // 对泊位进行染色
     void findTrade(int berthID);  // 找到与泊位最近的交易点
+    void findNearestBerth(int berthID); // 找到与泊位berthID最近的泊位（自身不算）
 
     bool getNearestGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID);
     bool getNearestBerth(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID);

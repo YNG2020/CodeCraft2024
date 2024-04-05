@@ -88,7 +88,32 @@ void DecisionMaker::shipDecision()
         //    }
         //}
 
-        int threshold;
+        // 最终装载时间到，直接去交货点
+        int tarTradeID = tradeMapSea[bot.curX][bot.curY];
+        if (bot.numBoatGoods > 0 && tarTradeID != -1 && (frameId >= 15000 - tradeDis[tarTradeID][bot.curX][bot.curY]) && bot.boatStatus != 1 && bot.boatMoveState != BOAT_TOTRADE)
+        {
+            bool findPathFlag = getBoatPathDijkstra(i, tradePoint[tarTradeID].x, tradePoint[tarTradeID].y, bot.pathPoint, bot.pathDir);
+            if (findPathFlag)
+            {
+                if (bot.tarBerthID >= 0)
+                {
+                    if (bot.boatStatus == 2)    // 在装货
+                        berth[bot.tarBerthID].boatIDInBerth = -1; // 更新泊位被占用的情况
+                    else if (bot.boatStatus == 0)   // 在移动中
+                        berth[bot.tarBerthID].boatIDToBerth = -1; // 更新泊位被指向的情况
+                }
+                bot.boatPathState = BOAT_HAVE_PATH;
+                bot.boatTarState = BOAT_HAVE_TARGET;
+                bot.boatMoveState = BOAT_TOTRADE;
+                bot.lastX = bot.curX;
+                bot.lastY = bot.curY;
+                bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
+                bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
+                bot.tarBerthID = -2;
+                boatRefreshJamBuffer(i);
+            }
+            continue;
+        }
         switch (bot.boatStatus)
         {
         case 0: // 正常行驶状态（状态 0）
@@ -147,23 +172,16 @@ void DecisionMaker::shipDecision()
         case 1: // 恢复状态（状态1）
             break;
         case 2: // 装载状态（状态 2）
+            int threshold;
             if (phase == 0)
                 threshold = 40;
+            else if (frameId >= 15000 - 2 * tradeDis[tarTradeID][bot.curX][bot.curY])
+                threshold = boatCapacity;
             else
                 threshold = boatCapacity * 0.8;
             if (bot.numBoatGoods >= threshold)
-            { // 如果装满了，去虚拟点
-                int nearestTrade = 0, minMoveTimeToTrade = 0x7fffffff;
-                for (int i = 0; i < tradeNum; ++i)
-                {
-                    if (berthTradeDis[bot.tarBerthID][berthNum + i] < minMoveTimeToTrade)
-                    {
-                        minMoveTimeToTrade = berthTradeDis[bot.tarBerthID][berthNum + i];
-                        nearestTrade = i;
-                    }
-                }
-                    
-                bool findPathFlag = getBoatPathDijkstra(i, tradePoint[nearestTrade].x, tradePoint[nearestTrade].y, bot.pathPoint, bot.pathDir);
+            { // 如果装满了，去交货点
+                bool findPathFlag = getBoatPathDijkstra(i, tradePoint[tarTradeID].x, tradePoint[tarTradeID].y, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)
                 {
                     berth[bot.tarBerthID].boatIDInBerth = -1; // 更新泊位被占用的情况
@@ -473,14 +491,14 @@ int DecisionMaker::berthSelect(int boatID)
             oriLocation = -3;   // 代表其它点
     }
     int minIdx = 0;                             // 存储将要被选择的泊位ID
+    if (oriLocation >= 0)
+        minIdx = oriLocation;
     int timeToGetMoney;                         // 到预计拿到资金的时间
     int Money;
 
     for (int berthID = 0; berthID < berthNum; ++berthID)
     {
-        for (int i = 0; i < tradeNum; ++i)
-            moveTimeToTrade = std::min(berthTradeDis[berthID][berthNum + i], moveTimeToTrade);
-
+        moveTimeToTrade = berth[berthID].transportTime;
         moveTimeToBerth = berthDis[berthID][boat[boatID].curX][boat[boatID].curY];
         timeToGetMoney = moveTimeToBerth + moveTimeToTrade;
         if (frameId + timeToGetMoney >= 15000)
