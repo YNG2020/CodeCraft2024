@@ -51,6 +51,11 @@ void DecisionMaker::robotDecision()
             berth[berthID].totGetGoodsRatio += robot[i].curPropotion;
             berth[berthID].meanGetGoodsRatio = berth[berthID].totGetGoodsRatio / berth[berthID].numGetGoods;
                 
+            /* */
+            goods_pull_frame.push_back(frameId);
+            goods_pull_value.push_back(bot.goodsVal);
+            goods_pull_region.push_back(berthID);
+            /* */
             bot.total_goods_val += bot.goodsVal;
             bot.curPropotion = -1;      
             bot.goodsVal = 0;            // 将目前所拥有的或准备拥有的货物价值清0

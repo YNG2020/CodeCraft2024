@@ -33,3 +33,10 @@ int DirRev[4] = {1, 0, 3, 2};
 int goodsNum;
 int pickGoodsNum;
 int shipGoodsNum;
+
+vector<int> goods_val;
+vector<int> goods_frame;
+vector<int> goods_region;
+vector<int> goods_pull_frame;
+vector<int> goods_pull_value;
+vector<int> goods_pull_region;

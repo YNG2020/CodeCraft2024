@@ -35,9 +35,17 @@ extern int dirBoatDxRev[3][4]; // 第一个index：0顺时针 1逆时针 2前进
 extern int dirBoatDyRev[3][4];
 extern int clockWiseDirRev[2][4]; // 0顺时针,1逆时针映射
 extern int DirRev[4];
+/* 分析用 */
 extern int goodsNum;                            // 分析用，地图生成的货物总量
 extern int pickGoodsNum;                        // 分析用，机器人捡起的货物总量
 extern int shipGoodsNum;                        // 分析用，船运走的货物总量
+extern vector<int> goods_val;                   // 记录每个货物的价值
+extern vector<int> goods_frame;                 // 记录每个货物出现的时间
+extern vector<int> goods_region;                // 记录每个货物所在的区域
+extern vector<int> goods_pull_frame;            // 记录每个货物被装载的时间
+extern vector<int> goods_pull_value;            // 记录每个货物被装载的价值
+extern vector<int> goods_pull_region;           // 记录每个货物被装载的区域
+/* 分析用 */
 extern int berthDis[20][4][MAP_SIZE][MAP_SIZE]; // 记录每个点到泊位的距离（海上）暂定20上限
 extern int tradeDis[10][4][MAP_SIZE][MAP_SIZE]; // 记录每个点到交货点的距离（海上）暂定10上限
 #endif                                          // GLOBAL_VARS_H
