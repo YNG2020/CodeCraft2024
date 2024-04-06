@@ -100,6 +100,7 @@ void DecisionMaker::shipDecision()
             bool findPathFlag = getBoatPathDijkstra(i, tradePoint[tarTradeID].x, tradePoint[tarTradeID].y, bot.pathPoint, bot.pathDir);
             if (findPathFlag)
             {
+                bot.jamDetectBufferLen = 3;                       // 最终时刻，把该值修改为允许的最小值
                 if (bot.tarBerthID >= 0)
                 {
                     if (bot.boatStatus == 2)                      // 在装货

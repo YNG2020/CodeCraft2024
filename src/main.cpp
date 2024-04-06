@@ -76,7 +76,7 @@ void Init()
     }
     else
     {
-        decisionMaker.setParams(0.4, 1.4, 50, 500, 0, 4.0);
+        decisionMaker.setParams(0.4, 1.4, 100, 500, 0, 4.0);
     }
 
     string okk;

@@ -8,7 +8,7 @@ void DecisionMaker::robotDecision()
 {
     refreshBerthState();
     for (int i = 0; i < berthNum; ++i)
-        if (frameId + blockBerthTime + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
+        if (frameId + 2 * berth[i].nearestBerthTime + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
             berth[i].isBlocked = true;
         else
             berth[i].isBlocked = false;
@@ -68,41 +68,47 @@ void DecisionMaker::robotDecision()
             bot.lastY = -1;
         }
 
-        if (bot.botMoveState == TOGOODS && bot.curPropotion < limToTryChangeGoods * bot.meanPropotion)
-        {   // 尝试放弃当前的低性价比目标，并去找高性价比目标
-            int oriTarX = bot.tarX, oriTarY = bot.tarY, oriGoodsVal = bot.goodsVal;
-            bool changePathFlag = getNearestGoods(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i, true, -1);
-            if (changePathFlag)
+        if (bot.botMoveState == TOGOODS)
+        {   
+            int lastBerthID = getBerthId(bot.pathPoint[0].x, bot.pathPoint[0].y);
+            int curBerthID = nearBerthID[bot.tarX][bot.tarY];
+            if (lastBerthID != curBerthID && bot.curPropotion < limToTryChangeGoods * bot.meanPropotion)
             {
-                goodsInMap[oriTarX][oriTarY] = oriGoodsVal;
-                bot.lastX = bot.curX;
-                bot.lastY = bot.curY;
-                bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
-                bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
+                // 尝试放弃当前的低性价比目标，并去找高性价比目标
+                int oriTarX = bot.tarX, oriTarY = bot.tarY, oriGoodsVal = bot.goodsVal;
+                bool changePathFlag = getNearestGoods(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i, true, -1);
+                if (changePathFlag)
+                {
+                    goodsInMap[oriTarX][oriTarY] = oriGoodsVal;
+                    bot.lastX = bot.curX;
+                    bot.lastY = bot.curY;
+                    bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
+                    bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
 
-                int berthID = nearBerthID[bot.tarX][bot.tarY];
-                int goodsID = goodsIDInBerthZone[bot.tarX][bot.tarY];
-                berth[berthID].goodsInBerthInfo.erase(goodsID);
+                    int berthID = nearBerthID[bot.tarX][bot.tarY];
+                    int goodsID = goodsIDInBerthZone[bot.tarX][bot.tarY];
+                    berth[berthID].goodsInBerthInfo.erase(goodsID);
 
-                berthID = nearBerthID[oriTarX][oriTarY];
-                goodsID = goodsIDInBerthZone[oriTarX][oriTarY];
-                berth[berthID].goodsInBerthInfo.emplace(goodsID, singleGoodsInfo(goodsInMap[oriTarX][oriTarY], 2 * nearBerthDis[oriTarX][oriTarY], oriTarX, oriTarY));
+                    berthID = nearBerthID[oriTarX][oriTarY];
+                    goodsID = goodsIDInBerthZone[oriTarX][oriTarY];
+                    berth[berthID].goodsInBerthInfo.emplace(goodsID, singleGoodsInfo(goodsInMap[oriTarX][oriTarY], 2 * nearBerthDis[oriTarX][oriTarY], oriTarX, oriTarY));
 
-                refreshJamBuffer(i);
+                    refreshJamBuffer(i);
+                }
             }
         }
 
         int callingBerthID = -1;
         if (bot.pullBerthID != -1)
         {   // 探测最近的泊位是否有召唤需求（假设当前泊位是A，则A最近的泊位设为B，而以A作为最近泊位的泊位设为C，B和C都应被探测）
-            double factor = 2.0;
+            double factor = 4.0;
             int berthIDA = bot.pullBerthID;
             int berthIDB = berth[berthIDA].nearestBerth, berthIDC = -1;
             int excessValueA = 0, excessValueB = 0, excessValueC = 0;
             double limit = berth[berthIDA].meanInZoneGoodsRatio;
             if (berthIDB != -1 && !berth[berthIDB].isBlocked)
             {   // 存在最近的泊位且泊位未被封锁
-                if (berth[berthIDB].numServingRobot == 0)
+                //if (berth[berthIDB].numServingRobot == 0)
                 {   // 该泊位上无robot为其服务
                     for (auto it = berth[berthIDA].goodsInBerthInfo.begin(); it != berth[berthIDA].goodsInBerthInfo.end(); ++it)
                         if (it->second.propotion >= limit)
@@ -120,10 +126,9 @@ void DecisionMaker::robotDecision()
                     if (berth[j].nearestBerth == berthIDA)
                         berthIDC = j;
 
-
                 if (berthIDC != -1 && !berth[berthIDC].isBlocked)
                 {   // 泊位未被封锁
-                    if (berth[berthIDC].numServingRobot == 0)
+                    //if (berth[berthIDC].numServingRobot == 0)
                     {   // 该泊位上无robot为其服务
                         for (auto it = berth[berthIDA].goodsInBerthInfo.begin(); it != berth[berthIDA].goodsInBerthInfo.end(); ++it)
                             if (it->second.propotion >= limit)
@@ -136,7 +141,7 @@ void DecisionMaker::robotDecision()
                     }
                 }
             }
-
+            callingBerthID = -1;
         }
 
         if (bot.botMoveState == WAITING || bot.botPathState == NO_PATH)
@@ -355,7 +360,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint
 
     int botInberthID = getBerthId(x, y);
     double factor = 2.0;
-    double gainForCallingBerth = 1.0;
+    double gainForCallingBerth = 100.0;
 
     while (queueCount > queueIndex)
     {
