@@ -321,7 +321,6 @@ bool DecisionMaker::getBoatDetourPath(int boatID1, int boatID2)
     memset(visBoat, 0, sizeof(visBoat));
     priority_queue<Node> candidate;
     candidate.push(*now);
-    visBoat[dire][x][y] = true;
     visBoat[boat[boatID1].dire][boat[boatID1].curX][boat[boatID1].curY] = true; // 不经过要避让的boat此刻所在的位置
 
     int tmpX, tmpY, tmpDire;
@@ -369,7 +368,7 @@ bool DecisionMaker::getBoatDetourPath(int boatID1, int boatID2)
             if (boatTimeForDifDir[curDir][nx][ny] == 0 || visBoat[curDir][nx][ny])
                 continue;
             child = &nodes[queueCount++];
-            child->setNode(nx, ny, 0, now, curDir);
+            child->setNode(nx, ny, boatTimeForDifDir[now->dir][now->x][now->y] + now->dis, now, curDir);
             candidate.push(*child);
         }
     }
