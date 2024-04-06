@@ -68,13 +68,13 @@ private:
     bool getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint, vector<int>& pathDir, int botID, bool tryChangePath, int callingBerthID);
     bool getNearestBerth(int x, int y, vector<SimplePoint>& pathPoint, vector<int>& pathDir, int botID);
     bool getToTarPath(int botID, bool calFromJam);
+    bool getDetourPath(int botID1, int botID2);
 
     bool getBoatPathBFS(int boatID, int tarX, int tarY, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
     bool getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
     bool getBoatNearestBerthDijkstra(int boatID, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
     bool getBoatNearestTradeDijkstra(int boatID, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
-    bool getDetourPath(int botID1, int botID2);
-
+    bool getBoatDetourPath(int botID1, int botID2);
 
     void moveControl();
     void boatMoveControl();
@@ -95,10 +95,10 @@ private:
 
     void boatSetPriority();
     void boatRefreshJamBuffer(int boatID);
-    bool boatJamDetect(int boatID1, int boatID2);
+    int boatJamDetect(int boatID1, int boatID2);
     bool boatUnJamDetect(int boatID1, int boatID2);
     void boatJamControl();
-    void boatJamResolve(int boatID1, int boatID2);
+    void boatJamResolve(int boatID1, int boatID2, int jamPos);
     bool boatGetAvoidPath(int boatID1, int boatID2);
     void boatUnJam();
     bool checkOverLap(const BoatPoint& boat1, const BoatPoint& boat2);

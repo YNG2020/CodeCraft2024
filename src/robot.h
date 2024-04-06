@@ -20,7 +20,7 @@ public:
     int idxInPth = 0;                 // 当前走到路径的第几个点
     
     const int jamDetectBufferLen = ROBOT_JAM_BUFFER_SIZE; // 堵塞检测缓冲区的长度
-    const int nearerJamdetectLen = ROBOT_NEARER_JAM_BUFFER_SIZE;  // 采取避让-等待方式进行避让的检测长度
+    int nearerJamdetectLen = ROBOT_NEARER_JAM_BUFFER_SIZE;  // 采取避让-等待方式进行避让的检测长度
     int avoidPriority;                // 自身当前的避让优先级
     int avoidBotID;                   // 当前正在避让的robot的ID，没有避让的robot时，值为-1，当前仅允许robot同时只能有一个避让robot
     int tmpTarX, tmpTarY;             // 中途点，作为避让路径的终点
