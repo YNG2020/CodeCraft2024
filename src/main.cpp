@@ -171,10 +171,14 @@ int Input()
         scanf("%d", &boatNum);
     boat.resize(boatNum, Boat(boatCapacity));
     for (int i = 0; i < boatNum; i++)
+    {
         if (Debug)
             myCin >> boat[i].id >> boat[i].numBoatGoods >> boat[i].curX >> boat[i].curY >> boat[i].dire >> boat[i].boatStatus;
         else
+        {
             scanf("%d %d %d %d %d %d", &boat[i].id, &boat[i].numBoatGoods, &boat[i].curX, &boat[i].curY, &boat[i].dire, &boat[i].boatStatus);
+        }
+    }
     string okk;
     if (Debug)
         myCin >> okk;
@@ -267,7 +271,8 @@ void printData()
         sum += berth[i].getBerthGoodsValueOfNum(berth[i].numBerthGoods, 0, 0);
     }
     cerr << "sum = " << sum << endl;
-    if (Record) {
+    if (Record)
+    {
         ofstream outputFile("pullInfo.csv");
         outputFile << "goodsValue,goodsRegion,Frame" << endl;
         for (int i = 0; i < goods_pull_value.size(); i++)

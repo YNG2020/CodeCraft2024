@@ -256,7 +256,7 @@ void DecisionMaker::shipDecision()
         }
 
         if (bot.boatStatus != 1 && !findPathFlag && (bot.boatPathState == BOAT_NO_PATH || bot.boatTarState == BOAT_NO_TARGET))
-        {   // 统一处理找不到路的情况
+        { // 统一处理找不到路的情况
             if (bot.boatStatus == 0 && bot.numBoatGoods < boatCapacity)
             {   // 适用于在前往泊位的中途闪现，且后面找不到路
                 findPathFlag = getBoatNearestBerthDijkstra(i, bot.pathPoint, bot.pathDir);
@@ -723,7 +723,11 @@ int DecisionMaker::berthSelect(int boatID)
 
     for (int berthID = 0; berthID < berthNum; ++berthID)
     {
-        moveTimeToTrade = berth[berthID].transportTime;
+        int tradeID = -1;
+        for (int dir = 0; dir < 4; ++dir)
+            tradeID = tradeID == -1 ? tradeMapSea[dir][berth[berthID].x][berth[berthID].y] : tradeID;
+        moveTimeToTrade = berthTradeDis[berthID][berthNum + tradeID];
+        // cerr << tradeID << " " << moveTimeToTrade << endl;
         moveTimeToBerth = berthDis[berthID][boat[boatID].dire][boat[boatID].curX][boat[boatID].curY];
         timeToGetMoney = moveTimeToBerth + moveTimeToTrade;
         if (frameId + timeToGetMoney >= 15000)
