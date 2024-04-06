@@ -41,7 +41,7 @@ void DecisionMaker::shipDecision()
         //{   // 用于在复赛练习赛的图1中进防堵塞解决失败的测试代码，BOAT_JAM_BUFFER_SIZE此时设置为2，正常情况下应注释
         //    boatCapacity = 2;     // 测试用
         //    //if (bot.boatStatus == 2)
-        //    //{ // 不注释这个的话，可以在图1看到更多的堵塞解决失败情况，注释的话，可以在图2测一些寻路失败的后续处理（需要强行在重新寻路时置false）
+        //    //{ // 不注释这个的话，可以在图1看到更多的堵塞解决失败情况，注释的话，可以在图2测一些寻路失败的后续处理
         //    //    if (i == 0)
         //    //        if (boat[1].boatStatus != 2)
         //    //            continue;
@@ -127,7 +127,6 @@ void DecisionMaker::shipDecision()
             if (bot.boatTarState == BOAT_HAVE_TARGET && bot.boatPathState == BOAT_NO_PATH)
             { // 有目标，无路，分配路（适用于在前往目的地时中途闪现的情况）
                 findPathFlag = getBoatPathDijkstra(i, bot.tarX, bot.tarY, bot.pathPoint, bot.pathDir);
-                //findPathFlag = false; bot.numBoatGoods = 1;
                 if (findPathFlag)
                 {
                     bot.boatPathState = BOAT_HAVE_PATH;
@@ -256,9 +255,9 @@ void DecisionMaker::shipDecision()
         }
 
         if (bot.boatStatus != 1 && !findPathFlag && (bot.boatPathState == BOAT_NO_PATH || bot.boatTarState == BOAT_NO_TARGET))
-        {   // 统一处理找不到路的情况
-            if (bot.boatStatus == 0 && bot.numBoatGoods < boatCapacity)
-            {   // 适用于在前往泊位的中途闪现，且后面找不到路
+        { // 统一处理找不到路的情况
+            if (bot.boatStatus == 0 && bot.numBoatGoods < boatCapacity && getBerthId(bot.curX, bot.curY) == -1)
+            { // 适用于在前往泊位的中途闪现，且后面找不到路，且船当前不在泊位内的情况
                 findPathFlag = getBoatNearestBerthDijkstra(i, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)
                 {
@@ -306,6 +305,7 @@ void DecisionMaker::shipDecision()
                         else if (bot.boatStatus == 0)                 // 在移动中
                             berth[bot.tarBerthID].boatIDToBerth = -1; // 更新泊位被指向的情况
                     }
+                    berth[bot.tarBerthID].boatIDInBerth = -1; // 更新泊位被占用的情况
                     bot.boatPathState = BOAT_HAVE_PATH;
                     bot.boatTarState = BOAT_HAVE_TARGET;
                     bot.boatMoveState = BOAT_TOTRADE;
@@ -723,7 +723,11 @@ int DecisionMaker::berthSelect(int boatID)
 
     for (int berthID = 0; berthID < berthNum; ++berthID)
     {
-        moveTimeToTrade = berth[berthID].transportTime;
+        int tradeID = -1;
+        for (int dir = 0; dir < 4; ++dir)
+            tradeID = tradeID == -1 ? tradeMapSea[dir][berth[berthID].x][berth[berthID].y] : tradeID;
+        moveTimeToTrade = berthTradeDis[berthID][berthNum + tradeID];
+        // cerr << tradeID << " " << moveTimeToTrade << endl;
         moveTimeToBerth = berthDis[berthID][boat[boatID].dire][boat[boatID].curX][boat[boatID].curY];
         timeToGetMoney = moveTimeToBerth + moveTimeToTrade;
         if (frameId + timeToGetMoney >= 15000)
