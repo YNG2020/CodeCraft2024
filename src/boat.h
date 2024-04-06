@@ -27,6 +27,7 @@ public:
     vector<BoatPoint> pathPoint;     // 存储路径点序列
 
     int jamDetectBufferLen = BOAT_JAM_BUFFER_SIZE;   // 堵塞检测缓冲区的长度
+    int nearerJamdetectLen = BOAT_NEARER_JAM_BUFFER_SIZE;   // 采取避让-等待方式进行避让的检测长度
     int avoidPriority;                               // 自身当前的避让优先级
     int avoidBoatID;                                 // 当前正在避让的boat的ID，没有避让的robot时，值为-1，当前仅允许boat同时只能有一个避让boat
     int tmpTarX, tmpTarY;                            // 中途点，作为避让路径的终点
