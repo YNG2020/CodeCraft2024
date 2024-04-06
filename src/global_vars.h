@@ -39,6 +39,7 @@ extern int DirRev[4];
 extern int goodsNum;                            // 分析用，地图生成的货物总量
 extern int pickGoodsNum;                        // 分析用，机器人捡起的货物总量
 extern int shipGoodsNum;                        // 分析用，船运走的货物总量
+extern int totGoodsVal;							// 分析用，生成货物的总价值
 extern vector<int> goods_val;                   // 记录每个货物的价值
 extern vector<int> goods_frame;                 // 记录每个货物出现的时间
 extern vector<int> goods_region;                // 记录每个货物所在的区域

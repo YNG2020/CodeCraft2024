@@ -122,6 +122,7 @@ int Input()
             scanf("%d %d %d", &x, &y, &val);
         if (val == 0) // 货物消失或被取走
             continue;
+        totGoodsVal += val;
         goodsInMap[x][y] = val;
         goodsLeftTime[x][y] = 1000;
         if (nearBerthDis[x][y] == 0)
@@ -271,6 +272,7 @@ void printData()
         sum += berth[i].getBerthGoodsValueOfNum(berth[i].numBerthGoods, 0, 0);
     }
     cerr << "sum = " << sum << endl;
+    cerr << "totGoodsVal = " << totGoodsVal << endl;
     if (Record)
     {
         ofstream outputFile("pullInfo.csv");

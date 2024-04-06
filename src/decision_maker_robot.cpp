@@ -101,11 +101,12 @@ void DecisionMaker::robotDecision()
         int callingBerthID = -1;
         if (bot.pullBerthID != -1)
         {   // 探测最近的泊位是否有召唤需求（假设当前泊位是A，则A最近的泊位设为B，而以A作为最近泊位的泊位设为C，B和C都应被探测）
-            double factor = 4.0;
+            double factor = 5.0;
             int berthIDA = bot.pullBerthID;
             int berthIDB = berth[berthIDA].nearestBerth, berthIDC = -1;
             int excessValueA = 0, excessValueB = 0, excessValueC = 0;
             double limit = berth[berthIDA].meanInZoneGoodsRatio;
+            limit = 0;
             if (berthIDB != -1 && !berth[berthIDB].isBlocked)
             {   // 存在最近的泊位且泊位未被封锁
                 //if (berth[berthIDB].numServingRobot == 0)
@@ -116,7 +117,8 @@ void DecisionMaker::robotDecision()
                     for (auto it = berth[berthIDB].goodsInBerthInfo.begin(); it != berth[berthIDB].goodsInBerthInfo.end(); ++it)
                         if (it->second.propotion >= limit)
                             excessValueB += it->second.goodsVal;
-                    if (excessValueB > factor * excessValueA)
+                    if (excessValueB / std::max(1, berth[berthIDB].numServingRobot) > 
+                        factor * excessValueA / std::max(1, berth[berthIDA].numServingRobot))
                         callingBerthID = berthIDB;
                 }
             }
@@ -136,12 +138,13 @@ void DecisionMaker::robotDecision()
                         for (auto it = berth[berthIDC].goodsInBerthInfo.begin(); it != berth[berthIDC].goodsInBerthInfo.end(); ++it)
                             if (it->second.propotion >= limit)
                                 excessValueC += it->second.goodsVal;
-                        if (excessValueC > factor * excessValueA)
+                        if (excessValueC / std::max(1, berth[berthIDC].numServingRobot) >
+                            factor * excessValueA / std::max(1, berth[berthIDA].numServingRobot))
                             callingBerthID = berthIDC;
                     }
                 }
             }
-            callingBerthID = -1;
+            //callingBerthID = -1;
         }
 
         if (bot.botMoveState == WAITING || bot.botPathState == NO_PATH)
