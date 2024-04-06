@@ -204,9 +204,6 @@ void DecisionMaker::robotDecision()
             }
         }
     }
-    // 清空机器人为泊位的服务情况
-    for (int i = 0; i < berthNum; ++i)
-        berth[i].numServingRobot = 0;
     moveControl();
 }
 

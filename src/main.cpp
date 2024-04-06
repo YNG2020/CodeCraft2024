@@ -86,6 +86,17 @@ void Init()
         scanf("%s", okk.c_str());
     printf("OK\n");
     fflush(stdout);
+
+    goods_num_inBerth.resize(berthNum);
+    goods_totVal_inBerth.resize(berthNum);
+    robot_num_inBerth.resize(berthNum);
+    for (int i = 0; i < berthNum; ++i)
+    {
+        goods_num_inBerth[i].resize(15000);
+        goods_totVal_inBerth[i].resize(15000);
+        robot_num_inBerth[i].resize(15000);
+    }
+        
 }
 
 int Input()
@@ -123,11 +134,25 @@ int Input()
             berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, singleGoodsInfo(goodsInMap[x][y], 2 * nearBerthDis[x][y], x, y));
             ++numCurGoods;
         }
+        /* 分析用 */
         goods_frame.push_back(frameId);
         goods_val.push_back(val);
         goods_region.push_back(nearBerthID[x][y]);
         goodsInfo[frameModIdx].emplace(x * MAP_SIZE + y, 1000);
+        /* 分析用 */
     }
+    /* 分析用 */
+    for (int i = 0; i < berthNum; ++i)
+    {
+        goods_num_inBerth[i][frameId - 1] = berth[i].goodsInBerthInfo.size();
+        int tmpSum = 0;
+        for (auto iter = berth[i].goodsInBerthInfo.begin(); iter != berth[i].goodsInBerthInfo.end(); ++iter)
+            tmpSum += iter->second.goodsVal;
+        goods_totVal_inBerth[i][frameId - 1] = tmpSum;
+        robot_num_inBerth[i][frameId - 1] = berth[i].numServingRobot;
+    }
+        
+    /* 分析用 */
     if (Debug)
         myCin >> robotNum;
     else
@@ -155,7 +180,9 @@ int Input()
         myCin >> okk;
     else
         scanf("%s", okk.c_str());
-
+    // 清空机器人为泊位的服务情况
+    for (int i = 0; i < berthNum; ++i)
+        berth[i].numServingRobot = 0;
     return frameId;
 }
 
@@ -254,5 +281,36 @@ void printData()
         {
             outputFile2 << goods_val[i] << "," << goods_region[i] << "," << goods_frame[i] << endl;
         }
+        outputFile2.close();
+        ofstream outputFile3("goods_num_inBerth.csv");
+        for (const auto& row : goods_num_inBerth) {
+            for (auto iter = row.begin(); iter != row.end(); ++iter) {
+                outputFile3 << *iter;
+                if (iter != row.end() - 1) // not the last element
+                    outputFile3 << ",";
+            }
+            outputFile3 << std::endl;
+        }
+        outputFile3.close();
+        ofstream outputFile4("goods_totVal_inBerth.csv");
+        for (const auto& row : goods_totVal_inBerth) {
+            for (auto iter = row.begin(); iter != row.end(); ++iter) {
+                outputFile4 << *iter;
+                if (iter != row.end() - 1) // not the last element
+                    outputFile4 << ",";
+            }
+            outputFile4 << std::endl;
+        }
+        outputFile4.close();
+        ofstream outputFile5("robot_num_inBerth.csv");
+        for (const auto& row : robot_num_inBerth) {
+            for (auto iter = row.begin(); iter != row.end(); ++iter) {
+                outputFile5 << *iter;
+                if (iter != row.end() - 1) // not the last element
+                    outputFile5 << ",";
+            }
+            outputFile5 << std::endl;
+        }
+        outputFile5.close();
     }
 }

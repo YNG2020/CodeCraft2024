@@ -45,6 +45,9 @@ extern vector<int> goods_region;                // 记录每个货物所在的�
 extern vector<int> goods_pull_frame;            // 记录每个货物被装载的时间
 extern vector<int> goods_pull_value;            // 记录每个货物被装载的价值
 extern vector<int> goods_pull_region;           // 记录每个货物被装载的区域
+extern vector<vector<int>> goods_num_inBerth;			// 记录每个泊位对应的区域的货物信息
+extern vector<vector<int>> goods_totVal_inBerth;		// 记录每个泊位对应的区域的货物总价值
+extern vector<vector<int>> robot_num_inBerth;		// 记录每一帧为对应的泊位进行服务的机器人的数量
 /* 分析用 */
 extern int berthDis[20][4][MAP_SIZE][MAP_SIZE]; // 记录每个点到泊位的距离（海上）暂定20上限
 extern int tradeDis[10][4][MAP_SIZE][MAP_SIZE]; // 记录每个点到交货点的距离（海上）暂定10上限
