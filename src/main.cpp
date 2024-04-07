@@ -66,14 +66,22 @@ void Init()
     else
         scanf("%d", &boatCapacity);
 
-    if (oriMap[100][101] == 'T')
+    // if (oriMap[100][101] == 'T')
+    // {
+        // decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 1, 15, 5.5);
+    // }
+    // else
+    // {
+        // decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 2, 16, 5.5);
+    // }
+    ifstream paramFile("param.txt");
+    double param;
+    for (int i = 0; i < 6; ++i)
     {
-        decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 1, 15, 5.5);
+        paramFile >> param;
+        s_p.push_back(param);
     }
-    else
-    {
-        decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 2, 16, 5.5);
-    }
+    decisionMaker.setParams(s_p[0], s_p[1], s_p[2], s_p[3], s_p[4], s_p[5], 1, 15, 5.5);
 
     string okk;
     if (Debug)
@@ -197,8 +205,8 @@ int main()
     {
         int id = Input();
         decisionMaker.makeDecision();
-        if (frame == 15000)
-            printData();
+        // if (frame == 15000)
+            // printData();
         printf("OK\n");
         fflush(stdout);
         // outputFile << goodsNum << ", " << pickGoodsNum << ", " << shipGoodsNum << endl;

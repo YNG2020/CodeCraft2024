@@ -44,3 +44,4 @@ vector<int> goods_pull_region;
 vector<vector<int>> goods_num_inBerth;
 vector<vector<int>> goods_totVal_inBerth;
 vector<vector<int>> robot_num_inBerth;
+vector<double> s_p;
