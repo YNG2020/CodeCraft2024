@@ -25,6 +25,7 @@ public:
     BOAT_TARGET_STATE boatTarState;  // boat的是否有目标的状态
     BOAT_FLASH_STATE boatFlashState; // boat的是否在闪现的状态
     vector<BoatPoint> pathPoint;     // 存储路径点序列
+    bool findPathFlag;               // 标识上一次是否成功找到路
 
     int jamDetectBufferLen = BOAT_JAM_BUFFER_SIZE;   // 堵塞检测缓冲区的长度
     int nearerJamdetectLen = BOAT_NEARER_JAM_BUFFER_SIZE;   // 采取避让-等待方式进行避让的检测长度
@@ -38,8 +39,8 @@ public:
 
     Boat(int c) : numBoatGoods(0), tarBerthID(-2), boatStatus(1), capacity(c), tarX(0), tarY(0), curX(0), curY(0),
                   lastX(0), lastY(0), dire(0), idxInPth(0), boatMoveState(BOAT_WAITING), boatPathState(BOAT_NO_PATH),
-                  boatTarState(BOAT_NO_TARGET), boatFlashState(BOAT_NO_FLASH), avoidPriority(0), avoidBoatID(-1),
-                  tmpTarX(0), tmpTarY(0), boatAvoidState(BOAT_NO_AVOIDING), setMove(false), jamTime(0)
+                  boatTarState(BOAT_NO_TARGET), boatFlashState(BOAT_NO_FLASH), findPathFlag(true), avoidPriority(0), 
+                  avoidBoatID(-1), tmpTarX(0), tmpTarY(0), boatAvoidState(BOAT_NO_AVOIDING), setMove(false), jamTime(0)
     {
     }
 };

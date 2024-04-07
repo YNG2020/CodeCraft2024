@@ -332,6 +332,7 @@ void DecisionMaker::shipDecision()
                 }
             }
         }
+        bot.findPathFlag = findPathFlag;
     }
     boatMoveControl();
 }
@@ -350,7 +351,7 @@ void DecisionMaker::refreshBoatState(int boatID)
         bot.lastX = bot.curX;
         bot.lastY = bot.curY;
     }
-    else if (bot.setMove && bot.boatStatus == 0)
+    else if (bot.setMove && bot.boatStatus == 0 || bot.findPathFlag == false)
     { // 发现没变更位置，且前一帧下达了移动指令，使用dept指令防卡死
         if (bot.jamTime >= BOAT_JAM_TOLERANCE_TIME)
         {
