@@ -66,17 +66,13 @@ void Init()
     else
         scanf("%d", &boatCapacity);
 
-    if (oriMap[0][0] == '*' && oriMap[0][MAP_SIZE - 1] == '*' && oriMap[MAP_SIZE - 1][0] == '*' && oriMap[MAP_SIZE - 1][MAP_SIZE - 1] == '*' && oriMap[14][43] == 'A')
+    if (oriMap[100][101] == 'T')
     {
-        decisionMaker.setParams(0.45, 1.4, 50, 1000, 100, 4.0);
-    }
-    else if (oriMap[0][0] == '.' && oriMap[0][MAP_SIZE - 1] == '.' && oriMap[MAP_SIZE - 1][0] == '.' && oriMap[MAP_SIZE - 1][MAP_SIZE - 1] == '.')
-    {
-        decisionMaker.setParams(0.3, 1.4, 50, 1000, 50, 4.0);
+        decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 1, 15, 5.5);
     }
     else
     {
-        decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0);
+        decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 2, 16, 5.5);
     }
 
     string okk;
@@ -258,23 +254,24 @@ int main()
 
 void printData()
 {
-    int sum = 0;
-    for (int i = 0; i < robotNum; i++)
-    {
-        cerr << "robot[" << i << "].total_goods_val = " << robot[i].total_goods_val << endl;
-        sum += robot[i].total_goods_val;
-    }
-    cerr << "theory score = " << sum - boatNum * 8000 - robotNum * 2000 + 25000 << endl;
-    sum = 0;
-    for (int i = 0; i < berthNum; i++)
-    {
-        cerr << "berth[" << i << "].numBerthGoods = " << berth[i].numBerthGoods << endl;
-        sum += berth[i].getBerthGoodsValueOfNum(berth[i].numBerthGoods, 0, 0);
-    }
-    cerr << "sum = " << sum << endl;
-    cerr << "totGoodsVal = " << totGoodsVal << endl;
     if (Record)
-    {
+    {   
+        int sum = 0;
+        for (int i = 0; i < robotNum; i++)
+        {
+            cerr << "robot[" << i << "].total_goods_val = " << robot[i].total_goods_val << endl;
+            sum += robot[i].total_goods_val;
+        }
+        cerr << "theory score = " << sum - boatNum * 8000 - robotNum * 2000 + 25000 << endl;
+        sum = 0;
+        for (int i = 0; i < berthNum; i++)
+        {
+            cerr << "berth[" << i << "].numBerthGoods = " << berth[i].numBerthGoods << endl;
+            sum += berth[i].getBerthGoodsValueOfNum(berth[i].numBerthGoods, 0, 0);
+        }
+        cerr << "sum = " << sum << endl;
+        cerr << "totGoodsVal = " << totGoodsVal << endl;
+
         ofstream outputFile("pullInfo.csv");
         outputFile << "goodsValue,goodsRegion,Frame" << endl;
         for (int i = 0; i < goods_pull_value.size(); i++)

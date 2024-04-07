@@ -12,6 +12,7 @@ DecisionMaker::DecisionMaker() : priority(robotNum, 0)
     nodes = new Node[100 * MAP_SIZE * MAP_SIZE];
     boatNumLimit = 2;
     robotNumLimit = 16;
+    efficientBerthID = 0;
 }
 
 void DecisionMaker::makeDecision()
@@ -43,6 +44,7 @@ int DecisionMaker::getBerthId(int x, int y)
 {
     return berthMap[x][y];
 }
+
 bool DecisionMaker::inBerthSea(int x, int y)
 {
     return gridMap[x][y] == BERTH;
@@ -135,7 +137,9 @@ void DecisionMaker::getConnectedBerth(int berthID)
     }
 }
 
-void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, int blockBerthTime, int meanGoodsValue, double gainForSameBerth)
+void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods, 
+    int extraSearchTime, int blockBerthTime, int meanGoodsValue, double gainForSameBerth,
+    int boatNumLimit, int robotNumLimit, double berthCallingFactor)
 {
     this->limToTryChangeGoods = limToTryChangeGoods;
     this->limToChangeGoods = limToChangeGoods;
@@ -143,6 +147,9 @@ void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGood
     this->blockBerthTime = blockBerthTime;
     this->meanGoodsValue = meanGoodsValue;
     this->gainForSameBerth = gainForSameBerth;
+    this->boatNumLimit = boatNumLimit;
+    this->robotNumLimit = robotNumLimit;
+    this->berthCallingFactor = berthCallingFactor;
 }
 
 void DecisionMaker::paintBerth(int berthID)
@@ -279,6 +286,15 @@ void DecisionMaker::analyzeMap()
         paintBerth(i);
         findTrade(i);
         findNearestBerth(i);
+    }
+    int minTransportTime = 0x7fffffff;
+    for (int i = 0; i < berthNum; ++i)
+    {
+        if (berth[i].transportTime < minTransportTime)
+        {
+            efficientBerthID = i;
+            minTransportTime = berth[i].transportTime;
+        }
     }
 }
 

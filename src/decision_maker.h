@@ -46,6 +46,8 @@ private:
     int robotNumLimit;           // 机器人数量限制
     double gainForSameBerth;     // 本区增益
     double globalMeanGoodsRatio; // 全场泊位接收的货物的平均性价比
+    int efficientBerthID;        // 最高效的泊位ID
+    double berthCallingFactor;      // 泊位向邻区发出召唤的参数
 
     Node *nodes;
     Node boatMapDis[MAP_SIZE][MAP_SIZE];
@@ -66,7 +68,7 @@ private:
     void findNearestBerth(int berthID); // 找到与泊位berthID最近的泊位（自身不算）
     bool inBerthSea(int x, int y);
     int getBerthIdSea(int x, int y);
-    bool getNearestGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID);
+    bool getNearestGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID, int callingGoodsID);
     bool getNearestBerth(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID);
     bool getToTarPath(int botID, bool calFromJam);
     bool getDetourPath(int botID1, int botID2);
@@ -109,7 +111,7 @@ private:
 
 public:
     DecisionMaker();
-    void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, int blockBerthTime, int meanGoodsValue, double gainForSameBerth);
+    void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, int blockBerthTime, int meanGoodsValue, double gainForSameBerth, int boatNumLimit, int robotNumLimit, double berthCallingFactor);
     void analyzeMap();
     void getMapInfoBoat();   // 得到船运动的地图信息
     void getMapDisBerth();   // 得到泊位的海上距离map
