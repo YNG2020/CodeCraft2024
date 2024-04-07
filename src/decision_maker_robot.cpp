@@ -101,7 +101,7 @@ void DecisionMaker::robotDecision()
         int callingBerthID = -1;
         if (bot.pullBerthID != -1)
         {   // 探测最近的泊位是否有召唤需求（假设当前泊位是A，则A最近的泊位设为B，而以A作为最近泊位的泊位设为C，B和C都应被探测）
-            double factor = 5.0;
+            double factor = 5.5;
             int berthIDA = bot.pullBerthID;
             int berthIDB = berth[berthIDA].nearestBerth, berthIDC = -1;
             int excessValueA = 0, excessValueB = 0, excessValueC = 0;

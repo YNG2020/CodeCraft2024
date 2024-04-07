@@ -189,11 +189,11 @@ void DecisionMaker::shipDecision()
         case 2: // 装载状态（状态 2）
             int threshold;
             if (phase == 0)
-                threshold = 40;
+                threshold = boatCapacity;
             else if (frameId >= 15000 - 2 * tradeDis[tarTradeID][bot.dire][bot.curX][bot.curY])
                 threshold = boatCapacity;
             else
-                threshold = boatCapacity * 0.8;
+                threshold = boatCapacity;
             if (bot.numBoatGoods >= threshold)
             { // 如果装满了，去交货点
                 findPathFlag = getBoatPathDijkstra(i, tradePoint[tarTradeID].x, tradePoint[tarTradeID].y, bot.pathPoint, bot.pathDir);

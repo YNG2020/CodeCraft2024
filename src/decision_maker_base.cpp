@@ -11,7 +11,7 @@ DecisionMaker::DecisionMaker() : priority(robotNum, 0)
     memset(berthMap, -1, sizeof(berthMap));
     nodes = new Node[100 * MAP_SIZE * MAP_SIZE];
     boatNumLimit = 2;
-    robotNumLimit = 13;
+    robotNumLimit = 16;
 }
 
 void DecisionMaker::makeDecision()
