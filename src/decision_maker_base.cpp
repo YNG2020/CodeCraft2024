@@ -43,6 +43,15 @@ int DecisionMaker::getBerthId(int x, int y)
 {
     return berthMap[x][y];
 }
+bool DecisionMaker::inBerthSea(int x, int y)
+{
+    return gridMap[x][y] == BERTH;
+}
+
+int DecisionMaker::getBerthIdSea(int x, int y)
+{
+    return berthMap[x][y];
+}
 
 void DecisionMaker::getNearBerthDis(int x, int y)
 {
@@ -425,7 +434,6 @@ void DecisionMaker::getNearBerthInfo()
     {
         for (int y = 0; y < MAP_SIZE; ++y)
         {
-
             for (int dir = 0; dir < 4; ++dir)
             {
                 int curID = -1;

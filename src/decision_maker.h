@@ -13,16 +13,16 @@ private:
     struct Node
     {
         int x, y, dis, dir;
-        Node* parent; // 指向父节点的指针
-        Node(int xx = 0, int yy = 0, Node* p = nullptr, int d = 0) : x(xx), y(yy), parent(p), dis(d) {}
-        void setNode(int xx, int yy, int d, Node* p)
+        Node *parent; // 指向父节点的指针
+        Node(int xx = 0, int yy = 0, Node *p = nullptr, int d = 0) : x(xx), y(yy), parent(p), dis(d) {}
+        void setNode(int xx, int yy, int d, Node *p)
         {
             x = xx;
             y = yy;
             dis = d;
             parent = p;
         }
-        void setNode(int xx, int yy, int d, Node* p, int direction)
+        void setNode(int xx, int yy, int d, Node *p, int direction)
         {
             x = xx;
             y = yy;
@@ -47,7 +47,7 @@ private:
     double gainForSameBerth;     // 本区增益
     double globalMeanGoodsRatio; // 全场泊位接收的货物的平均性价比
 
-    Node* nodes;
+    Node *nodes;
     Node boatMapDis[MAP_SIZE][MAP_SIZE];
     vector<int> priority;
     vector<SimplePoint> robotShop;
@@ -55,25 +55,26 @@ private:
     vector<SimplePoint> tradePoint;
     bool vis[MAP_SIZE][MAP_SIZE];
     bool visBoat[4][MAP_SIZE][MAP_SIZE];
-    int berthMap[MAP_SIZE][MAP_SIZE];    // 记录对应的泊位ID
+    int berthMap[MAP_SIZE][MAP_SIZE];       // 记录对应的泊位ID
     int berthMapSea[4][MAP_SIZE][MAP_SIZE]; // 记录海上对应的最近泊位ID
     int tradeMapSea[4][MAP_SIZE][MAP_SIZE]; // 记录海上对应的最近交易点ID
     GRID_TYPE gridMap[MAP_SIZE][MAP_SIZE];
 
     bool inBerth(int x, int y);
-    void paintBerth(int berthID); // 对泊位进行染色
-    void findTrade(int berthID);  // 找到与泊位最近的交易点
+    void paintBerth(int berthID);       // 对泊位进行染色
+    void findTrade(int berthID);        // 找到与泊位最近的交易点
     void findNearestBerth(int berthID); // 找到与泊位berthID最近的泊位（自身不算）
-
-    bool getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint, vector<int>& pathDir, int botID, bool tryChangePath, int callingBerthID);
-    bool getNearestBerth(int x, int y, vector<SimplePoint>& pathPoint, vector<int>& pathDir, int botID);
+    bool inBerthSea(int x, int y);
+    int getBerthIdSea(int x, int y);
+    bool getNearestGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID);
+    bool getNearestBerth(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID);
     bool getToTarPath(int botID, bool calFromJam);
     bool getDetourPath(int botID1, int botID2);
 
-    bool getBoatPathBFS(int boatID, int tarX, int tarY, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
-    bool getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
-    bool getBoatNearestBerthDijkstra(int boatID, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
-    bool getBoatNearestTradeDijkstra(int boatID, vector<BoatPoint>& pathPoint, vector<int>& pathDir);
+    bool getBoatPathBFS(int boatID, int tarX, int tarY, vector<BoatPoint> &pathPoint, vector<int> &pathDir);
+    bool getBoatPathDijkstra(int boatID, int tarX, int tarY, vector<BoatPoint> &pathPoint, vector<int> &pathDir);
+    bool getBoatNearestBerthDijkstra(int boatID, vector<BoatPoint> &pathPoint, vector<int> &pathDir);
+    bool getBoatNearestTradeDijkstra(int boatID, vector<BoatPoint> &pathPoint, vector<int> &pathDir);
     bool getBoatDetourPath(int botID1, int botID2);
 
     void moveControl();
@@ -101,7 +102,7 @@ private:
     void boatJamResolve(int boatID1, int boatID2, int jamPos);
     bool boatGetAvoidPath(int boatID1, int boatID2);
     void boatUnJam();
-    bool checkOverLap(const BoatPoint& boat1, const BoatPoint& boat2);
+    bool checkOverLap(const BoatPoint &boat1, const BoatPoint &boat2);
 
     void phaseDecision();
     void purchaseDecision();

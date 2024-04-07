@@ -100,7 +100,7 @@ void DecisionMaker::shipDecision()
             bool findPathFlag = getBoatPathDijkstra(i, tradePoint[tarTradeID].x, tradePoint[tarTradeID].y, bot.pathPoint, bot.pathDir);
             if (findPathFlag)
             {
-                bot.jamDetectBufferLen = 3;                       // 最终时刻，把该值修改为允许的最小值
+                bot.jamDetectBufferLen = 3; // 最终时刻，把该值修改为允许的最小值
                 if (bot.tarBerthID >= 0)
                 {
                     if (bot.boatStatus == 2)                      // 在装货
@@ -128,7 +128,7 @@ void DecisionMaker::shipDecision()
             if (bot.boatTarState == BOAT_HAVE_TARGET && bot.boatPathState == BOAT_NO_PATH)
             { // 有目标，无路，分配路（适用于在前往目的地时中途闪现的情况）
                 findPathFlag = getBoatPathDijkstra(i, bot.tarX, bot.tarY, bot.pathPoint, bot.pathDir);
-                //findPathFlag = false; bot.numBoatGoods = 1;
+                // findPathFlag = false; bot.numBoatGoods = 1;
                 if (findPathFlag)
                 {
                     bot.boatPathState = BOAT_HAVE_PATH;
@@ -259,7 +259,7 @@ void DecisionMaker::shipDecision()
         if (bot.boatStatus != 1 && !findPathFlag && (bot.boatPathState == BOAT_NO_PATH || bot.boatTarState == BOAT_NO_TARGET))
         { // 统一处理找不到路的情况
             if (bot.boatStatus == 0 && bot.numBoatGoods < boatCapacity)
-            {   // 适用于在前往泊位的中途闪现，且后面找不到路
+            { // 适用于在前往泊位的中途闪现，且后面找不到路
                 findPathFlag = getBoatNearestBerthDijkstra(i, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)
                 {
@@ -721,27 +721,32 @@ int DecisionMaker::berthSelect(int boatID)
         minIdx = oriLocation;
     int timeToGetMoney; // 到预计拿到资金的时间
     int Money;
-
+    int curBerth = -1;                                    // 船的当前泊位,初始为-1
+    if (inBerthSea(boat[boatID].curX, boat[boatID].curY)) // 在泊位则赋值
+        curBerth = getBerthIdSea(boat[boatID].curX, boat[boatID].curY);
     for (int berthID = 0; berthID < berthNum; ++berthID)
     {
         int tradeID = -1;
         for (int dir = 0; dir < 4; ++dir)
             tradeID = tradeID == -1 ? tradeMapSea[dir][berth[berthID].x][berth[berthID].y] : tradeID;
+        if (tradeID == -1) // 如果这个泊位找不到相连的交货点，跳过
+            continue;
         moveTimeToTrade = berthTradeDis[berthID][berthNum + tradeID];
-        // cerr << tradeID << " " << moveTimeToTrade << endl;
         moveTimeToBerth = berthDis[berthID][boat[boatID].dire][boat[boatID].curX][boat[boatID].curY];
+        if (moveTimeToBerth == 0 && berthID != curBerth)
+        { // 如果船到泊位ID berthDis为0，并且不是船当前所在的泊位，则不可达，跳过；curBerth为-1，遇到dis为0一定跳过
+            continue;
+        }
         timeToGetMoney = moveTimeToBerth + moveTimeToTrade;
         if (frameId + timeToGetMoney >= 15000)
         { // 这时候一定不选择该泊位，因为时间上来不及再去交货点
             continue;
         }
-
         numRemainGoods = berth[berthID].numBerthGoods;
         numAddGoods = moveTimeToBerth / berth[berthID].timeOfGoodsToBerth;
         loadGoodsTime1 = (double)numNeedGoods / (double)berth[berthID].loadingSpeed;
         loadGoodsTime2 = ((double)numRemainGoods + (double)numAddGoods) / (double)berth[berthID].loadingSpeed + // 泊位上能以最高效率给boat装载货物的时间
                          (numNeedGoods - (numRemainGoods + numAddGoods)) * berth[berthID].timeOfGoodsToBerth;   // 需要等robot给泊位送货物的时间
-
         if (berth[berthID].isBlocked)
             numAddGoods = 0;
         if (numRemainGoods + numAddGoods > numNeedGoods)
