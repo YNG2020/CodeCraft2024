@@ -81,7 +81,7 @@ void Init()
         paramFile >> param;
         s_p.push_back(param);
     }
-    decisionMaker.setParams(s_p[0], s_p[1], s_p[2], s_p[3], s_p[4], s_p[5], 1, 15, 5.5);
+    decisionMaker.setParams(s_p[0], s_p[1], s_p[2], s_p[3], s_p[4], 2, 16, s_p[5]);
 
     string okk;
     if (Debug)

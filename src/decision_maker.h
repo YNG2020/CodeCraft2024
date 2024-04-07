@@ -40,7 +40,6 @@ private:
     double limToTryChangeGoods, limToChangeGoods; // 尝试选新目标，接受新目标的参数
     int extraSearchTime;                          // getNearestGoods中的额外搜索轮次
     int blockBerthTime;                           // 提前屏蔽berth的时间
-    int meanGoodsValue;
     int phase;                   // 根据租赁情况判断当前阶段
     int boatNumLimit;            // 船只数量限制
     int robotNumLimit;           // 机器人数量限制
@@ -111,7 +110,7 @@ private:
 
 public:
     DecisionMaker();
-    void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, int blockBerthTime, int meanGoodsValue, double gainForSameBerth, int boatNumLimit, int robotNumLimit, double berthCallingFactor);
+    void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, int blockBerthTime, double gainForSameBerth, int boatNumLimit, int robotNumLimit, double berthCallingFactor);
     void analyzeMap();
     void getMapInfoBoat();   // 得到船运动的地图信息
     void getMapDisBerth();   // 得到泊位的海上距离map

@@ -138,14 +138,13 @@ void DecisionMaker::getConnectedBerth(int berthID)
 }
 
 void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods, 
-    int extraSearchTime, int blockBerthTime, int meanGoodsValue, double gainForSameBerth,
+    int extraSearchTime, int blockBerthTime, double gainForSameBerth,
     int boatNumLimit, int robotNumLimit, double berthCallingFactor)
 {
     this->limToTryChangeGoods = limToTryChangeGoods;
     this->limToChangeGoods = limToChangeGoods;
     this->extraSearchTime = extraSearchTime;
     this->blockBerthTime = blockBerthTime;
-    this->meanGoodsValue = meanGoodsValue;
     this->gainForSameBerth = gainForSameBerth;
     this->boatNumLimit = boatNumLimit;
     this->robotNumLimit = robotNumLimit;
