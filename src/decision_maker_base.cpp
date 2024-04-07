@@ -585,7 +585,16 @@ void DecisionMaker::purchaseDecision()
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
     if (robotNum >= robotNumLimit && boatNum < boatNumLimit)
-    {
+    {   
+        int tmpSum = 0;
+        for (int i = 0; i < berthNum; ++i)
+            for (auto iter = berth[i].berthGoodsValueList.begin(); iter != berth[i].berthGoodsValueList.end(); ++iter)
+                tmpSum += *iter;
+        if (tmpSum < 5000)
+        {
+            boatNumLimit -= 1;
+            return;
+        }
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
 }
