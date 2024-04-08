@@ -16,7 +16,7 @@ using namespace std;
 
 std::ifstream myCin;
 bool Debug = false;
-bool Record = false;
+bool Record = true;
 void printData();
 DecisionMaker decisionMaker;
 
@@ -207,8 +207,8 @@ int main()
     {
         int id = Input();
         decisionMaker.makeDecision();
-         if (frame == 15000)
-             printData();
+        if (frame == 15000)
+            printData();
         printf("OK\n");
         fflush(stdout);
         // outputFile << goodsNum << ", " << pickGoodsNum << ", " << shipGoodsNum << endl;

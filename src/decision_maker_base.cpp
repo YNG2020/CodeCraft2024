@@ -9,6 +9,7 @@ DecisionMaker::DecisionMaker() : priority(robotNum, 0)
 {
     memset(vis, 0, sizeof(vis));
     memset(berthMap, -1, sizeof(berthMap));
+    memset(nearBerthID, -1, sizeof(nearBerthID));
     nodes = new Node[100 * MAP_SIZE * MAP_SIZE];
     boatNumLimit = 2;
     robotNumLimit = 16;
