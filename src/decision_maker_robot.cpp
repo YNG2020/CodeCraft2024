@@ -7,38 +7,38 @@
 void DecisionMaker::robotDecision()
 {
     refreshBerthState();
-    if (boatNumLimit > 1)
-    {
-        bool blockAllBerthFlag = true;
-        for (int i = 0; i < berthNum; ++i)
-        {
-            if (frameId + 2 * berth[i].nearestBerthTime + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
-                berth[i].isBlocked = true;
-            else
-            {
-                berth[i].isBlocked = false;
-                blockAllBerthFlag = false;
-            }
-        }
-        if (blockAllBerthFlag)
-            berth[efficientBerthID].isBlocked = false;             
-    }
-    else
-    {
-        bool blockAllBerthFlag = true;
-        for (int i = 0; i < berthNum; ++i)
-        {
-            if (frameId + 2 * berth[i].nearestBerthTime + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
-                berth[i].isBlocked = true;
-            else
-            {
-                berth[i].isBlocked = false;
-                blockAllBerthFlag = false;
-            }
-        }
-        if (blockAllBerthFlag)
-            berth[efficientBerthID].isBlocked = false;
-    }
+    //if (boatNumLimit > 1)
+    //{
+    //    bool blockAllBerthFlag = true;
+    //    for (int i = 0; i < berthNum; ++i)
+    //    {
+    //        if (frameId + 2 * berth[i].nearestBerthTime + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
+    //            berth[i].isBlocked = true;
+    //        else
+    //        {
+    //            berth[i].isBlocked = false;
+    //            blockAllBerthFlag = false;
+    //        }
+    //    }
+    //    if (blockAllBerthFlag)
+    //        berth[efficientBerthID].isBlocked = false;             
+    //}
+    //else
+    //{
+    //    bool blockAllBerthFlag = true;
+    //    for (int i = 0; i < berthNum; ++i)
+    //    {
+    //        if (frameId + 2 * berth[i].nearestBerthTime + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
+    //            berth[i].isBlocked = true;
+    //        else
+    //        {
+    //            berth[i].isBlocked = false;
+    //            blockAllBerthFlag = false;
+    //        }
+    //    }
+    //    if (blockAllBerthFlag)
+    //        berth[efficientBerthID].isBlocked = false;
+    //}
 
     for (int i = 0; i < robotNum; i++)
     {

@@ -138,13 +138,13 @@ void DecisionMaker::getConnectedBerth(int berthID)
 }
 
 void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods, 
-    int extraSearchTime, int blockBerthTime, double gainForSameBerth,
+    int extraSearchTime, double lastTimeFactor, double gainForSameBerth,
     int boatNumLimit, int robotNumLimit, double berthCallingFactor)
 {
     this->limToTryChangeGoods = limToTryChangeGoods;
     this->limToChangeGoods = limToChangeGoods;
     this->extraSearchTime = extraSearchTime;
-    this->blockBerthTime = blockBerthTime;
+    this->lastTimeFactor = lastTimeFactor;
     this->gainForSameBerth = gainForSameBerth;
     this->boatNumLimit = boatNumLimit;
     this->robotNumLimit = robotNumLimit;
@@ -295,6 +295,15 @@ void DecisionMaker::analyzeMap()
             minTransportTime = berth[i].transportTime;
         }
     }
+
+    // 依据泊位到交货点的距离对泊位ID进行升序排序
+    sortBerthsByTransportTime.resize(berthNum);
+    for (int i = 0; i < berthNum; ++i) {
+        sortBerthsByTransportTime[i] = i; // 初始化序号为0, 1, 2, ..., berthNum-1
+    }
+    std::sort(sortBerthsByTransportTime.begin(), sortBerthsByTransportTime.end(), [&](int a, int b) {
+        return berth[a].transportTime < berth[b].transportTime;
+    });
 }
 
 // 得到船运动的地图信息
@@ -566,6 +575,55 @@ void DecisionMaker::phaseDecision()
     {
         phase = 1;
     }
+
+    if (frame + lastTimeFactor * berth[efficientBerthID].transportTime > 15000 && phase <= 1)
+    {
+        phase = 2;
+        for (int j = 0; j < berthNum; ++j)
+        {
+            if (!berth[j].isBlocked)
+            {
+                int tradeID = -1;
+                for (int dir = 0; dir < 4; ++dir)
+                    tradeID = tradeID == -1 ? tradeMapSea[dir][berth[j].x][berth[j].y] : tradeID;
+                if (tradeID == -1) // 如果这个泊位找不到相连的交货点，跳过
+                {
+                    berth[j].isBlocked = true;
+                    continue;
+                }
+                // 检验该泊位对所有船的可达性
+                berth[j].isBlocked = true;
+                for (int i = 0; i < boatNum; ++i)
+                {
+                    int curBerth = getBerthIdSea(boat[i].curX, boat[i].curY);
+                    int moveTimeToBerth = berthDis[j][boat[i].dire][boat[i].curX][boat[i].curY];
+                    if (moveTimeToBerth != 0 || j == curBerth)
+                    {
+                        berth[j].isBlocked = false;
+                        break;
+                    }
+                }
+            }
+        }
+        // 选出boatNum个泊位来作为最后时刻的泊位
+        int OKBerthNum = berthNum;
+        for (int i = 0; i < berthNum; ++i)
+            if (berth[i].isBlocked)
+                --OKBerthNum;
+
+        int counter = berthNum - 1;
+        while (OKBerthNum > boatNum && counter >= 0)
+        {
+            int berthID = sortBerthsByTransportTime[counter];
+            if (berth[berthID].isBlocked == false)
+            {
+                --OKBerthNum;
+                berth[berthID].isBlocked = true;
+            }
+            --counter;
+        }
+    }
+
 }
 
 void DecisionMaker::purchaseDecision()

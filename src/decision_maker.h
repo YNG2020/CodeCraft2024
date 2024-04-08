@@ -45,8 +45,10 @@ private:
     int robotNumLimit;           // 机器人数量限制
     double gainForSameBerth;     // 本区增益
     double globalMeanGoodsRatio; // 全场泊位接收的货物的平均性价比
-    int efficientBerthID;        // 最高效的泊位ID
     double berthCallingFactor;      // 泊位向邻区发出召唤的参数
+    int efficientBerthID;        // 最高效的泊位ID
+    vector<int> sortBerthsByTransportTime;  // 依据泊位到交货点的距离对泊位ID进行升序排序
+    double lastTimeFactor;
 
     Node *nodes;
     Node boatMapDis[MAP_SIZE][MAP_SIZE];
@@ -110,7 +112,7 @@ private:
 
 public:
     DecisionMaker();
-    void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, int blockBerthTime, double gainForSameBerth, int boatNumLimit, int robotNumLimit, double berthCallingFactor);
+    void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, double lastTimeFactor, double gainForSameBerth, int boatNumLimit, int robotNumLimit, double berthCallingFactor);
     void analyzeMap();
     void getMapInfoBoat();   // 得到船运动的地图信息
     void getMapDisBerth();   // 得到泊位的海上距离map
