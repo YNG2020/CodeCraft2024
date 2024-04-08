@@ -345,8 +345,8 @@ void DecisionMaker::refreshBoatState(int boatID)
         if (bot.boatPathState == BOAT_HAVE_PATH)
         { // 多一层对闪现状态的处理
             ++bot.idxInPth;
-            boatRefreshJamBuffer(boatID);
         }
+        boatRefreshJamBuffer(boatID);
         bot.jamTime = 0;
         bot.lastX = bot.curX;
         bot.lastY = bot.curY;
