@@ -16,7 +16,7 @@ using namespace std;
 
 std::ifstream myCin;
 bool Debug = false;
-bool Record = true;
+bool Record = false;
 void printData();
 DecisionMaker decisionMaker;
 

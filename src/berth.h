@@ -37,14 +37,16 @@ public:
     unordered_map<int, singleGoodsInfo> goodsInBerthInfo;    // 存储落在该泊位管理区内的货物信息，键是标识货物的ID，值是一些货物信息
     deque<int> berthGoodsValueList; // 泊位货物价值队列，与load(),pull同步更新
 
-    int load(int boatCapacityRemain)
+    int load(int boatCapacityRemain, int &loadValue)
     {
         int loadNum = numBerthGoods > loadingSpeed ? loadingSpeed : numBerthGoods;
         loadNum = loadNum > boatCapacityRemain ? boatCapacityRemain : loadNum;
         numBerthGoods -= loadNum;
+        loadValue = 0;
         int i = 0;
         while (i < loadNum) // load以后货物价值出队
         {
+            loadValue += berthGoodsValueList.front();
             berthGoodsValueList.pop_front();
             ++i;
         }
