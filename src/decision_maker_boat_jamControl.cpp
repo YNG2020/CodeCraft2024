@@ -145,19 +145,18 @@ void DecisionMaker::boatJamControl()
 void DecisionMaker::boatJamResolve(int boatID1, int boatID2, int jamPos)
 {
     bool findPathFlag;
-    if (jamPos + 1 > boat[boatID1].nearerJamdetectLen)
-    {   // 碰撞发生的区域在nearerJamdetectLen之外，采用找新的路径的方式进行避让
-        findPathFlag = getBoatDetourPath(boatID1, boatID2); // botID2直接不进行避让动作，而是找路去既定目标
-        if (findPathFlag)
-        {
-            boat[boatID2].avoidBoatID = -1;
-            boat[boatID2].boatAvoidState = BOAT_NO_AVOIDING;
-            boat[boatID2].boatPathState = BOAT_HAVE_PATH;
-            boatRefreshJamBuffer(boatID2); // 修改了路径，需要更新碰撞检测缓冲区
-            return;
-        }
-        return;
-    }
+    //if (jamPos + 1 >= boat[boatID1].nearerJamdetectLen)
+    //{   // 碰撞发生的区域在nearerJamdetectLen之外，采用找新的路径的方式进行避让
+    //    findPathFlag = getBoatDetourPath(boatID1, boatID2); // botID2直接不进行避让动作，而是找路去既定目标
+    //    if (findPathFlag)
+    //    {
+    //        boat[boatID2].avoidBoatID = -1;
+    //        boat[boatID2].boatAvoidState = BOAT_NO_AVOIDING;
+    //        boat[boatID2].boatPathState = BOAT_HAVE_PATH;
+    //        boatRefreshJamBuffer(boatID2); // 修改了路径，需要更新碰撞检测缓冲区
+    //        return;
+    //    }
+    //}
 
     findPathFlag = boatGetAvoidPath(boatID1, boatID2);
     if (findPathFlag)
