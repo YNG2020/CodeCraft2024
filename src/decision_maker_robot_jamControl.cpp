@@ -250,19 +250,18 @@ void DecisionMaker::jamControl()
 void DecisionMaker::jamResolve(int botID1, int botID2, int jamPos)
 {
     bool findPathFlag;
-    if (jamPos + 1 > robot[botID1].nearerJamdetectLen)
-    {   // 碰撞发生的区域在nearerJamdetectLen之外，采用找新的路径的方式进行避让
-        findPathFlag = getDetourPath(botID1, botID2); // botID2直接不进行避让动作，而是找路去既定目标
-        if (findPathFlag)
-        {
-            robot[botID2].avoidBotID = -1;
-            robot[botID2].botAvoidState = NO_AVOIDING;
-            robot[botID2].botPathState = HAVE_PATH;
-            refreshJamBuffer(botID2); // 修改了路径，需要更新碰撞检测缓冲区
-            return;
-        }
-        return;
-    }
+    //if (jamPos + 1 >= robot[botID1].nearerJamdetectLen)
+    //{   // 碰撞发生的区域在nearerJamdetectLen之外，采用找新的路径的方式进行避让
+    //    findPathFlag = getDetourPath(botID1, botID2); // botID2直接不进行避让动作，而是找路去既定目标
+    //    if (findPathFlag)
+    //    {
+    //        robot[botID2].avoidBotID = -1;
+    //        robot[botID2].botAvoidState = NO_AVOIDING;
+    //        robot[botID2].botPathState = HAVE_PATH;
+    //        refreshJamBuffer(botID2); // 修改了路径，需要更新碰撞检测缓冲区
+    //        return;
+    //    }
+    //}
 
     findPathFlag = getAvoidPath(botID1, botID2);
     if (findPathFlag)
