@@ -728,13 +728,9 @@ int DecisionMaker::berthSelect(int boatID)
 
     
   vector<int> visitedBerth(berthNum, false);  int minTransportTime = 0x7fffffff;
-    if (boatNum == 1)
+    if (boatNum <= 1)
     {
-        if (frame >= 917)
-            int a = 1;
         int nextBerthID = specialBerthSelect(boatID, curBerth, 0, boat[boatID].numBoatGoods, curBerth, 0, visitedBerth, minTransportTime);
-        if (nextBerthID >= 0 && nextBerthID == curBerth)
-            int a = 1;
         if (nextBerthID >= 0)
             return nextBerthID;
     }
@@ -791,8 +787,6 @@ int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTim
     int nextBerthID = -1;
     for (int i = 0; i < berthNum; ++i)
     {
-        if (i == curBerth)
-            continue;
         if (visitedBerth[i])
             continue;   
         int boatGoodsNum = upperGoodsNum;
@@ -818,13 +812,23 @@ int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTim
         { // 这时候一定不选择该泊位，因为时间上来不及再去交货点
             continue;
         }
+        if (berth[boatID].boatIDToBerth >= 0)
+            continue;
         // --------------------------------------- 条件检验 ------------------------------------------------
 
         visitedBerth[i] = true;
         int numRemainGoods = berth[i].numBerthGoods;
-        int numAddGoods = 0;
+        int numAddGoods = calAddGoodsNum(i, upperTime + moveTimeToBerth);
         boatGoodsNum += (numRemainGoods + numAddGoods);
         int loadGoodsTime = ceil((double)numRemainGoods / berth[i].loadingSpeed);
+
+        if (upperBerthID >= 0)
+        {
+            int curBerthNumAddGoods = calAddGoodsNum(curBerth, upperTime + moveTimeToBerth);
+            if (curBerthNumAddGoods + upperGoodsNum >= boat[boatID].capacity)
+                return curBerth;
+        }
+
         if (boatGoodsNum >= boat[boatID].capacity)
         {
             timeToGetMoney = upperTime + moveTimeToBerth + moveTimeToTrade + loadGoodsTime;
@@ -841,13 +845,42 @@ int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTim
             int tmpNextBerthID = specialBerthSelect(boatID, i, upperTime + moveTimeToBerth + loadGoodsTime, boatGoodsNum, curBerth, Level + 1, visitedBerth, minTransportTime);
             if (tmpNextBerthID >= 0)
                 nextBerthID = tmpNextBerthID;
-            if (Level == 0 && tmpNextBerthID >= 0 && tmpNextBerthID != curBerth)
+            if (Level == 0 && tmpNextBerthID >= 0 && i != curBerth)
                 nextBerthID = i;
-            else if (Level == 0 && tmpNextBerthID >= 0)
-                nextBerthID = tmpNextBerthID;
         }
         visitedBerth[i] = false;
             
     }
     return nextBerthID;
+}
+
+int DecisionMaker::calAddGoodsNum(int berthID, int moveTime)
+{
+    int addGoodsNum = 0, tarBerthID, getGoodsTime;
+    for (int i = 0; i < robotNum; ++i)
+    {
+        int tarX = robot[i].tarX, tarY = robot[i].tarY;
+        int toBerthDis = nearBerthDis[tarX][tarY];
+        if (robot[i].botMoveState == TOGOODS)
+        {
+            tarBerthID = nearBerthID[tarX][tarY];
+            if (tarBerthID == berthID)
+            {
+                getGoodsTime = robot[i].pathDir.size() - robot[i].idxInPth + toBerthDis;
+                if (getGoodsTime < moveTime)
+                    ++addGoodsNum;
+            }
+        }
+        else if (robot[i].botPathState == TOBERTH)
+        {
+            tarBerthID = getBerthId(tarX, tarY);
+            if (tarBerthID == berthID)
+            {
+                getGoodsTime = robot[i].pathDir.size() - robot[i].idxInPth;
+                if (getGoodsTime < moveTime)
+                    ++addGoodsNum;
+            }
+        }
+    }
+    return addGoodsNum;
 }

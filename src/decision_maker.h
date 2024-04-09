@@ -110,6 +110,7 @@ private:
     void phaseDecision();
     void purchaseDecision();
     int specialBerthSelect(int boatID, int upperBerthID, int upperTime, int upperGoodsNum, int curBerth, int Level, vector<int>& visitedBerth, int& minTransportTime);
+    int calAddGoodsNum(int berthID, int moveTime);
 
 public:
     DecisionMaker();
