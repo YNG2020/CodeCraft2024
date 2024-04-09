@@ -725,6 +725,20 @@ int DecisionMaker::berthSelect(int boatID)
     int curBerth = -1;                                    // 船的当前泊位,初始为-1
     if (inBerthSea(boat[boatID].curX, boat[boatID].curY)) // 在泊位则赋值
         curBerth = getBerthIdSea(boat[boatID].curX, boat[boatID].curY);
+
+    
+  vector<int> visitedBerth(berthNum, false);  int minTransportTime = 0x7fffffff;
+    if (boatNum == 1)
+    {
+        if (frame >= 917)
+            int a = 1;
+        int nextBerthID = specialBerthSelect(boatID, curBerth, 0, boat[boatID].numBoatGoods, curBerth, 0, visitedBerth, minTransportTime);
+        if (nextBerthID >= 0 && nextBerthID == curBerth)
+            int a = 1;
+        if (nextBerthID >= 0)
+            return nextBerthID;
+    }
+
     for (int berthID = 0; berthID < berthNum; ++berthID)
     {
         int tradeID = -1;
@@ -770,4 +784,70 @@ int DecisionMaker::berthSelect(int boatID)
         }
     }
     return minIdx;
+}
+
+int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTime, int upperGoodsNum, int curBerth, int Level, vector<int>& visitedBerth, int& minTransportTime)
+{
+    int nextBerthID = -1;
+    for (int i = 0; i < berthNum; ++i)
+    {
+        if (i == curBerth)
+            continue;
+        if (visitedBerth[i])
+            continue;   
+        int boatGoodsNum = upperGoodsNum;
+        int timeToGetMoney = upperTime;
+        // --------------------------------------- 条件检验 ------------------------------------------------
+        int tradeID = -1;
+        for (int dir = 0; dir < 4; ++dir)
+            tradeID = tradeID == -1 ? tradeMapSea[dir][berth[i].x][berth[i].y] : tradeID;
+        if (tradeID == -1) // 如果这个泊位找不到相连的交货点，跳过
+            continue;
+
+        int moveTimeToBerth = 0;
+        if (upperBerthID == -1)
+            moveTimeToBerth = berthDis[i][boat[boatID].dire][boat[boatID].curX][boat[boatID].curY];
+        else
+            moveTimeToBerth = berthTradeDis[upperBerthID][i];
+        if (moveTimeToBerth == 0 && i != curBerth)
+        { // 如果船到泊位ID berthDis为0，并且不是船当前所在的泊位，则不可达，跳过；curBerth为-1，遇到dis为0一定跳过
+            continue;
+        }
+        int moveTimeToTrade = berthTradeDis[i][berthNum + tradeID];
+        if (frameId + upperTime + moveTimeToBerth + moveTimeToTrade >= 15000)
+        { // 这时候一定不选择该泊位，因为时间上来不及再去交货点
+            continue;
+        }
+        // --------------------------------------- 条件检验 ------------------------------------------------
+
+        visitedBerth[i] = true;
+        int numRemainGoods = berth[i].numBerthGoods;
+        int numAddGoods = 0;
+        boatGoodsNum += (numRemainGoods + numAddGoods);
+        int loadGoodsTime = ceil((double)numRemainGoods / berth[i].loadingSpeed);
+        if (boatGoodsNum >= boat[boatID].capacity)
+        {
+            timeToGetMoney = upperTime + moveTimeToBerth + moveTimeToTrade + loadGoodsTime;
+            if (timeToGetMoney < minTransportTime)
+            {
+                nextBerthID = i;
+                minTransportTime = timeToGetMoney;
+                visitedBerth[i] = false;
+                continue;
+            }
+        }
+        else if (Level < 1)
+        {
+            int tmpNextBerthID = specialBerthSelect(boatID, i, upperTime + moveTimeToBerth + loadGoodsTime, boatGoodsNum, curBerth, Level + 1, visitedBerth, minTransportTime);
+            if (tmpNextBerthID >= 0)
+                nextBerthID = tmpNextBerthID;
+            if (Level == 0 && tmpNextBerthID >= 0 && tmpNextBerthID != curBerth)
+                nextBerthID = i;
+            else if (Level == 0 && tmpNextBerthID >= 0)
+                nextBerthID = tmpNextBerthID;
+        }
+        visitedBerth[i] = false;
+            
+    }
+    return nextBerthID;
 }
