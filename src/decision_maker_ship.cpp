@@ -195,7 +195,7 @@ void DecisionMaker::shipDecision()
                 threshold = boatCapacity;
             else
                 threshold = boatCapacity;
-            if ((bot.numBoatGoods >= threshold) || (phase == 0 && money + bot.valBoatGoods >= 4000))
+            if ((bot.numBoatGoods >= threshold)/* || (phase == 0 && money + bot.valBoatGoods >= 4000)*/)
             { // 如果装满了，去交货点
                 findPathFlag = getBoatPathDijkstra(i, tradePoint[tarTradeID].x, tradePoint[tarTradeID].y, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)
@@ -780,8 +780,8 @@ int DecisionMaker::berthSelect(int boatID)
             continue;
         }
         numRemainGoods = berth[berthID].numBerthGoods;
-        numAddGoods = moveTimeToBerth / berth[berthID].timeOfGoodsToBerth;
-        //numAddGoods = calAddGoodsNum(berthID, moveTimeToBerth);
+        //numAddGoods = moveTimeToBerth / berth[berthID].timeOfGoodsToBerth;
+        numAddGoods = calAddGoodsNum(berthID, moveTimeToBerth);
         loadGoodsTime1 = (double)numNeedGoods / (double)berth[berthID].loadingSpeed;
         loadGoodsTime2 = ((double)numRemainGoods + (double)numAddGoods) / (double)berth[berthID].loadingSpeed + // 泊位上能以最高效率给boat装载货物的时间
                          (numNeedGoods - (numRemainGoods + numAddGoods)) * berth[berthID].timeOfGoodsToBerth;   // 需要等robot给泊位送货物的时间
@@ -876,12 +876,12 @@ int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTim
                 continue;
             }
         }
-        else if (Level < 1)
+        else if (Level < 2)
         {
             int tmpNextBerthID = specialBerthSelect(boatID, i, upperTime + moveTimeToBerth + loadGoodsTime, boatGoodsNum, curBerth, Level + 1, visitedBerth, minTransportTime);
             if (tmpNextBerthID >= 0)
                 nextBerthID = tmpNextBerthID;
-            if (Level == 0 && tmpNextBerthID >= 0 && i != curBerth)
+            if (Level == 0 && tmpNextBerthID >= 0)
                 nextBerthID = i;
         }
         visitedBerth[i] = false;
