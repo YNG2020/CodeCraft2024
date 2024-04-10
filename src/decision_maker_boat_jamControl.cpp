@@ -179,6 +179,16 @@ void DecisionMaker::boatJamResolve(int boatID1, int boatID2, int jamPos)
             boat[boatID1].tmpTarX = boat[boatID1].pathPoint[boat[boatID1].pathPoint.size() - 1].x;
             boat[boatID1].tmpTarY = boat[boatID1].pathPoint[boat[boatID1].pathPoint.size() - 1].y;
             boatRefreshJamBuffer(boatID1); // 修改了路径，需要更新碰撞检测缓冲区
+            if (boat[boatID2].avoidBoatID == boatID1)
+            {   // 防止相互之间循环锁死
+                boat[boatID2].boatAvoidState = BOAT_NO_AVOIDING;
+                boat[boatID2].boatPathState = BOAT_NO_PATH;
+                boat[boatID2].avoidBoatID = -1;
+                boat[boatID2].idxInPth = 0;
+                vector<int>().swap(boat[boatID2].pathDir);     // 清空
+                vector<BoatPoint>().swap(boat[boatID2].pathPoint); // 清空
+                boatRefreshJamBuffer(boatID2);                      // 修改了路径，需要更新碰撞检测缓冲区
+            }
         }
         else
         {   // 还是找不到路，让低优先级的执行dept指令，同时手动置状态，但不放弃原有目标
