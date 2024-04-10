@@ -83,7 +83,7 @@ void Init()
     //    s_p.push_back(param);
     //}
     //decisionMaker.setParams(s_p[0], s_p[1], s_p[2], s_p[3], s_p[4], 2, 16, s_p[5]);
-    decisionMaker.setParams(0.4, 1.5, 100, 4, 4.0, 2, 16, 5.3);
+    decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 2, 16, 5.3);
 
     string okk;
     if (Debug)

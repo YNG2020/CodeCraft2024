@@ -830,6 +830,8 @@ int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTim
             continue;
         if (visitedBerth[i])
             continue;
+        if (berth[i].boatIDToBerth >= 0 || berth[i].boatIDInBerth >= 0)
+            continue;
         
         int boatGoodsNum = upperGoodsNum;
         int timeToGetMoney = upperTime;
@@ -875,7 +877,7 @@ int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTim
                 bestStack = curStack;
             }
         }
-        else if (Level < 2)
+        else if (Level < std::min(berthNum - 1, 1))
         {
             int tmpNextBerthID = specialBerthSelect(boatID, i, upperTime + moveTimeToBerth + loadGoodsTime, boatGoodsNum, Level + 1, visitedBerth, minTransportTime, curStack, bestStack);
             if (tmpNextBerthID >= 0)
