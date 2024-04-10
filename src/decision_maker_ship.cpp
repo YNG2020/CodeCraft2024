@@ -725,14 +725,37 @@ int DecisionMaker::berthSelect(int boatID)
     int curBerth = -1;                                    // 船的当前泊位,初始为-1
     if (inBerthSea(boat[boatID].curX, boat[boatID].curY)) // 在泊位则赋值
         curBerth = getBerthIdSea(boat[boatID].curX, boat[boatID].curY);
-
     
-  vector<int> visitedBerth(berthNum, false);  int minTransportTime = 0x7fffffff;
+    vector<int> visitedBerth(berthNum, false);
+    int minTransportTime = 0x7fffffff;
     if (boatNum <= 1)
     {
         int nextBerthID = specialBerthSelect(boatID, curBerth, 0, boat[boatID].numBoatGoods, curBerth, 0, visitedBerth, minTransportTime);
         if (nextBerthID >= 0)
+        {
+            if (curBerth >= 0)
+            {   // 与留在自己所在的泊位比较
+                int tradeID = -1;
+                for (int dir = 0; dir < 4; ++dir)
+                    tradeID = tradeID == -1 ? tradeMapSea[dir][berth[nextBerthID].x][berth[nextBerthID].y] : tradeID;
+                int moveTimeToTradeOtherBerth = berthTradeDis[nextBerthID][berthNum + tradeID];
+
+                int moveTimeToTradeCurBerth;
+                tradeID = -1;
+                for (int dir = 0; dir < 4; ++dir)
+                    tradeID = tradeID == -1 ? tradeMapSea[dir][berth[nextBerthID].x][berth[nextBerthID].y] : tradeID;
+                if (tradeID == -1)
+                    moveTimeToTradeCurBerth = 0x7fffffff;
+                else
+                    moveTimeToTradeCurBerth = berthTradeDis[curBerth][berthNum + tradeID];
+                
+                int curBerthAddGoodsNum = calAddGoodsNum(curBerth, minTransportTime - moveTimeToTradeOtherBerth);
+                if (curBerthAddGoodsNum + boat[boatID].numBoatGoods >= boat[boatID].capacity)   // 去别的泊位运货的同时，其实已经能把货装完，此时不必转移泊位
+                    if (minTransportTime > minTransportTime - moveTimeToTradeOtherBerth + moveTimeToTradeCurBerth)
+                        return curBerth;            
+            }
             return nextBerthID;
+        }
     }
 
     for (int berthID = 0; berthID < berthNum; ++berthID)
@@ -755,6 +778,7 @@ int DecisionMaker::berthSelect(int boatID)
         }
         numRemainGoods = berth[berthID].numBerthGoods;
         numAddGoods = moveTimeToBerth / berth[berthID].timeOfGoodsToBerth;
+        //numAddGoods = calAddGoodsNum(berthID, moveTimeToBerth);
         loadGoodsTime1 = (double)numNeedGoods / (double)berth[berthID].loadingSpeed;
         loadGoodsTime2 = ((double)numRemainGoods + (double)numAddGoods) / (double)berth[berthID].loadingSpeed + // 泊位上能以最高效率给boat装载货物的时间
                          (numNeedGoods - (numRemainGoods + numAddGoods)) * berth[berthID].timeOfGoodsToBerth;   // 需要等robot给泊位送货物的时间
@@ -769,6 +793,13 @@ int DecisionMaker::berthSelect(int boatID)
             loadGoodsTime = loadGoodsTime2;
         }
         timeToGetMoney += loadGoodsTime;
+
+        //if (boatNum <= 1)
+        //{
+        //    if (loadGoodsTime == loadGoodsTime2)
+        //        loadGoodsTime = ceil(((double)numRemainGoods + (double)numAddGoods) / (double)berth[berthID].loadingSpeed);
+        //    timeToGetMoney = moveTimeToBerth + loadGoodsTime;
+        //}
 
         // 计算可获得的价值
         Money = berth[berthID].getBerthGoodsValueOfNum(numNeedGoods, 0, 0) + 1; // +1是为了Money为0时，仍能在时间上进行比较（适用于通过泊位间的转移来再去海上的情况）
@@ -787,6 +818,8 @@ int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTim
     int nextBerthID = -1;
     for (int i = 0; i < berthNum; ++i)
     {
+        if (i == upperBerthID)
+            continue;
         if (visitedBerth[i])
             continue;   
         int boatGoodsNum = upperGoodsNum;

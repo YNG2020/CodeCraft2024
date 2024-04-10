@@ -649,11 +649,11 @@ void DecisionMaker::purchaseDecision()
         for (int i = 0; i < berthNum; ++i)
             for (auto iter = berth[i].berthGoodsValueList.begin(); iter != berth[i].berthGoodsValueList.end(); ++iter)
                 tmpSum += *iter;
-        if (tmpSum < 5500)
-        {
-            boatNumLimit -= 1;
-            return;
-        }
+        //if (tmpSum < 6000)
+        //{
+        //    boatNumLimit -= 1;
+        //    return;
+        //}
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
 }
