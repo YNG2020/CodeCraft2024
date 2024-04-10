@@ -731,11 +731,16 @@ int DecisionMaker::berthSelect(int boatID)
     
     vector<int> visitedBerth(berthNum, false);
     int minTransportTime = 0x7fffffff;
-    if (boatNum <= 1)
+    if (boatNum <= 2)
     {
-        int nextBerthID = specialBerthSelect(boatID, curBerth, 0, boat[boatID].numBoatGoods, curBerth, 0, visitedBerth, minTransportTime);
+        stack<int> curStack;
+        stack<int> bestStack;
+        int nextBerthID = specialBerthSelect(boatID, curBerth, 0, boat[boatID].numBoatGoods, 0, visitedBerth, minTransportTime, curStack, bestStack);
         if (nextBerthID >= 0)
         {
+            while (bestStack.size() > 1)
+                bestStack.pop();
+            nextBerthID = bestStack.top();
             if (curBerth >= 0)
             {   // 与留在自己所在的泊位比较
                 int tradeID = -1;
@@ -816,7 +821,7 @@ int DecisionMaker::berthSelect(int boatID)
     return minIdx;
 }
 
-int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTime, int upperGoodsNum, int curBerth, int Level, vector<int>& visitedBerth, int& minTransportTime)
+int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTime, int upperGoodsNum, int Level, vector<int>& visitedBerth, int& minTransportTime, stack<int>& curStack, stack<int>& bestStack)
 {
     int nextBerthID = -1;
     for (int i = 0; i < berthNum; ++i)
@@ -824,7 +829,8 @@ int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTim
         if (i == upperBerthID)
             continue;
         if (visitedBerth[i])
-            continue;   
+            continue;
+        
         int boatGoodsNum = upperGoodsNum;
         int timeToGetMoney = upperTime;
         // --------------------------------------- 条件检验 ------------------------------------------------
@@ -839,8 +845,8 @@ int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTim
             moveTimeToBerth = berthDis[i][boat[boatID].dire][boat[boatID].curX][boat[boatID].curY];
         else
             moveTimeToBerth = berthTradeDis[upperBerthID][i];
-        if (moveTimeToBerth == 0 && i != curBerth)
-        { // 如果船到泊位ID berthDis为0，并且不是船当前所在的泊位，则不可达，跳过；curBerth为-1，遇到dis为0一定跳过
+        if (moveTimeToBerth == 0)
+        { // 如果船到泊位ID berthDis为0，则不可达
             continue;
         }
         int moveTimeToTrade = berthTradeDis[i][berthNum + tradeID];
@@ -853,17 +859,11 @@ int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTim
         // --------------------------------------- 条件检验 ------------------------------------------------
 
         visitedBerth[i] = true;
+        curStack.push(i);
         int numRemainGoods = berth[i].numBerthGoods;
         int numAddGoods = calAddGoodsNum(i, upperTime + moveTimeToBerth);
         boatGoodsNum += (numRemainGoods + numAddGoods);
         int loadGoodsTime = ceil((double)numRemainGoods / berth[i].loadingSpeed);
-
-        if (upperBerthID >= 0)
-        {
-            int curBerthNumAddGoods = calAddGoodsNum(curBerth, upperTime + moveTimeToBerth);
-            if (curBerthNumAddGoods + upperGoodsNum >= boat[boatID].capacity)
-                return curBerth;
-        }
 
         if (boatGoodsNum >= boat[boatID].capacity)
         {
@@ -872,20 +872,19 @@ int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTim
             {
                 nextBerthID = i;
                 minTransportTime = timeToGetMoney;
-                visitedBerth[i] = false;
-                continue;
+                bestStack = curStack;
             }
         }
         else if (Level < 2)
         {
-            int tmpNextBerthID = specialBerthSelect(boatID, i, upperTime + moveTimeToBerth + loadGoodsTime, boatGoodsNum, curBerth, Level + 1, visitedBerth, minTransportTime);
+            int tmpNextBerthID = specialBerthSelect(boatID, i, upperTime + moveTimeToBerth + loadGoodsTime, boatGoodsNum, Level + 1, visitedBerth, minTransportTime, curStack, bestStack);
             if (tmpNextBerthID >= 0)
                 nextBerthID = tmpNextBerthID;
             if (Level == 0 && tmpNextBerthID >= 0)
                 nextBerthID = i;
         }
         visitedBerth[i] = false;
-            
+        curStack.pop();
     }
     return nextBerthID;
 }

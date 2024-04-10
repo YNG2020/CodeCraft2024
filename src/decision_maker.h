@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <queue>
+#include <stack>
 using namespace std;
 
 class DecisionMaker
@@ -109,7 +110,7 @@ private:
 
     void phaseDecision();
     void purchaseDecision();
-    int specialBerthSelect(int boatID, int upperBerthID, int upperTime, int upperGoodsNum, int curBerth, int Level, vector<int>& visitedBerth, int& minTransportTime);
+    int specialBerthSelect(int boatID, int upperBerthID, int upperTime, int upperGoodsNum, int Level, vector<int>& visitedBerth, int& minTransportTime, stack<int>& curStack, stack<int>& bestStack);
     int calAddGoodsNum(int berthID, int moveTime);
 
 public:
