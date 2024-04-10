@@ -41,14 +41,14 @@ private:
     double limToTryChangeGoods, limToChangeGoods; // 尝试选新目标，接受新目标的参数
     int extraSearchTime;                          // getNearestGoods中的额外搜索轮次
     int blockBerthTime;                           // 提前屏蔽berth的时间
-    int phase;                   // 根据租赁情况判断当前阶段
-    int boatNumLimit;            // 船只数量限制
-    int robotNumLimit;           // 机器人数量限制
-    double gainForSameBerth;     // 本区增益
-    double globalMeanGoodsRatio; // 全场泊位接收的货物的平均性价比
-    double berthCallingFactor;      // 泊位向邻区发出召唤的参数
-    int efficientBerthID;        // 最高效的泊位ID
-    vector<int> sortBerthsByTransportTime;  // 依据泊位到交货点的距离对泊位ID进行升序排序
+    int phase;                                    // 根据租赁情况判断当前阶段
+    int boatNumLimit;                             // 船只数量限制
+    int robotNumLimit;                            // 机器人数量限制
+    double gainForSameBerth;                      // 本区增益
+    double globalMeanGoodsRatio;                  // 全场泊位接收的货物的平均性价比
+    double berthCallingFactor;                    // 泊位向邻区发出召唤的参数
+    int efficientBerthID;                         // 最高效的泊位ID
+    vector<int> sortBerthsByTransportTime;        // 依据泊位到交货点的距离对泊位ID进行升序排序
     double lastTimeFactor;
 
     Node *nodes;
@@ -110,7 +110,7 @@ private:
 
     void phaseDecision();
     void purchaseDecision();
-    int specialBerthSelect(int boatID, int upperBerthID, int upperTime, int upperGoodsNum, int Level, vector<int>& visitedBerth, int& minTransportTime, stack<int>& curStack, stack<int>& bestStack);
+    int specialBerthSelect(int boatID, int upperBerthID, int upperTime, int upperGoodsNum, int Level, vector<int> &visitedBerth, int &minTransportTime, stack<int> &curStack, stack<int> &bestStack);
     int calAddGoodsNum(int berthID, int moveTime);
 
 public:
@@ -123,7 +123,7 @@ public:
     void getNearBerthInfo(); // 得到地图上的点最近泊位
     void getNearTradeInfo(); // 得到地图上的点最近交货点
     void generateBerthTradeDis();
-
+    void tradeAvailable();
     int BoatAvailable(int x, int y, int dir);
 
     void makeDecision();

@@ -138,9 +138,9 @@ void DecisionMaker::getConnectedBerth(int berthID)
     }
 }
 
-void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods, 
-    int extraSearchTime, double lastTimeFactor, double gainForSameBerth,
-    int boatNumLimit, int robotNumLimit, double berthCallingFactor)
+void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods,
+                              int extraSearchTime, double lastTimeFactor, double gainForSameBerth,
+                              int boatNumLimit, int robotNumLimit, double berthCallingFactor)
 {
     this->limToTryChangeGoods = limToTryChangeGoods;
     this->limToChangeGoods = limToChangeGoods;
@@ -274,11 +274,13 @@ void DecisionMaker::analyzeMap()
         }
     }
     tradeNum = tradePoint.size();
+
     getMapInfoBoat();        // 得到船运动的地图信息
     getMapDisBerth();        // 得到泊位的海上距离map
     getMapDisTrade();        // 得到交货点的海上距离map
     getNearBerthInfo();      // 得到地图上的点最近泊位
     getNearTradeInfo();      // 得到地图上的点最近交货点
+    tradeAvailable();        // 判定船购买点是否为封闭区域，如果不可达则删除此购买点
     generateBerthTradeDis(); // 生成泊位交货点距离邻接矩阵
     // test_print();
     for (int i = 0; i < berthNum; i++)
@@ -299,14 +301,30 @@ void DecisionMaker::analyzeMap()
 
     // 依据泊位到交货点的距离对泊位ID进行升序排序
     sortBerthsByTransportTime.resize(berthNum);
-    for (int i = 0; i < berthNum; ++i) {
+    for (int i = 0; i < berthNum; ++i)
+    {
         sortBerthsByTransportTime[i] = i; // 初始化序号为0, 1, 2, ..., berthNum-1
     }
-    std::sort(sortBerthsByTransportTime.begin(), sortBerthsByTransportTime.end(), [&](int a, int b) {
-        return berth[a].transportTime < berth[b].transportTime;
-    });
+    std::sort(sortBerthsByTransportTime.begin(), sortBerthsByTransportTime.end(), [&](int a, int b)
+              { return berth[a].transportTime < berth[b].transportTime; });
 }
-
+void DecisionMaker::tradeAvailable()
+{
+    for (int i = 0; i < boatShop.size(); ++i)
+    {
+        int dir;
+        for (dir = 0; dir < 4; ++dir)
+        {
+            if (berthMapSea[dir][boatShop[i].x][boatShop[i].y] >= 0)
+                break;
+        }
+        if (dir == 4)
+        {
+            boatShop.erase(boatShop.begin() + i);
+            --i;
+        }
+    }
+}
 // 得到船运动的地图信息
 void DecisionMaker::getMapInfoBoat()
 {
@@ -624,7 +642,6 @@ void DecisionMaker::phaseDecision()
             --counter;
         }
     }
-
 }
 
 void DecisionMaker::purchaseDecision()
@@ -644,7 +661,7 @@ void DecisionMaker::purchaseDecision()
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
     if (robotNum >= robotNumLimit && boatNum < boatNumLimit)
-    {   
+    {
         int tmpSum = 0;
         for (int i = 0; i < berthNum; ++i)
             for (auto iter = berth[i].berthGoodsValueList.begin(); iter != berth[i].berthGoodsValueList.end(); ++iter)
