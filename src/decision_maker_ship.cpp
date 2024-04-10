@@ -32,6 +32,7 @@ void DecisionMaker::shipDecision()
             bot.boatPathState = BOAT_NO_PATH;
             bot.boatTarState = BOAT_NO_TARGET;
             bot.numBoatGoods = 0; // 该值是系统更新的，但这里也手动更新一下
+            bot.valBoatGoods = 0;
             bot.idxInPth = 0;
             vector<int>().swap(bot.pathDir);         // 清空
             vector<BoatPoint>().swap(bot.pathPoint); // 清空
@@ -194,7 +195,7 @@ void DecisionMaker::shipDecision()
                 threshold = boatCapacity;
             else
                 threshold = boatCapacity;
-            if (bot.numBoatGoods >= threshold)
+            if ((bot.numBoatGoods >= threshold) || (phase == 0 && money + bot.valBoatGoods >= 4000))
             { // 如果装满了，去交货点
                 findPathFlag = getBoatPathDijkstra(i, tradePoint[tarTradeID].x, tradePoint[tarTradeID].y, bot.pathPoint, bot.pathDir);
                 if (findPathFlag)
@@ -227,8 +228,10 @@ void DecisionMaker::shipDecision()
             }
             else
             { // 没有满则继续装
-                int loadNum = berth[bot.tarBerthID].load(bot.capacity - bot.numBoatGoods);
+                int loadValue;
+                int loadNum = berth[bot.tarBerthID].load(bot.capacity - bot.numBoatGoods, loadValue);
                 bot.numBoatGoods += loadNum;
+                bot.valBoatGoods += loadValue;
                 int newBerth = bot.tarBerthID;
                 if (loadNum == 0) // 尝试比较跑去别的泊位去装货的性价比
                     newBerth = berthSelect(i);

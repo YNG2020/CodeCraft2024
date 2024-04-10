@@ -9,6 +9,7 @@ class Boat
 public:
     int id;
     int numBoatGoods; // 船目前装载的货物量
+    int valBoatGoods; // 船目前装载的货物价值
     int tarBerthID;   // 船的目标泊位
     int boatStatus;   // 正常行驶状态（状态 0）,恢复状态（状态1）,装载状态（状态 2）
     int capacity;     // 船的最大装载量
