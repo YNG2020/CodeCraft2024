@@ -16,7 +16,7 @@ using namespace std;
 
 std::ifstream myCin;
 bool Debug = false;
-bool Record = true;
+bool Record = false;
 void printData();
 DecisionMaker decisionMaker;
 
@@ -68,21 +68,21 @@ void Init()
 
     // if (oriMap[100][101] == 'T')
     // {
-        // decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 1, 15, 5.5);
+    // decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 1, 15, 5.5);
     // }
     // else
     // {
-        // decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 2, 16, 5.5);
+    // decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 2, 16, 5.5);
     // }
 
-    //ifstream paramFile("param.txt");
-    //double param;
-    //for (int i = 0; i < 6; ++i)
+    // ifstream paramFile("param.txt");
+    // double param;
+    // for (int i = 0; i < 6; ++i)
     //{
-    //    paramFile >> param;
-    //    s_p.push_back(param);
-    //}
-    //decisionMaker.setParams(s_p[0], s_p[1], s_p[2], s_p[3], s_p[4], 2, 16, s_p[5]);
+    //     paramFile >> param;
+    //     s_p.push_back(param);
+    // }
+    // decisionMaker.setParams(s_p[0], s_p[1], s_p[2], s_p[3], s_p[4], 2, 16, s_p[5]);
     decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 2, 16, 5.3);
 
     string okk;
@@ -102,7 +102,6 @@ void Init()
         goods_totVal_inBerth[i].resize(15000);
         robot_num_inBerth[i].resize(15000);
     }
-        
 }
 
 int Input()
@@ -158,7 +157,7 @@ int Input()
         goods_totVal_inBerth[i][frameId - 1] = tmpSum;
         robot_num_inBerth[i][frameId - 1] = berth[i].numServingRobot;
     }
-        
+
     /* 分析用 */
     if (Debug)
         myCin >> robotNum;
@@ -265,7 +264,7 @@ int main()
 void printData()
 {
     if (Record)
-    {   
+    {
         int sum = 0;
         for (int i = 0; i < robotNum; i++)
         {
@@ -297,8 +296,10 @@ void printData()
         }
         outputFile2.close();
         ofstream outputFile3("goods_num_inBerth.csv");
-        for (const auto& row : goods_num_inBerth) {
-            for (auto iter = row.begin(); iter != row.end(); ++iter) {
+        for (const auto &row : goods_num_inBerth)
+        {
+            for (auto iter = row.begin(); iter != row.end(); ++iter)
+            {
                 outputFile3 << *iter;
                 if (iter != row.end() - 1) // not the last element
                     outputFile3 << ",";
@@ -307,8 +308,10 @@ void printData()
         }
         outputFile3.close();
         ofstream outputFile4("goods_totVal_inBerth.csv");
-        for (const auto& row : goods_totVal_inBerth) {
-            for (auto iter = row.begin(); iter != row.end(); ++iter) {
+        for (const auto &row : goods_totVal_inBerth)
+        {
+            for (auto iter = row.begin(); iter != row.end(); ++iter)
+            {
                 outputFile4 << *iter;
                 if (iter != row.end() - 1) // not the last element
                     outputFile4 << ",";
@@ -317,8 +320,10 @@ void printData()
         }
         outputFile4.close();
         ofstream outputFile5("robot_num_inBerth.csv");
-        for (const auto& row : robot_num_inBerth) {
-            for (auto iter = row.begin(); iter != row.end(); ++iter) {
+        for (const auto &row : robot_num_inBerth)
+        {
+            for (auto iter = row.begin(); iter != row.end(); ++iter)
+            {
                 outputFile5 << *iter;
                 if (iter != row.end() - 1) // not the last element
                     outputFile5 << ",";

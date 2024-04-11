@@ -123,7 +123,8 @@ public:
     void getNearBerthInfo(); // 得到地图上的点最近泊位
     void getNearTradeInfo(); // 得到地图上的点最近交货点
     void generateBerthTradeDis();
-    void tradeAvailable();
+    void tradeAvailable(); // 交易点是否能到泊位，不能则删除该交易点
+    void berthAvailable(); // 泊位是否能到交易点，不能则封禁该泊位
     int BoatAvailable(int x, int y, int dir);
 
     void makeDecision();

@@ -281,6 +281,7 @@ void DecisionMaker::analyzeMap()
     getNearBerthInfo();      // 得到地图上的点最近泊位
     getNearTradeInfo();      // 得到地图上的点最近交货点
     tradeAvailable();        // 判定船购买点是否为封闭区域，如果不可达则删除此购买点
+    berthAvailable();        // 泊位是否能到交易点，不能则封禁该泊位
     generateBerthTradeDis(); // 生成泊位交货点距离邻接矩阵
     // test_print();
     for (int i = 0; i < berthNum; i++)
@@ -322,6 +323,19 @@ void DecisionMaker::tradeAvailable()
         {
             boatShop.erase(boatShop.begin() + i);
             --i;
+        }
+    }
+}
+void DecisionMaker::berthAvailable()
+{
+    for (int i = 0; i < berthNum; ++i)
+    {
+        int tradeID = -1;
+        for (int dir = 0; dir < 4; ++dir)
+            tradeID = tradeID == -1 ? tradeMapSea[dir][berth[i].x][berth[i].y] : tradeID;
+        if (tradeID == -1) // 如果这个泊位找不到相连的交货点，跳过
+        {
+            berth[i].isBlocked = true;
         }
     }
 }
