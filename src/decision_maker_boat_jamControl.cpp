@@ -418,8 +418,8 @@ void DecisionMaker::boatUnJam()
         { // 正处于避让状态
             if (boat[i].idxInPth == boat[i].pathDir.size())
             {
-                bool findPathFlag = getBoatPathBFS(i, boat[i].tarX, boat[i].tarY, boat[i].pathPoint, boat[i].pathDir);
-                //bool findPathFlag = getBoatPathDijkstra(i, boat[i].tarX, boat[i].tarY, boat[i].pathPoint, boat[i].pathDir);
+                //bool findPathFlag = getBoatPathBFS(i, boat[i].tarX, boat[i].tarY, boat[i].pathPoint, boat[i].pathDir);
+                bool findPathFlag = getBoatPathDijkstra(i, boat[i].tarX, boat[i].tarY, boat[i].pathPoint, boat[i].pathDir);
                 if (!findPathFlag)
                 {   // 找不到路的话，使用dept指令
                     if (boat[i].boatStatus == 0)     // 保险处理
