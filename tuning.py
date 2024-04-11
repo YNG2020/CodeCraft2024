@@ -2,12 +2,14 @@ import subprocess
 from tqdm import tqdm
 import concurrent.futures
 import json
+import time
 
 def runFunction(params, exe_path, map_path, main_exe_path, param_id):
     param_file_name = f"params/{param_id}.txt"
     modifyParams(param_file_name, params)
     command = [exe_path, "-m", map_path, main_exe_path, "-l", "NONE"]
     result = subprocess.run(command, capture_output=True, text=True)
+    time.sleep(0.3)
     return result.stdout, params
 
 def modifyParams(file_name, params):
