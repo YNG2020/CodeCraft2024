@@ -1,19 +1,30 @@
 import subprocess
 from tqdm import tqdm
-import concurrent.futures
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor
 
-def runFunction(params, exe_path, map_path, main_exe_path, param_id):
-    param_file_name = f"params/{param_id}.txt"
-    modifyParams(param_file_name, params)
+def runFunction(params, exe_path, map_paths, main_exe_path):
+    modifyParams(params)
+    total_score = 0
+    with ThreadPoolExecutor(max_workers=len(map_paths)) as executor:
+        futures = []
+        for map_path in map_paths:
+            futures.append(executor.submit(runProcess, exe_path, map_path, main_exe_path))
+        for future in futures:
+            result = future.result()
+            output = json.loads(result.stdout)
+            total_score += output['score']
+    return total_score, params
+
+def runProcess(exe_path, map_path, main_exe_path):
     command = [exe_path, "-m", map_path, main_exe_path, "-l", "NONE"]
     result = subprocess.run(command, capture_output=True, text=True)
     time.sleep(0.3)
-    return result.stdout, params
+    return result
 
-def modifyParams(file_name, params):
-    with open(file_name, 'w') as file:
+def modifyParams(params):
+    with open('param.txt', 'w') as file:
         for param in params:
             file.write(str(param) + '\n')
 
@@ -33,7 +44,7 @@ def generateParams(param_ranges):
 
 def main():
     exe_path = ".\\SemiFinalJudge.exe"
-    map_path = "./maps/map1.txt"
+    map_paths = ["./maps/map1.txt", "./maps/map2.txt", "./maps/map3.txt"]
     main_exe_path = "./build/Release/main.exe"
 
     param_ranges = [
@@ -47,18 +58,10 @@ def main():
     param_combinations = generateParams(param_ranges)
 
     results = []
-    param_id = 0
 
-    # 设置为0
-    with open('id.txt', 'w') as id_file:
-        id_file.write(str(param_id))
-
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        futures = [executor.submit(runFunction, params, exe_path, map_path, main_exe_path, param_id + i) for i, params in enumerate(param_combinations)]
-        for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc="Processing", unit="comb"):
-            output, params = future.result()
-            result = json.loads(output)
-            results.append((params, result['score']))
+    for params in tqdm(param_combinations, desc="Processing", unit="comb"):
+        score, params = runFunction(params, exe_path, map_paths, main_exe_path)
+        results.append((params, score))
 
     results.sort(key=lambda x: x[1], reverse=True)
 
