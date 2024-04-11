@@ -124,6 +124,7 @@ public:
     void getNearBerthInfo(); // 得到地图上的点最近泊位
     void getNearTradeInfo(); // 得到地图上的点最近交货点
     void generateBerthTradeDis();
+    void getNearRobotShop(int robotShopID);    // 为泊位找到其最近的机器人租赁点
 
     int BoatAvailable(int x, int y, int dir);
 

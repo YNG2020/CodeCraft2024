@@ -25,6 +25,8 @@ public:
     int transportTarget;           // 该泊位对应的交易点ID
     int nearestBerthTime;      // 到最近的泊位（自身不算）的时间
     int nearestBerthID;        // 最近的泊位（自身不算）的ID
+    int nearestRobotShop;      // 最近的机器人租赁点的ID
+    int nearestRobotShopDis = 0x7fffffff;   // 最近的机器人租赁点的距离
 
     double timeOfGoodsToBerth;         // 期望的robot把货物运送到berth的时间（帧/个），需要动态维护
     double meanGetGoodsRatio;          // 接收到的货物的平均性价比
@@ -74,7 +76,8 @@ public:
     }
 
     Berth() : transportTime(0), numBerthGoods(0), boatIDInBerth(-1), boatIDToBerth(-1), timeOfGoodsToBerth(100.0), lastTimeGetGoods(0),
-        totGetGoodsGap(0), numGetGoods(0), isBlocked(false), meanGetGoodsRatio(0.0), totGetGoodsRatio(0.0), numServingRobot(0), nearestBerth(0), totGoodsInBerthZone(0)
+        totGetGoodsGap(0), numGetGoods(0), isBlocked(false), meanGetGoodsRatio(0.0), totGetGoodsRatio(0.0), numServingRobot(0), nearestBerth(-1), 
+        totGoodsInBerthZone(0), nearestRobotShop(-1)
     {
         goodsInBerthInfo.clear();
     }
