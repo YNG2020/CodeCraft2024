@@ -1,11 +1,13 @@
 import subprocess
 from tqdm import tqdm
+import concurrent.futures
+import json
 
 def runFunction(params, exe_path, map_path, main_exe_path):
     modifyParams('param.txt', params)
     command = [exe_path, "-m", map_path, main_exe_path, "-l", "NONE"]
     result = subprocess.run(command, capture_output=True, text=True)
-    return result.stdout
+    return result.stdout, params
 
 def modifyParams(file_name, params):
     with open(file_name, 'w') as file:
@@ -27,7 +29,6 @@ def generateParams(param_ranges):
     return full_combinations
 
 def main():
-    output_file = 'output.txt'
     exe_path = ".\\SemiFinalJudge.exe"
     map_path = "./maps/map1.txt"
     main_exe_path = "./build/Release/main.exe"
@@ -35,19 +36,27 @@ def main():
     param_ranges = [
         (0.4, 0.6, 0.1),
         (1.5, 1.7, 0.1),
-        (100, 120, 10),
-        (500, 520, 10),
-        (0, 1, 1),
-        (4.0, 4.2, 0.1)
+        (80, 120, 10),
+        (4.5, 4.5, 1),
+        (4.0, 4.0, 1)
     ]
 
     param_combinations = generateParams(param_ranges)
 
-    with open(output_file, 'w') as output, tqdm(total=len(param_combinations), desc="Processing", unit="comb") as pbar:
-        for params in param_combinations:
-            result = runFunction(params, exe_path, map_path, main_exe_path)
-            output.write(str(params) + ': ' + result + '\n')
-            pbar.update(1)
+    results = []
+
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        futures = [executor.submit(runFunction, params, exe_path, map_path, main_exe_path) for params in param_combinations]
+        for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc="Processing", unit="comb"):
+            output, params = future.result()
+            result = json.loads(output)
+            results.append((params, result['score']))
+
+    results.sort(key=lambda x: x[1], reverse=True)
+
+    with open('output.txt', 'w') as output_file:
+        for params, score in results:
+            output_file.write(str(params) + ': ' + str(score) + '\n')
 
 if __name__ == '__main__':
     main()
