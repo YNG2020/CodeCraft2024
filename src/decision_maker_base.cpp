@@ -80,8 +80,10 @@ void DecisionMaker::getNearBerthDis(int x, int y)
             vis[nx][ny] = true;
             if (inBerth(nx, ny))
             {
-                nearBerthDis[x][y] = now->dis + 1;
                 int berthID = getBerthId(nx, ny);
+                if (berth[berthID].isBlocked)
+                    continue;
+                nearBerthDis[x][y] = now->dis + 1;
                 nearBerthID[x][y] = berthID;
                 ++berth[berthID].totGoodsInBerthZone;
                 goodsIDInBerthZone[x][y] = berth[berthID].totGoodsInBerthZone;
