@@ -735,12 +735,12 @@ int DecisionMaker::berthSelect(int boatID)
     {
         stack<int> curStack;
         stack<int> bestStack;
-        int nextBerthID = specialBerthSelect(boatID, curBerth, 0, boat[boatID].numBoatGoods, 0, visitedBerth, minTransportTime, curStack, bestStack);
-        if (nextBerthID >= 0)
+        specialBerthSelect(boatID, curBerth, 0, boat[boatID].numBoatGoods, 0, visitedBerth, minTransportTime, curStack, bestStack);
+        if (bestStack.size() > 0)
         {
             while (bestStack.size() > 1)
                 bestStack.pop();
-            nextBerthID = bestStack.top();
+            int nextBerthID = bestStack.top();
             if (curBerth >= 0)
             {   // 与留在自己所在的泊位比较
                 int tradeID = -1;
@@ -821,9 +821,8 @@ int DecisionMaker::berthSelect(int boatID)
     return minIdx;
 }
 
-int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTime, int upperGoodsNum, int Level, vector<int>& visitedBerth, int& minTransportTime, stack<int>& curStack, stack<int>& bestStack)
+void DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTime, int upperGoodsNum, int Level, vector<int>& visitedBerth, int& minTransportTime, stack<int>& curStack, stack<int>& bestStack)
 {
-    int nextBerthID = -1;
     for (int i = 0; i < berthNum; ++i)
     {
         if (i == upperBerthID)
@@ -872,23 +871,17 @@ int DecisionMaker::specialBerthSelect(int boatID, int upperBerthID, int upperTim
             timeToGetMoney = upperTime + moveTimeToBerth + moveTimeToTrade + loadGoodsTime;
             if (timeToGetMoney < minTransportTime)
             {
-                nextBerthID = i;
                 minTransportTime = timeToGetMoney;
                 bestStack = curStack;
             }
         }
-        else if (Level < std::min(berthNum - 1, 1))
+        else if (Level < std::min(berthNum - 1, recursionDepthInBerthSelect))
         {
-            int tmpNextBerthID = specialBerthSelect(boatID, i, upperTime + moveTimeToBerth + loadGoodsTime, boatGoodsNum, Level + 1, visitedBerth, minTransportTime, curStack, bestStack);
-            if (tmpNextBerthID >= 0)
-                nextBerthID = tmpNextBerthID;
-            if (Level == 0 && tmpNextBerthID >= 0)
-                nextBerthID = i;
+            specialBerthSelect(boatID, i, upperTime + moveTimeToBerth + loadGoodsTime, boatGoodsNum, Level + 1, visitedBerth, minTransportTime, curStack, bestStack);
         }
         visitedBerth[i] = false;
         curStack.pop();
     }
-    return nextBerthID;
 }
 
 int DecisionMaker::calAddGoodsNum(int berthID, int moveTime)

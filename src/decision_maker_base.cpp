@@ -138,9 +138,9 @@ void DecisionMaker::getConnectedBerth(int berthID)
     }
 }
 
-void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods,
-                              int extraSearchTime, double lastTimeFactor, double gainForSameBerth,
-                              int boatNumLimit, int robotNumLimit, double berthCallingFactor)
+void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods, 
+    int extraSearchTime, double lastTimeFactor, double gainForSameBerth,
+    int boatNumLimit, int robotNumLimit, double berthCallingFactor, int recursionDepthInBerthSelect)
 {
     this->limToTryChangeGoods = limToTryChangeGoods;
     this->limToChangeGoods = limToChangeGoods;
@@ -150,6 +150,7 @@ void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGood
     this->boatNumLimit = boatNumLimit;
     this->robotNumLimit = robotNumLimit;
     this->berthCallingFactor = berthCallingFactor;
+    this->recursionDepthInBerthSelect = recursionDepthInBerthSelect;
 }
 
 void DecisionMaker::paintBerth(int berthID)
