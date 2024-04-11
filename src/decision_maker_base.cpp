@@ -310,6 +310,10 @@ void DecisionMaker::analyzeMap()
     }
     std::sort(sortBerthsByTransportTime.begin(), sortBerthsByTransportTime.end(), [&](int a, int b)
               { return berth[a].transportTime < berth[b].transportTime; });
+    for (int i = 0; i < robotShop.size(); ++i)
+    {
+        getNearRobotShop(i);
+    }
 }
 void DecisionMaker::tradeAvailable()
 {
@@ -328,6 +332,7 @@ void DecisionMaker::tradeAvailable()
         }
     }
 }
+
 void DecisionMaker::berthAvailable()
 {
     for (int i = 0; i < berthNum; ++i)
@@ -338,11 +343,6 @@ void DecisionMaker::berthAvailable()
         if (tradeID == -1) // 如果这个泊位找不到相连的交货点，跳过
         {
             berth[i].isBlocked = true;
-        }
-
-        for (int i = 0; i < robotShop.size(); ++i)
-        {
-            getNearRobotShop(i);
         }
     }
 }
