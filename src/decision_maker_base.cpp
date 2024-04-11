@@ -3,6 +3,7 @@
 #include "global_struct.h"
 #include <cstring>
 #include <map>
+#include <cmath>
 #include <fstream>
 
 DecisionMaker::DecisionMaker() : priority(robotNum, 0)
@@ -79,8 +80,10 @@ void DecisionMaker::getNearBerthDis(int x, int y)
             vis[nx][ny] = true;
             if (inBerth(nx, ny))
             {
-                nearBerthDis[x][y] = now->dis + 1;
                 int berthID = getBerthId(nx, ny);
+                if (berth[berthID].isBlocked && phase <= 1)
+                    continue;
+                nearBerthDis[x][y] = now->dis + 1;
                 nearBerthID[x][y] = berthID;
                 ++berth[berthID].totGoodsInBerthZone;
                 goodsIDInBerthZone[x][y] = berth[berthID].totGoodsInBerthZone;
@@ -275,11 +278,14 @@ void DecisionMaker::analyzeMap()
         }
     }
     tradeNum = tradePoint.size();
+
     getMapInfoBoat();        // 得到船运动的地图信息
     getMapDisBerth();        // 得到泊位的海上距离map
     getMapDisTrade();        // 得到交货点的海上距离map
     getNearBerthInfo();      // 得到地图上的点最近泊位
     getNearTradeInfo();      // 得到地图上的点最近交货点
+    tradeAvailable();        // 判定船购买点是否为封闭区域，如果不可达则删除此购买点
+    berthAvailable();        // 泊位是否能到交易点，不能则封禁该泊位
     generateBerthTradeDis(); // 生成泊位交货点距离邻接矩阵
     // test_print();
     for (int i = 0; i < berthNum; i++)
@@ -300,12 +306,61 @@ void DecisionMaker::analyzeMap()
 
     // 依据泊位到交货点的距离对泊位ID进行升序排序
     sortBerthsByTransportTime.resize(berthNum);
-    for (int i = 0; i < berthNum; ++i) {
+    for (int i = 0; i < berthNum; ++i)
+    {
         sortBerthsByTransportTime[i] = i; // 初始化序号为0, 1, 2, ..., berthNum-1
     }
-    std::sort(sortBerthsByTransportTime.begin(), sortBerthsByTransportTime.end(), [&](int a, int b) {
-        return berth[a].transportTime < berth[b].transportTime;
-    });
+    std::sort(sortBerthsByTransportTime.begin(), sortBerthsByTransportTime.end(), [&](int a, int b)
+              { return berth[a].transportTime < berth[b].transportTime; });
+    
+    vector<bool> findBerthFlag(robotShop.size(), false);
+    for (int i = 0; i < robotShop.size(); ++i)
+    {
+        findBerthFlag[i] = getNearRobotShop(i);
+    }
+
+    // 检验机器人租赁点有无可达的泊位，没有就erase掉
+    for (int i = 0; i < robotShop.size(); ++i)
+    {
+        if (!findBerthFlag[i])
+        {
+            robotShop.erase(robotShop.begin() + i);
+            findBerthFlag.erase(findBerthFlag.begin() + i);
+            --i;
+        }
+    }
+}
+
+void DecisionMaker::tradeAvailable()
+{
+    for (int i = 0; i < boatShop.size(); ++i)
+    {
+        int dir;
+        for (dir = 0; dir < 4; ++dir)
+        {
+            if (berthMapSea[dir][boatShop[i].x][boatShop[i].y] >= 0)
+                break;
+        }
+        if (dir == 4)
+        {
+            boatShop.erase(boatShop.begin() + i);
+            --i;
+        }
+    }
+}
+
+void DecisionMaker::berthAvailable()
+{
+    for (int i = 0; i < berthNum; ++i)
+    {
+        int tradeID = -1;
+        for (int dir = 0; dir < 4; ++dir)
+            tradeID = tradeID == -1 ? tradeMapSea[dir][berth[i].x][berth[i].y] : tradeID;
+        if (tradeID == -1) // 如果这个泊位找不到相连的交货点，跳过
+        {
+            berth[i].isBlocked = true;
+        }
+    }
 }
 
 // 得到船运动的地图信息
@@ -625,19 +680,70 @@ void DecisionMaker::phaseDecision()
             --counter;
         }
     }
-
 }
 
 void DecisionMaker::purchaseDecision()
 {
-    if (phase == 0)
+    if (phase == 0 && money >= 2000)
     {
         for (int i = 0; i < robotShop.size(); i++)
         {
             for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit); ++j)
                 printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
         }
-        // TODO 买船
+
+        //int numRobotBuyInFirstTime = std::min(8, robotNumLimit);        // 第一批次购买机器人的数目
+        //if (robotNum < numRobotBuyInFirstTime)
+        //{
+        //    int maxBuyRobotNum = std::min((int)ceil((double)numRobotBuyInFirstTime / robotShop.size()), 2);
+        //    for (int i = 0; i < robotShop.size(); ++i)
+        //        for (int j = 0; j < maxBuyRobotNum; ++j)
+        //            printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
+        //}
+        //else
+        //{
+        //    int addRobotNum = money / 2000;
+        //    vector<int>buyRobotNum(robotShop.size(), 0);
+        //    for (int i = 0; i < addRobotNum; ++i)
+        //    {
+        //        int buyFromRobotShopID = 0;
+        //        double maxPriority = 0;
+        //        for (int j = 0; j < robotShop.size(); ++j)
+        //        {
+        //            double thisPriority;
+        //            double totGoodsVal = 0;
+        //            int totServingRobot = 0;
+        //            for (int berthID = 0; berthID < berthNum; ++berthID)
+        //            {
+        //                if (berth[berthID].nearestRobotShop == j)
+        //                    for (auto it = berth[berthID].goodsInBerthInfo.begin(); it != berth[berthID].goodsInBerthInfo.end(); ++it)
+        //                        totGoodsVal += it->second.goodsVal;
+        //                else
+        //                    continue;
+        //                for (int l = 0; l < robotNum; ++l)
+        //                {
+        //                    Robot& bot = robot[l];
+        //                    int servingBerthID = -1;
+        //                    if (bot.botMoveState == TOGOODS)
+        //                        servingBerthID = nearBerthID[bot.tarX][bot.tarY];
+        //                    else if (bot.botMoveState == TOBERTH)
+        //                        servingBerthID = getBerthId(bot.tarX, bot.tarY);
+        //                    if (servingBerthID == berthID)
+        //                        ++totServingRobot;
+        //                }
+        //            }
+        //            totServingRobot += buyRobotNum[j];
+        //            thisPriority = totGoodsVal / totServingRobot;
+        //            if (thisPriority > maxPriority)
+        //            {
+        //                maxPriority = thisPriority;
+        //                buyFromRobotShopID = j;
+        //            }
+        //        }
+        //        ++buyRobotNum[buyFromRobotShopID];
+        //        printf("lbot %d %d\n", robotShop[buyFromRobotShopID].x, robotShop[buyFromRobotShopID].y);
+        //    }
+        //}
     }
     // 第一帧有两种策略，买1/2艘船，具体效果待观察
     if (frame == 1)
@@ -645,7 +751,7 @@ void DecisionMaker::purchaseDecision()
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
     if (robotNum >= robotNumLimit && boatNum < boatNumLimit)
-    {   
+    {
         int tmpSum = 0;
         for (int i = 0; i < berthNum; ++i)
             for (auto iter = berth[i].berthGoodsValueList.begin(); iter != berth[i].berthGoodsValueList.end(); ++iter)
@@ -657,4 +763,46 @@ void DecisionMaker::purchaseDecision()
         }
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
+}
+
+bool DecisionMaker::getNearRobotShop(int robotShopID)
+{
+    int x = robotShop[robotShopID].x, y = robotShop[robotShopID].y;
+    int queueCount = 0;
+    int queueIndex = 0;
+    Node* now = &nodes[queueCount++];
+    Node* target = nullptr; // 用于存储找到的目标节点
+    Node* child = nullptr;
+    now->setNode(x, y, 0, nullptr);
+    memset(vis, 0, sizeof(vis));
+    bool findBerthFlag = false;
+
+    while (queueCount > queueIndex)
+    {
+        now = &nodes[queueIndex++];
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = now->x + dx[i];
+            int ny = now->y + dy[i];
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
+                continue;
+            vis[nx][ny] = true;
+            if (inBerth(nx, ny))
+            {
+                int berthID = getBerthId(nx, ny);
+                if (berth[berthID].isBlocked)
+                    continue;
+                findBerthFlag = true;
+                if (now->dis + 1 < berth[berthID].nearestRobotShopDis)
+                {
+                    berth[berthID].nearestRobotShopDis = now->dis + 1;
+                    berth[berthID].nearestRobotShop = robotShopID;
+                }
+            }
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now->dis + 1, now);
+        }
+    }
+    return findBerthFlag;
 }

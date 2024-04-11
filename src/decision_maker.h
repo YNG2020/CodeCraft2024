@@ -41,14 +41,14 @@ private:
     double limToTryChangeGoods, limToChangeGoods; // 尝试选新目标，接受新目标的参数
     int extraSearchTime;                          // getNearestGoods中的额外搜索轮次
     int blockBerthTime;                           // 提前屏蔽berth的时间
-    int phase;                   // 根据租赁情况判断当前阶段
-    int boatNumLimit;            // 船只数量限制
-    int robotNumLimit;           // 机器人数量限制
-    double gainForSameBerth;     // 本区增益
-    double globalMeanGoodsRatio; // 全场泊位接收的货物的平均性价比
-    double berthCallingFactor;      // 泊位向邻区发出召唤的参数
-    int efficientBerthID;        // 最高效的泊位ID
-    vector<int> sortBerthsByTransportTime;  // 依据泊位到交货点的距离对泊位ID进行升序排序
+    int phase;                                    // 根据租赁情况判断当前阶段
+    int boatNumLimit;                             // 船只数量限制
+    int robotNumLimit;                            // 机器人数量限制
+    double gainForSameBerth;                      // 本区增益
+    double globalMeanGoodsRatio;                  // 全场泊位接收的货物的平均性价比
+    double berthCallingFactor;                    // 泊位向邻区发出召唤的参数
+    int efficientBerthID;                         // 最高效的泊位ID
+    vector<int> sortBerthsByTransportTime;        // 依据泊位到交货点的距离对泊位ID进行升序排序
     double lastTimeFactor;
     int recursionDepthInBerthSelect;    // 穷举所有泊位组合时的最大递归深度
 
@@ -124,6 +124,9 @@ public:
     void getNearBerthInfo(); // 得到地图上的点最近泊位
     void getNearTradeInfo(); // 得到地图上的点最近交货点
     void generateBerthTradeDis();
+    void tradeAvailable(); // 交易点是否能到泊位，不能则删除该交易点
+    void berthAvailable(); // 泊位是否能到交易点，不能则封禁该泊位
+    bool getNearRobotShop(int robotShopID);    // 为泊位找到其最近的机器人租赁点
 
     int BoatAvailable(int x, int y, int dir);
 
