@@ -75,7 +75,16 @@ void Init()
         // decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 2, 16, 5.5);
     // }
 
-    ifstream paramFile("param.txt");
+    ifstream idFile("id.txt");
+    int paramId;
+    idFile >> paramId;
+    ofstream idFileOut("id.txt");
+    idFileOut << paramId + 1;
+    idFile.close();
+    idFileOut.close();
+
+    std::string paramFileName = "params/" + std::to_string(paramId) + ".txt";
+    ifstream paramFile(paramFileName);
     double param;
     for (int i = 0; i < 5; ++i)
     {

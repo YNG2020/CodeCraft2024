@@ -3,8 +3,9 @@ from tqdm import tqdm
 import concurrent.futures
 import json
 
-def runFunction(params, exe_path, map_path, main_exe_path):
-    modifyParams('param.txt', params)
+def runFunction(params, exe_path, map_path, main_exe_path, param_id):
+    param_file_name = f"params/{param_id}.txt"
+    modifyParams(param_file_name, params)
     command = [exe_path, "-m", map_path, main_exe_path, "-l", "NONE"]
     result = subprocess.run(command, capture_output=True, text=True)
     return result.stdout, params
@@ -44,9 +45,14 @@ def main():
     param_combinations = generateParams(param_ranges)
 
     results = []
+    param_id = 0
+
+    # 设置为0
+    with open('id.txt', 'w') as id_file:
+        id_file.write(str(param_id))
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
-        futures = [executor.submit(runFunction, params, exe_path, map_path, main_exe_path) for params in param_combinations]
+        futures = [executor.submit(runFunction, params, exe_path, map_path, main_exe_path, param_id + i) for i, params in enumerate(param_combinations)]
         for future in tqdm(concurrent.futures.as_completed(futures), total=len(futures), desc="Processing", unit="comb"):
             output, params = future.result()
             result = json.loads(output)
