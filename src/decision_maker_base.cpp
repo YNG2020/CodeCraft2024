@@ -310,11 +310,25 @@ void DecisionMaker::analyzeMap()
     }
     std::sort(sortBerthsByTransportTime.begin(), sortBerthsByTransportTime.end(), [&](int a, int b)
               { return berth[a].transportTime < berth[b].transportTime; });
+    
+    vector<bool> findBerthFlag(robotShop.size(), false);
     for (int i = 0; i < robotShop.size(); ++i)
     {
-        getNearRobotShop(i);
+        findBerthFlag[i] = getNearRobotShop(i);
+    }
+
+    // 检验机器人租赁点有无可达的泊位，没有就erase掉
+    for (int i = 0; i < robotShop.size(); ++i)
+    {
+        if (!findBerthFlag[i])
+        {
+            robotShop.erase(robotShop.begin() + i);
+            findBerthFlag.erase(findBerthFlag.begin() + i);
+            --i;
+        }
     }
 }
+
 void DecisionMaker::tradeAvailable()
 {
     for (int i = 0; i < boatShop.size(); ++i)
@@ -749,7 +763,7 @@ void DecisionMaker::purchaseDecision()
     }
 }
 
-void DecisionMaker::getNearRobotShop(int robotShopID)
+bool DecisionMaker::getNearRobotShop(int robotShopID)
 {
     int x = robotShop[robotShopID].x, y = robotShop[robotShopID].y;
     int queueCount = 0;
@@ -759,6 +773,7 @@ void DecisionMaker::getNearRobotShop(int robotShopID)
     Node* child = nullptr;
     now->setNode(x, y, 0, nullptr);
     memset(vis, 0, sizeof(vis));
+    bool findBerthFlag = false;
 
     while (queueCount > queueIndex)
     {
@@ -774,6 +789,9 @@ void DecisionMaker::getNearRobotShop(int robotShopID)
             if (inBerth(nx, ny))
             {
                 int berthID = getBerthId(nx, ny);
+                if (berth[berthID].isBlocked)
+                    continue;
+                findBerthFlag = true;
                 if (now->dis + 1 < berth[berthID].nearestRobotShopDis)
                 {
                     berth[berthID].nearestRobotShopDis = now->dis + 1;
@@ -784,4 +802,5 @@ void DecisionMaker::getNearRobotShop(int robotShopID)
             child->setNode(nx, ny, now->dis + 1, now);
         }
     }
+    return findBerthFlag;
 }
