@@ -81,7 +81,7 @@ void DecisionMaker::getNearBerthDis(int x, int y)
             if (inBerth(nx, ny))
             {
                 int berthID = getBerthId(nx, ny);
-                if (berth[berthID].isBlocked)
+                if (berth[berthID].isBlocked && phase <= 1)
                     continue;
                 nearBerthDis[x][y] = now->dis + 1;
                 nearBerthID[x][y] = berthID;
