@@ -126,6 +126,8 @@ public:
     void generateBerthTradeDis();
     void tradeAvailable(); // 交易点是否能到泊位，不能则删除该交易点
     void berthAvailable(); // 泊位是否能到交易点，不能则封禁该泊位
+    void getNearRobotShop(int robotShopID);    // 为泊位找到其最近的机器人租赁点
+
     int BoatAvailable(int x, int y, int dir);
 
     void makeDecision();
