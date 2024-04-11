@@ -340,11 +340,13 @@ void DecisionMaker::berthAvailable()
             berth[i].isBlocked = true;
         }
 
-    for (int i = 0; i < robotShop.size(); ++i)
-    {
-        getNearRobotShop(i);
+        for (int i = 0; i < robotShop.size(); ++i)
+        {
+            getNearRobotShop(i);
+        }
     }
 }
+
 // 得到船运动的地图信息
 void DecisionMaker::getMapInfoBoat()
 {
@@ -668,64 +670,64 @@ void DecisionMaker::purchaseDecision()
 {
     if (phase == 0 && money >= 2000)
     {
-        //for (int i = 0; i < robotShop.size(); i++)
-        //{
-        //    for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit); ++j)
-        //        printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
-        //}
+        for (int i = 0; i < robotShop.size(); i++)
+        {
+            for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit); ++j)
+                printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
+        }
 
-        int numRobotBuyInFirstTime = std::min(8, robotNumLimit);        // 第一批次购买机器人的数目
-        if (robotNum < numRobotBuyInFirstTime)
-        {
-            int maxBuyRobotNum = std::min((int)ceil((double)numRobotBuyInFirstTime / robotShop.size()), 2);
-            for (int i = 0; i < robotShop.size(); ++i)
-                for (int j = 0; j < maxBuyRobotNum; ++j)
-                    printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
-        }
-        else
-        {
-            int addRobotNum = money / 2000;
-            vector<int>buyRobotNum(robotShop.size(), 0);
-            for (int i = 0; i < addRobotNum; ++i)
-            {
-                int buyFromRobotShopID = 0;
-                double maxPriority = 0;
-                for (int j = 0; j < robotShop.size(); ++j)
-                {
-                    double thisPriority;
-                    double totGoodsVal = 0;
-                    int totServingRobot = 0;
-                    for (int berthID = 0; berthID < berthNum; ++berthID)
-                    {
-                        if (berth[berthID].nearestRobotShop == j)
-                            for (auto it = berth[berthID].goodsInBerthInfo.begin(); it != berth[berthID].goodsInBerthInfo.end(); ++it)
-                                totGoodsVal += it->second.goodsVal;
-                        else
-                            continue;
-                        for (int l = 0; l < robotNum; ++l)
-                        {
-                            Robot& bot = robot[l];
-                            int servingBerthID = -1;
-                            if (bot.botMoveState == TOGOODS)
-                                servingBerthID = nearBerthID[bot.tarX][bot.tarY];
-                            else if (bot.botMoveState == TOBERTH)
-                                servingBerthID = getBerthId(bot.tarX, bot.tarY);
-                            if (servingBerthID == berthID)
-                                ++totServingRobot;
-                        }
-                    }
-                    totServingRobot += buyRobotNum[j];
-                    thisPriority = totGoodsVal / totServingRobot;
-                    if (thisPriority > maxPriority)
-                    {
-                        maxPriority = thisPriority;
-                        buyFromRobotShopID = j;
-                    }
-                }
-                ++buyRobotNum[buyFromRobotShopID];
-                printf("lbot %d %d\n", robotShop[buyFromRobotShopID].x, robotShop[buyFromRobotShopID].y);
-            }
-        }
+        //int numRobotBuyInFirstTime = std::min(8, robotNumLimit);        // 第一批次购买机器人的数目
+        //if (robotNum < numRobotBuyInFirstTime)
+        //{
+        //    int maxBuyRobotNum = std::min((int)ceil((double)numRobotBuyInFirstTime / robotShop.size()), 2);
+        //    for (int i = 0; i < robotShop.size(); ++i)
+        //        for (int j = 0; j < maxBuyRobotNum; ++j)
+        //            printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
+        //}
+        //else
+        //{
+        //    int addRobotNum = money / 2000;
+        //    vector<int>buyRobotNum(robotShop.size(), 0);
+        //    for (int i = 0; i < addRobotNum; ++i)
+        //    {
+        //        int buyFromRobotShopID = 0;
+        //        double maxPriority = 0;
+        //        for (int j = 0; j < robotShop.size(); ++j)
+        //        {
+        //            double thisPriority;
+        //            double totGoodsVal = 0;
+        //            int totServingRobot = 0;
+        //            for (int berthID = 0; berthID < berthNum; ++berthID)
+        //            {
+        //                if (berth[berthID].nearestRobotShop == j)
+        //                    for (auto it = berth[berthID].goodsInBerthInfo.begin(); it != berth[berthID].goodsInBerthInfo.end(); ++it)
+        //                        totGoodsVal += it->second.goodsVal;
+        //                else
+        //                    continue;
+        //                for (int l = 0; l < robotNum; ++l)
+        //                {
+        //                    Robot& bot = robot[l];
+        //                    int servingBerthID = -1;
+        //                    if (bot.botMoveState == TOGOODS)
+        //                        servingBerthID = nearBerthID[bot.tarX][bot.tarY];
+        //                    else if (bot.botMoveState == TOBERTH)
+        //                        servingBerthID = getBerthId(bot.tarX, bot.tarY);
+        //                    if (servingBerthID == berthID)
+        //                        ++totServingRobot;
+        //                }
+        //            }
+        //            totServingRobot += buyRobotNum[j];
+        //            thisPriority = totGoodsVal / totServingRobot;
+        //            if (thisPriority > maxPriority)
+        //            {
+        //                maxPriority = thisPriority;
+        //                buyFromRobotShopID = j;
+        //            }
+        //        }
+        //        ++buyRobotNum[buyFromRobotShopID];
+        //        printf("lbot %d %d\n", robotShop[buyFromRobotShopID].x, robotShop[buyFromRobotShopID].y);
+        //    }
+        //}
     }
     // 第一帧有两种策略，买1/2艘船，具体效果待观察
     if (frame == 1)
