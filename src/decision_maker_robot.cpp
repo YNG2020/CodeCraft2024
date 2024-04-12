@@ -17,7 +17,6 @@ void DecisionMaker::robotDecision()
         {
             printf("get %d\n", i);
             bot.carryGoods = 1;          // 手动更新为持有货物的状态
-            //bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
             bot.botPathState = NO_PATH;
             bot.idxInPth = 0;
@@ -32,7 +31,7 @@ void DecisionMaker::robotDecision()
             bot.lastX = -1;
             bot.lastY = -1;
         }
-        if (bot.botMoveState == ARRIVEBERTH)
+        else if (bot.botMoveState == ARRIVEBERTH)
         {
             printf("pull %d\n", i);
 
@@ -55,15 +54,13 @@ void DecisionMaker::robotDecision()
             bot.curPropotion = -1;      
             bot.goodsVal = 0;            // 将目前所拥有的或准备拥有的货物价值清0
             bot.carryGoods = 0;          // 手动更新为不持有货物的状态
-            //bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
             bot.botPathState = NO_PATH;
             bot.idxInPth = 0;
             bot.lastX = -1;
             bot.lastY = -1;
         }
-
-        if (bot.botMoveState == TOGOODS)
+        else if (bot.botMoveState == TOGOODS)
         {   
             int lastBerthID = getBerthId(bot.pathPoint[0].x, bot.pathPoint[0].y);
             int curBerthID = nearBerthID[bot.tarX][bot.tarY];
@@ -91,6 +88,7 @@ void DecisionMaker::robotDecision()
                     refreshJamBuffer(i);
                 }
             }
+            continue;
         }
 
         int callingBerthID = -1;
@@ -164,7 +162,6 @@ void DecisionMaker::robotDecision()
                 { // 找到路，则更新一些状态变量
                     bot.botMoveState = TOGOODS;
                     bot.botPathState = HAVE_PATH;
-                    //bot.botTarState = HAVE_TARGET;
 
                     bot.lastX = bot.curX;
                     bot.lastY = bot.curY;
@@ -181,7 +178,6 @@ void DecisionMaker::robotDecision()
                 { // 没找到路，也更新一些状态变量
                     bot.botMoveState = WAITING;
                     bot.botPathState = NO_PATH;
-                    //bot.botTarState = NO_TARGET;
                     bot.idxInPth = 0;
                     bot.curPropotion = -1;
                     vector<int>().swap(bot.pathDir);     // 清空
@@ -209,7 +205,6 @@ void DecisionMaker::robotDecision()
                 {
                     bot.botMoveState = WAITING;
                     bot.botPathState = NO_PATH;
-                    //bot.botTarState = NO_TARGET;
                     bot.idxInPth = 0;
                     vector<int>().swap(bot.pathDir);     // 清空
                     vector<SimplePoint>().swap(bot.pathPoint); // 清空
@@ -257,7 +252,6 @@ void DecisionMaker::refreshRobotState(int botID)
     if (bot.botMoveState == TOGOODS && goodsInMap[bot.tarX][bot.tarY] == 0)
     {                                // 货物消失，及时更新自身状态
         bot.carryGoods = 0;          // 手动更新为不持有货物的状态
-        //bot.botTarState = NO_TARGET; // 手动更新为无目标位置的状态
         bot.botMoveState = WAITING;
         bot.botPathState = NO_PATH;
         bot.curPropotion = -1;
