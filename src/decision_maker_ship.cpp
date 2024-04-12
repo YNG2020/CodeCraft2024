@@ -61,7 +61,7 @@ void DecisionMaker::shipDecision()
                 bot.lastY = bot.curY;
                 bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
                 bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
-                bot.tarBerthID = -2;
+                bot.tarBerthID = -1;
                 boatRefreshJamBuffer(i);
             }
             continue;
@@ -74,7 +74,6 @@ void DecisionMaker::shipDecision()
             if (bot.boatTarState == BOAT_HAVE_TARGET && bot.boatPathState == BOAT_NO_PATH)
             { // 有目标，无路，分配路（适用于在前往目的地时中途闪现的情况）
                 findPathFlag = getBoatPathDijkstra(i, bot.tarX, bot.tarY, bot.pathPoint, bot.pathDir);
-                // findPathFlag = false; bot.numBoatGoods = 1;
                 if (findPathFlag)
                 {
                     bot.boatPathState = BOAT_HAVE_PATH;
@@ -95,7 +94,7 @@ void DecisionMaker::shipDecision()
                     bot.tarY = -1;
                     if (bot.tarBerthID >= 0)
                         berth[bot.tarBerthID].boatIDToBerth = -1; // 更新泊位被指向的情况
-                    bot.tarBerthID = -2;
+                    bot.tarBerthID = -1;
                 }
             }
             if (bot.boatTarState == BOAT_NO_TARGET && bot.numBoatGoods == 0) // 没货物时，找泊位
@@ -123,10 +122,10 @@ void DecisionMaker::shipDecision()
                     bot.idxInPth = 0;
                     vector<int>().swap(bot.pathDir);         // 清空
                     vector<BoatPoint>().swap(bot.pathPoint); // 清空
-                    boatRefreshJamBuffer(i);
                     bot.tarX = -1;
                     bot.tarY = -1;
-                    bot.tarBerthID = -2;
+                    bot.tarBerthID = -1;
+                    boatRefreshJamBuffer(i);
                 }
             }
             break;
@@ -134,12 +133,7 @@ void DecisionMaker::shipDecision()
             break;
         case 2: // 装载状态（状态 2）
             int threshold;
-            if (phase == 0)
-                threshold = boatCapacity;
-            else if (frameId >= 15000 - 2 * tradeDis[tarTradeID][bot.dire][bot.curX][bot.curY])
-                threshold = boatCapacity;
-            else
-                threshold = boatCapacity;
+            threshold = boatCapacity;
             if ((bot.numBoatGoods >= threshold)/* || (phase == 0 && money + bot.valBoatGoods >= 4000)*/)
             { // 如果装满了，去交货点
                 findPathFlag = getBoatPathDijkstra(i, tradePoint[tarTradeID].x, tradePoint[tarTradeID].y, bot.pathPoint, bot.pathDir);
@@ -153,7 +147,7 @@ void DecisionMaker::shipDecision()
                     bot.lastY = bot.curY;
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
                     bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
-                    bot.tarBerthID = -2;
+                    bot.tarBerthID = -1;
                     boatRefreshJamBuffer(i);
                 }
                 else
@@ -164,12 +158,11 @@ void DecisionMaker::shipDecision()
                     bot.idxInPth = 0;
                     vector<int>().swap(bot.pathDir);         // 清空
                     vector<BoatPoint>().swap(bot.pathPoint); // 清空
-                    boatRefreshJamBuffer(i);
                     bot.tarX = -1;
                     bot.tarY = -1;
-                    bot.tarBerthID = -2;
+                    bot.tarBerthID = -1;
+                    boatRefreshJamBuffer(i);
                 }
-                // shipGoodsNum += bot.numBoatGoods;
             }
             else
             { // 没有满则继续装
@@ -240,7 +233,7 @@ void DecisionMaker::shipDecision()
                     boatRefreshJamBuffer(i);
                     bot.tarX = -1;
                     bot.tarY = -1;
-                    bot.tarBerthID = -2;
+                    bot.tarBerthID = -1;
                 }
             }
             else if (bot.boatStatus == 2 && bot.numBoatGoods == boatCapacity || bot.boatStatus == 0)
@@ -262,7 +255,7 @@ void DecisionMaker::shipDecision()
                     bot.lastY = bot.curY;
                     bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
                     bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
-                    bot.tarBerthID = -2;
+                    bot.tarBerthID = -1;
                     boatRefreshJamBuffer(i);
                 }
                 else
@@ -276,7 +269,7 @@ void DecisionMaker::shipDecision()
                     boatRefreshJamBuffer(i);
                     bot.tarX = -1;
                     bot.tarY = -1;
-                    bot.tarBerthID = -2;
+                    bot.tarBerthID = -1;
                 }
             }
         }
@@ -299,7 +292,7 @@ void DecisionMaker::refreshBoatState(int boatID)
         bot.lastX = bot.curX;
         bot.lastY = bot.curY;
     }
-    else if (bot.setMove && bot.boatStatus == 0 || bot.findPathFlag == false)
+    else if ((bot.setMove && bot.boatStatus == 0) || bot.findPathFlag == false)
     { // 发现没变更位置，且前一帧下达了移动指令，使用dept指令防卡死
         if (bot.jamTime >= BOAT_JAM_TOLERANCE_TIME)
         {
@@ -343,8 +336,7 @@ void DecisionMaker::refreshBoatState(int boatID)
         berth[bot.tarBerthID].boatIDInBerth = boatID;
         berth[bot.tarBerthID].boatIDToBerth = -1;
     }
-
-    if (gridMap[bot.curX][bot.curY] == TRADE && bot.boatMoveState == BOAT_TOTRADE)
+    else if (gridMap[bot.curX][bot.curY] == TRADE && bot.boatMoveState == BOAT_TOTRADE)
     { // 抵达交易点
         bot.boatMoveState = BOAT_ARRIVETRADE;
     }
@@ -661,7 +653,7 @@ int DecisionMaker::berthSelect(int boatID)
         if (gridMap[boat[boatID].curX][boat[boatID].curY] == TRADE)
             oriLocation = -1; // 代表交货点
         else if (gridMap[boat[boatID].curX][boat[boatID].curY] == BOAT_SHOP)
-            oriLocation = -2; // 代表船出生点
+            oriLocation = -1; // 代表船出生点
         else
             oriLocation = -3; // 代表其它点
     }
