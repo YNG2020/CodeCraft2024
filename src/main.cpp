@@ -104,7 +104,7 @@ void Init()
     }
 }
 
-int Input()
+void Input()
 {
     if (Debug)
         myCin >> frameId >> money;
@@ -114,11 +114,10 @@ int Input()
         myCin >> K;
     else
         scanf("%d", &K);
-    goodsNum += K;
-    // numCurGoods += K;
+    goods_num += K;
     int frameModIdx = (frameId - 1) % 1000;
     goodsInfo[frameModIdx].clear(); // 先把对应时刻的全部货物信息清空
-    for (int i = 1; i <= K; i++)
+    for (int i = 0; i < K; i++)
     {
         int x, y, val;
         if (Debug)
@@ -127,7 +126,7 @@ int Input()
             scanf("%d %d %d", &x, &y, &val);
         if (val == 0) // 货物消失或被取走
             continue;
-        totGoodsVal += val;
+        tot_goods_val += val;
         goodsInMap[x][y] = val;
         goodsLeftTime[x][y] = 1000;
         if (nearBerthDis[x][y] == 0)
@@ -193,24 +192,22 @@ int Input()
     // 清空机器人为泊位的服务情况
     for (int i = 0; i < berthNum; ++i)
         berth[i].numServingRobot = 0;
-    return frameId;
 }
 
 int main()
 {
-    // auto start = std::chrono::steady_clock::now();
     //  ofstream outputFile("data.csv");
-    // outputFile << "goodsNum, pickGoodsNum, shipGoodsNum" << endl;
+    // outputFile << "goods_num, pick_goods_num, ship_goods_num" << endl;
     Init();
     for (frame = 1; frame <= 15000; frame++)
     {
-        int id = Input();
+        Input();
         decisionMaker.makeDecision();
         if (frame == 15000)
             printData();
         printf("OK\n");
         fflush(stdout);
-        // outputFile << goodsNum << ", " << pickGoodsNum << ", " << shipGoodsNum << endl;
+        // outputFile << goods_num << ", " << pick_goods_num << ", " << ship_goods_num << endl;
 
         for (int i = 0, x = 0, y = 0, idx = 0; i < 1000; ++i)
         { // 维护货物的剩余存在时间
@@ -250,14 +247,6 @@ int main()
         }
     }
     // outputFile.close();
-    // 定义结束时间点
-    // auto end = std::chrono::steady_clock::now();
-
-    //// 计算时间差
-    // auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-    //// 输出时间差
-    // std::cerr << "Time taken: " << duration.count() << " milliseconds" << std::endl;
     return 0;
 }
 
@@ -279,7 +268,7 @@ void printData()
             sum += berth[i].getBerthGoodsValueOfNum(berth[i].numBerthGoods, 0, 0);
         }
         cerr << "sum = " << sum << endl;
-        cerr << "totGoodsVal = " << totGoodsVal << endl;
+        cerr << "tot_goods_val = " << tot_goods_val << endl;
 
         ofstream outputFile("pullInfo.csv");
         outputFile << "goodsValue,goodsRegion,Frame" << endl;

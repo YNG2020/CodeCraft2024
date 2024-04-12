@@ -25,16 +25,10 @@ void DecisionMaker::makeDecision()
     shipDecision();
 }
 
-bool DecisionMaker::invalidForBoat(int x, int y)
-{
-    return true;
-}
 
 bool DecisionMaker::invalidForRobot(int x, int y)
 {
     return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || gridMap[x][y] > ROAD_MIX;
-    // return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || oriMap[x][y] == '#' || oriMap[x][y] == '*' || oriMap[x][y] == '~'
-    // || oriMap[x][y] == 'S' || oriMap[x][y] == 'K' || oriMap[x][y] == 'T';
 }
 
 bool DecisionMaker::inBerth(int x, int y)
@@ -125,6 +119,8 @@ void DecisionMaker::getConnectedBerth(int berthID)
             if (inBerth(nx, ny))
             {
                 int connectedBerthID = getBerthId(nx, ny);
+                if (berth[connectedBerthID].isBlocked)
+                    continue;
                 if (!berth[berthID].connectedBerth[connectedBerthID])
                     ++numFoundedBerth;
                 berth[berthID].connectedBerth[connectedBerthID] = true;
@@ -287,7 +283,6 @@ void DecisionMaker::analyzeMap()
     tradeAvailable();        // 判定船购买点是否为封闭区域，如果不可达则删除此购买点
     berthAvailable();        // 泊位是否能到交易点，不能则封禁该泊位
     generateBerthTradeDis(); // 生成泊位交货点距离邻接矩阵
-    // test_print();
     for (int i = 0; i < berthNum; i++)
     {
         paintBerth(i);
@@ -410,21 +405,6 @@ void DecisionMaker::generateBerthTradeDis()
             }
         }
     }
-}
-
-void DecisionMaker::test_print()
-{
-    fstream f;
-    f.open("berthDis.txt");
-    int temp = berthNum + tradeNum;
-    // int temp = MAP_SIZE;
-    for (int i = 0; i < temp; ++i)
-    {
-        for (int j = 0; j < temp; ++j)
-            f << berthTradeDis[i][j] << " ";
-        f << endl;
-    }
-    f.close();
 }
 
 void DecisionMaker::getMapDisBerth() // 此处船从泊位处开始倒着走

@@ -30,10 +30,10 @@ int dirBoatDxRev[3][4] = {{1, -1, 1, -1}, {-2, 2, 0, 0}, {0, 0, -1, 1}}; // 第�
 int dirBoatDyRev[3][4] = {{-1, 1, 1, -1}, {0, 0, -2, 2}, {1, -1, 0, 0}};
 int clockWiseDirRev[2][4] = {{3, 2, 0, 1}, {2, 3, 1, 0}}; // 0顺时针,1逆时针映射
 int DirRev[4] = {1, 0, 3, 2};
-int goodsNum;
-int pickGoodsNum;
-int shipGoodsNum;
-int totGoodsVal;
+int goods_num;
+int pick_goods_num;
+int ship_goods_num;
+int tot_goods_val;
 
 vector<int> goods_val;
 vector<int> goods_frame;

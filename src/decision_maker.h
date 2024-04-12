@@ -97,7 +97,6 @@ private:
     bool getAvoidPath(int botID1, int botID2);
     void unJam();
 
-    bool invalidForBoat(int x, int y);
     bool invalidForRobot(int x, int y);
 
     void boatSetPriority();
@@ -142,7 +141,6 @@ public:
     void getNearBerthDis(int x, int y);  // 计算点到最近的泊位的距离
     void getConnectedBerth(int berthID); // 计算相互邻接的泊位的距离
     int getBerthId(int x, int y);
-    void test_print();
 };
 
 #endif // DECISION_MAKER_H
