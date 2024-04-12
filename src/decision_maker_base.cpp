@@ -633,7 +633,7 @@ void DecisionMaker::phaseDecision()
         phase = 1;
     }
 
-    if (frame + lastTimeFactor * berth[efficientBerthID].transportTime > 15000 && phase <= 1)
+    if (frame + lastTimeFactor * berth[efficientBerthID].transportTime > 15000/* && phase <= 1*/)
     {
         phase = 2;
         for (int j = 0; j < berthNum; ++j)
@@ -679,6 +679,9 @@ void DecisionMaker::phaseDecision()
             }
             --counter;
         }
+        //for (int i = 0; i < berthNum; ++i)
+        //    if (berth[i].boatIDToBerth >= 0)
+        //        berth[i].isBlocked = false;
     }
 }
 

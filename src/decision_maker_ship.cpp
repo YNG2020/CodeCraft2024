@@ -756,7 +756,6 @@ int DecisionMaker::berthSelect(int boatID)
                     moveTimeToTradeCurBerth = 0x7fffffff;
                 else
                     moveTimeToTradeCurBerth = berthTradeDis[curBerth][berthNum + tradeID];
-                
                 int curBerthAddGoodsNum = calAddGoodsNum(curBerth, minTransportTime - moveTimeToTradeOtherBerth);
                 if (curBerthAddGoodsNum + boat[boatID].numBoatGoods >= boat[boatID].capacity)   // 去别的泊位运货的同时，其实已经能把货装完，此时不必转移泊位
                     if (minTransportTime > minTransportTime - moveTimeToTradeOtherBerth + moveTimeToTradeCurBerth)
@@ -901,7 +900,7 @@ int DecisionMaker::calAddGoodsNum(int berthID, int moveTime)
                     ++addGoodsNum;
             }
         }
-        else if (robot[i].botPathState == TOBERTH)
+        else if (robot[i].botMoveState == TOBERTH)
         {
             tarBerthID = getBerthId(tarX, tarY);
             if (tarBerthID == berthID)
