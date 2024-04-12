@@ -321,6 +321,7 @@ void DecisionMaker::moveControl()
 {
     jamControl();
     jamControl(); // 先这样吧（在同一帧内，前面的robot无法及时读取到后面的robot的可能已更新的堵塞检测缓冲区的信息，导致潜在的堵塞风险）
+    jamControl();
     for (int i = 0; i < robotNum; ++i)
     {
         Robot &bot = robot[i];
@@ -329,8 +330,8 @@ void DecisionMaker::moveControl()
             continue;
         if (bot.pathDir.size() > 0)
         {
-            if (bot.pathDir[bot.idxInPth] < 0 || bot.pathDir[bot.idxInPth] > 3)
-                continue;
+            // if (bot.pathDir[bot.idxInPth] < 0 || bot.pathDir[bot.idxInPth] > 3)
+                // continue;
              printf("move %d %d\n", i, bot.pathDir[bot.idxInPth]);
         }
     }

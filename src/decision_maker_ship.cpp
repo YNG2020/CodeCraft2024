@@ -26,7 +26,7 @@ void DecisionMaker::shipDecision()
             vector<BoatPoint>().swap(bot.pathPoint); // 清空
             boatRefreshJamBuffer(i);
         }
-        if (bot.boatMoveState == BOAT_ARRIVETRADE)
+        else if (bot.boatMoveState == BOAT_ARRIVETRADE)
         {
             bot.boatMoveState = BOAT_WAITING; // 手动更新为原地等待的状态（等路径分配）
             bot.boatPathState = BOAT_NO_PATH;
@@ -38,61 +38,6 @@ void DecisionMaker::shipDecision()
             vector<BoatPoint>().swap(bot.pathPoint); // 清空
             boatRefreshJamBuffer(i);
         }
-
-        //{   // 用于在复赛练习赛的图1中进防堵塞解决失败的测试代码，BOAT_JAM_BUFFER_SIZE此时设置为2，正常情况下应注释
-        //    boatCapacity = 2;     // 测试用
-        //    //if (bot.boatStatus == 2)
-        //    //{ // 不注释这个的话，可以在图1看到更多的堵塞解决失败情况，注释的话，可以在图2测一些寻路失败的后续处理（需要强行在重新寻路时置false）
-        //    //    if (i == 0)
-        //    //        if (boat[1].boatStatus != 2)
-        //    //            continue;
-        //    //    if (i == 1)
-        //    //        if (boat[0].boatStatus != 2)
-        //    //            continue;
-        //    //    int berthID;
-        //    //    if (getBerthId(bot.curX, bot.curY) == 3)
-        //    //        berthID = 0;
-        //    //    else
-        //    //        berthID = 3;
-        //    //    bool findPathFlag = getBoatPathDijkstra(i, berth[berthID].x, berth[berthID].y, bot.pathPoint, bot.pathDir);
-        //    //    bot.boatPathState = BOAT_HAVE_PATH;
-        //    //    bot.boatTarState = BOAT_HAVE_TARGET;
-        //    //    bot.boatMoveState = BOAT_TOBERTH;
-        //    //    bot.lastX = bot.curX;
-        //    //    bot.lastY = bot.curY;
-        //    //    bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
-        //    //    bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
-        //    //    berth[bot.tarBerthID].boatIDInBerth = -1; // 更新泊位被占用的情况
-        //    //    bot.tarBerthID = berthID;
-        //    //    berth[bot.tarBerthID].boatIDToBerth = i;
-        //    //    boatRefreshJamBuffer(i);
-        //    //    continue;
-        //    //}
-        //    if (bot.boatTarState == BOAT_NO_TARGET && bot.boatStatus == 0) // 找泊位
-        //    {
-        //        int tarBerthID = berthSelect(i);
-        //        if (i == 0)
-        //            tarBerthID = 0;
-        //        else
-        //            tarBerthID = 3;
-        //        bool findPathFlag = getBoatPathDijkstra(i, berth[tarBerthID].x, berth[tarBerthID].y, bot.pathPoint, bot.pathDir);
-        //        if (findPathFlag)
-        //        {
-        //            bot.boatPathState = BOAT_HAVE_PATH;
-        //            bot.boatTarState = BOAT_HAVE_TARGET;
-        //            bot.boatMoveState = BOAT_TOBERTH;
-        //            bot.lastX = bot.curX;
-        //            bot.lastY = bot.curY;
-        //            bot.tarX = bot.pathPoint[bot.pathPoint.size() - 1].x;
-        //            bot.tarY = bot.pathPoint[bot.pathPoint.size() - 1].y;
-        //            bot.tarBerthID = tarBerthID;
-        //            berth[bot.tarBerthID].boatIDToBerth = i;
-        //            bot.tarBerthID = tarBerthID;
-        //            boatRefreshJamBuffer(i);
-        //        }
-        //        continue;
-        //    }
-        //}
 
         // 最终装载时间到，直接去交货点
         int tarTradeID = tradeMapSea[bot.dire][bot.curX][bot.curY];
@@ -343,7 +288,7 @@ void DecisionMaker::shipDecision()
 void DecisionMaker::refreshBoatState(int boatID)
 {
     Boat &bot = boat[boatID];
-    if (((bot.curX != bot.lastX) || ((bot.curY != bot.lastY))))
+    if ((bot.curX != bot.lastX) || (bot.curY != bot.lastY))
     { // 发现变更了位置（旋转操作也必定变换位置）
         if (bot.boatPathState == BOAT_HAVE_PATH)
         { // 多一层对闪现状态的处理
