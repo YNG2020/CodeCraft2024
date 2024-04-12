@@ -612,7 +612,7 @@ bool DecisionMaker::getBoatNearestTradeDijkstra(int boatID, vector<BoatPoint> &p
 void DecisionMaker::boatMoveControl()
 {
     boatJamControl();
-    boatJamControl(); // 先这样吧（在同一帧内，前面的robot无法及时读取到后面的robot的可能已更新的堵塞检测缓冲区的信息，导致潜在的堵塞风险）
+    boatJamControl(); // 先这样吧（在同一帧内，前面的boat无法及时读取到后面的boat的可能已更新的堵塞检测缓冲区的信息，导致潜在的堵塞风险）
     for (int i = 0; i < boatNum; ++i)
     {
         Boat &bot = boat[i];
@@ -645,7 +645,6 @@ int DecisionMaker::berthSelect(int boatID)
     int numNeedGoods = (boat[boatID].capacity - boat[boatID].numBoatGoods); // robot剩余的要装的货物的数量
     int numRemainGoods;                                                     // berth此刻剩余的货物的数目
     double numAddGoods;                                                     // 在boat驶向泊位期间，泊位增加的货物数
-    // int minTime = 100000000;
     double MaxMeanGetValue = 0;                                         // 平均每帧得到最大的价值，初始化为0
     int oriLocation = getBerthId(boat[boatID].curX, boat[boatID].curY); // boat当前所在的泊位ID
     if (oriLocation < 0)
@@ -655,7 +654,7 @@ int DecisionMaker::berthSelect(int boatID)
         else if (gridMap[boat[boatID].curX][boat[boatID].curY] == BOAT_SHOP)
             oriLocation = -1; // 代表船出生点
         else
-            oriLocation = -3; // 代表其它点
+            oriLocation = -1; // 代表其它点                                                                       
     }
     int minIdx = 0; // 存储将要被选择的泊位ID
     if (oriLocation >= 0)
@@ -737,13 +736,6 @@ int DecisionMaker::berthSelect(int boatID)
             loadGoodsTime = loadGoodsTime2;
         }
         timeToGetMoney += loadGoodsTime;
-
-        //if (boatNum <= 1)
-        //{
-        //    if (loadGoodsTime == loadGoodsTime2)
-        //        loadGoodsTime = ceil(((double)numRemainGoods + (double)numAddGoods) / (double)berth[berthID].loadingSpeed);
-        //    timeToGetMoney = moveTimeToBerth + loadGoodsTime;
-        //}
 
         // 计算可获得的价值
         Money = berth[berthID].getBerthGoodsValueOfNum(numNeedGoods, 0) + 1; // +1是为了Money为0时，仍能在时间上进行比较（适用于通过泊位间的转移来再去海上的情况）
