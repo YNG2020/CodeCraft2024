@@ -35,7 +35,7 @@ public:
     double meanInZoneGoodsRatio;       // 当前处于该泊位管理区内的货物的平均性价比
 
     bool isBlocked;             // 泊位对robot屏蔽的标识
-    bool connectedBerth[TEMP_BERTH_NUM];   // TODO
+    bool connectedBerth[TEMP_BERTH_NUM];   // 与某个泊位是否相连
     unordered_map<int, singleGoodsInfo> goodsInBerthInfo;    // 存储落在该泊位管理区内的货物信息，键是标识货物的ID，值是一些货物信息
     deque<int> berthGoodsValueList; // 泊位货物价值队列，与load(),pull同步更新
 

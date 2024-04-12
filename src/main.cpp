@@ -196,7 +196,7 @@ void Input()
 
 int main()
 {
-    //  ofstream outputFile("data.csv");
+    // ofstream outputFile("data.csv");
     // outputFile << "goods_num, pick_goods_num, ship_goods_num" << endl;
     Init();
     for (frame = 1; frame <= 15000; frame++)
@@ -208,43 +208,6 @@ int main()
         printf("OK\n");
         fflush(stdout);
         // outputFile << goods_num << ", " << pick_goods_num << ", " << ship_goods_num << endl;
-
-        for (int i = 0, x = 0, y = 0, idx = 0; i < 1000; ++i)
-        { // 维护货物的剩余存在时间
-            for (auto iter = goodsInfo[i].begin(); iter != goodsInfo[i].end(); ++iter)
-            {
-                if (iter->second > 0)
-                {
-                    --iter->second;
-                    idx = iter->first;
-                    x = idx / MAP_SIZE;
-                    y = idx - x * MAP_SIZE;
-                    if (goodsInMap[x][y] != 0) // 说明该位置在此刻有货物存在（货物生成了，且暂时没被机器人取走）
-                    {
-                        goodsLeftTime[x][y] = iter->second;
-                        if (goodsLeftTime[x][y] == 0)
-                        { // 货物消失，货物价值归零
-                            if (goodsInMap[x][y] > 0)
-                            { // 该货物未被机器人选定为目标（选定为目标的话，场上货物数目已经减去一次1了）
-                                if (nearBerthDis[x][y] != 0)
-                                { // if条件不成立，说明该货物对于所有泊位都不可达
-                                    --numCurGoods;
-                                    int berthID = nearBerthID[x][y];
-                                    int goodsID = goodsIDInBerthZone[x][y];
-                                    berth[berthID].goodsInBerthInfo.erase(goodsID);
-                                }
-                            }
-                            goodsInMap[x][y] = 0;
-                        }
-                    }
-                    if (goodsInMap[x][y] == 0)
-                    { // 货物在当前帧被机器人拿走或剩余存在时间刚好被归零，直接将货物剩余存在时间归零
-                        iter->second = 0;
-                        goodsLeftTime[x][y] = iter->second;
-                    }
-                }
-            }
-        }
     }
     // outputFile.close();
     return 0;

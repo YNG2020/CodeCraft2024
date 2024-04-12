@@ -111,6 +111,7 @@ private:
 
     void phaseDecision();
     void purchaseDecision();
+    void updateGoodsInfo();
     void specialBerthSelect(int boatID, int upperBerthID, int upperTime, int upperGoodsNum, int Level, vector<int>& visitedBerth, int& minTransportTime, stack<int>& curStack, stack<int>& bestStack);
     int calAddGoodsNum(int berthID, int moveTime);
 
