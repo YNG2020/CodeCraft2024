@@ -66,14 +66,14 @@ void Init()
     else
         scanf("%d", &boatCapacity);
 
-    // if (oriMap[100][101] == 'T')
-    // {
-    // decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 1, 15, 5.5);
-    // }
-    // else
-    // {
-    // decisionMaker.setParams(0.4, 1.5, 100, 500, 0, 4.0, 2, 16, 5.5);
-    // }
+    if (oriMap[100][101] == 'T')
+    {
+        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 1, 16, 5.5, 1);
+    }
+    else
+    {
+        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 2, 16, 5.5, 1);
+    }
 
     // ifstream paramFile("param.txt");
     // double param;
@@ -83,7 +83,6 @@ void Init()
     //    s_p.push_back(param);
     //}
     //decisionMaker.setParams(s_p[0], s_p[1], s_p[2], s_p[3], s_p[4], 2, 16, s_p[5]);
-    decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 2, 16, 5.5, 1);
 
     string okk;
     if (Debug)
@@ -228,7 +227,7 @@ void printData()
         for (int i = 0; i < berthNum; i++)
         {
             cerr << "berth[" << i << "].numBerthGoods = " << berth[i].numBerthGoods << endl;
-            sum += berth[i].getBerthGoodsValueOfNum(berth[i].numBerthGoods, 0, 0);
+            sum += berth[i].getBerthGoodsValueOfNum(berth[i].numBerthGoods, 0);
         }
         cerr << "sum = " << sum << endl;
         cerr << "tot_goods_val = " << tot_goods_val << endl;

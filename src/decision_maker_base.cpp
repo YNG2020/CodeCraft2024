@@ -12,17 +12,16 @@ DecisionMaker::DecisionMaker() : priority(robotNum, 0)
     memset(berthMap, -1, sizeof(berthMap));
     memset(nearBerthID, -1, sizeof(nearBerthID));
     nodes = new Node[100 * MAP_SIZE * MAP_SIZE];
-    boatNumLimit = 2;
-    robotNumLimit = 16;
+    phase = 0;
     efficientBerthID = 0;
 }
 
 void DecisionMaker::makeDecision()
 {
     phaseDecision();
-    purchaseDecision();
     robotDecision();
     shipDecision();
+    purchaseDecision();
     updateGoodsInfo();
 }
 
@@ -644,11 +643,7 @@ int DecisionMaker::BoatAvailable(int x, int y, int dir) // 返回船在x,y处移
 
 void DecisionMaker::phaseDecision()
 {
-    if (robotNum < robotNumLimit)
-    {
-        phase = 0;
-    }
-    else
+    if (phase == 0 && robotNum >= robotNumLimit)
     {
         phase = 1;
     }
@@ -770,22 +765,23 @@ void DecisionMaker::purchaseDecision()
         //    }
         //}
     }
-    // 第一帧有两种策略，买1/2艘船，具体效果待观察
+
     if (frame == 1)
     {
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
-    if (robotNum >= robotNumLimit && boatNum < boatNumLimit)
+
+    if (phase > 0 && boatNum < boatNumLimit)
     {
-        int tmpSum = 0;
-        for (int i = 0; i < berthNum; ++i)
-            for (auto iter = berth[i].berthGoodsValueList.begin(); iter != berth[i].berthGoodsValueList.end(); ++iter)
-                tmpSum += *iter;
-        if (berthNum <= 4)
-        {
-            boatNumLimit -= 1;
-            return;
-        }
+        // int tmpSum = 0;
+        // for (int i = 0; i < berthNum; ++i)
+        //     for (auto iter = berth[i].berthGoodsValueList.begin(); iter != berth[i].berthGoodsValueList.end(); ++iter)
+        //         tmpSum += *iter;
+        // if (berthNum <= 4)
+        // {
+            // boatNumLimit -= 1;
+            // return;
+        // }
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
 }

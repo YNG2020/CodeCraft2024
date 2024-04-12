@@ -7,38 +7,6 @@
 void DecisionMaker::robotDecision()
 {
     refreshBerthState();
-    //if (boatNumLimit > 1)
-    //{
-    //    bool blockAllBerthFlag = true;
-    //    for (int i = 0; i < berthNum; ++i)
-    //    {
-    //        if (frameId + 2 * berth[i].nearestBerthTime + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
-    //            berth[i].isBlocked = true;
-    //        else
-    //        {
-    //            berth[i].isBlocked = false;
-    //            blockAllBerthFlag = false;
-    //        }
-    //    }
-    //    if (blockAllBerthFlag)
-    //        berth[efficientBerthID].isBlocked = false;             
-    //}
-    //else
-    //{
-    //    bool blockAllBerthFlag = true;
-    //    for (int i = 0; i < berthNum; ++i)
-    //    {
-    //        if (frameId + 2 * berth[i].nearestBerthTime + berth[i].transportTime >= 15000 && (berth[i].boatIDToBerth == -1 && berth[i].boatIDInBerth == -1))
-    //            berth[i].isBlocked = true;
-    //        else
-    //        {
-    //            berth[i].isBlocked = false;
-    //            blockAllBerthFlag = false;
-    //        }
-    //    }
-    //    if (blockAllBerthFlag)
-    //        berth[efficientBerthID].isBlocked = false;
-    //}
 
     for (int i = 0; i < robotNum; i++)
     {
@@ -171,9 +139,9 @@ void DecisionMaker::robotDecision()
                     }
                 }
             }
-            //callingBerthID = -1;
         }
 
+        // callingBerthID = -1;
         int callingGoodsID = -1;
         //if (callingBerthID == -1 && bot.pullBerthID != -1)
         //{   // 探测是否有货物是即将消失的，如果时间允许，且其价值够高，则优先去运这个即将消失的货物
@@ -327,20 +295,20 @@ void DecisionMaker::refreshBerthState()
         globalMeanGoodsRatio = tmpSum / tmpCnt;
 
     // 计算各个泊位的连通泊位接收到的货物的性价比
-    for (int i = 0; i < berthNum; ++i)
-    {
-        tmpSum = 0.0;
-        tmpCnt = 0;
-        for (int j = 0; j < berthNum; ++j)
-        {
-            if (berth[i].connectedBerth[j] && i != j)
-            {
-                tmpSum += berth[j].totGetGoodsRatio;
-                tmpCnt += berth[j].numGetGoods;
-            }
-        }
-        berth[i].connectedBerthMeanGoodsRatio = tmpSum / tmpCnt;
-    }
+    // for (int i = 0; i < berthNum; ++i)
+    // {
+    //     tmpSum = 0.0;
+    //     tmpCnt = 0;
+    //     for (int j = 0; j < berthNum; ++j)
+    //     {
+    //         if (berth[i].connectedBerth[j] && i != j)
+    //         {
+    //             tmpSum += berth[j].totGetGoodsRatio;
+    //             tmpCnt += berth[j].numGetGoods;
+    //         }
+    //     }
+    //     berth[i].connectedBerthMeanGoodsRatio = tmpSum / tmpCnt;
+    // }
 
     // 计算各个泊位当前管理区上的货物的平均性价比
     for (int i = 0; i < berthNum; ++i)

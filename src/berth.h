@@ -55,21 +55,16 @@ public:
         return loadNum;
     }
 
-    int getBerthGoodsValueOfNum(int num, int start, int GoodsValueMean) // 计算从下标start（从0开始）开始的num个货物的总价值
+    int getBerthGoodsValueOfNum(int num, int start) // 计算从下标start（从0开始）开始的num个货物的总价值
     {
-
         int BerthGoodsValueOfNum = 0;
         int count = 0;
         for (auto value = berthGoodsValueList.begin(); value < berthGoodsValueList.end(); ++value)
         {
             if (count >= start && count < start + num)
                 BerthGoodsValueOfNum += *value;
-            count++;
-        }
-        while (count < start + num)
-        {
-            if (count >= start)
-                BerthGoodsValueOfNum += GoodsValueMean;
+            else
+                break;
             count++;
         }
         return BerthGoodsValueOfNum;
