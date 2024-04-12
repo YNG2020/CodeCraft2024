@@ -81,7 +81,7 @@ void DecisionMaker::getNearBerthDis(int x, int y)
             if (inBerth(nx, ny))
             {
                 int berthID = getBerthId(nx, ny);
-                if (berth[berthID].isBlocked && phase <= 1)
+                if (berth[berthID].isBlocked)
                     continue;
                 nearBerthDis[x][y] = now->dis + 1;
                 nearBerthID[x][y] = berthID;
@@ -358,7 +358,7 @@ void DecisionMaker::berthAvailable()
             tradeID = tradeID == -1 ? tradeMapSea[dir][berth[i].x][berth[i].y] : tradeID;
         if (tradeID == -1) // 如果这个泊位找不到相连的交货点，跳过
         {
-            berth[i].isBlocked = true;
+            blockBerth(i);
         }
     }
 }
@@ -645,21 +645,23 @@ void DecisionMaker::phaseDecision()
                     tradeID = tradeID == -1 ? tradeMapSea[dir][berth[j].x][berth[j].y] : tradeID;
                 if (tradeID == -1) // 如果这个泊位找不到相连的交货点，跳过
                 {
-                    berth[j].isBlocked = true;
+                    blockBerth(j);
                     continue;
                 }
                 // 检验该泊位对所有船的可达性
-                berth[j].isBlocked = true;
+                bool flag = true;
                 for (int i = 0; i < boatNum; ++i)
                 {
                     int curBerth = getBerthIdSea(boat[i].curX, boat[i].curY);
                     int moveTimeToBerth = berthDis[j][boat[i].dire][boat[i].curX][boat[i].curY];
                     if (moveTimeToBerth != 0 || j == curBerth)
                     {
-                        berth[j].isBlocked = false;
+                        flag = false;
                         break;
                     }
                 }
+                if (flag)
+                    blockBerth(j);
             }
         }
         // 选出boatNum个泊位来作为最后时刻的泊位
@@ -675,7 +677,7 @@ void DecisionMaker::phaseDecision()
             if (berth[berthID].isBlocked == false)
             {
                 --OKBerthNum;
-                berth[berthID].isBlocked = true;
+                blockBerth(berthID);
             }
             --counter;
         }
@@ -808,4 +810,17 @@ bool DecisionMaker::getNearRobotShop(int robotShopID)
         }
     }
     return findBerthFlag;
+}
+
+
+void DecisionMaker::blockBerth(int berthID)
+{
+    berth[berthID].isBlocked = true;
+    // for (int i = 0; i < MAP_SIZE; i++) {
+    //     for (int j = 0; j < MAP_SIZE; j++) {
+    //         if (nearBerthID[i][j] == berthID) {
+    //             getNearBerthDis(i, j);
+    //         }
+    //     }
+    // }
 }

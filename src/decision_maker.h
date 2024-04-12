@@ -86,6 +86,7 @@ private:
     void boatMoveControl();
 
     int berthSelect(int boatID);
+    void blockBerth(int berthID);
 
     void setPriority();
     void refreshJamBuffer(int botID);
