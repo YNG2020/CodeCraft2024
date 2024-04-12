@@ -320,18 +320,17 @@ bool DecisionMaker::boatGetAvoidPath(int boatID1, int boatID2)
 // 寻找避让路径，默认是botID2去寻找避让boatID1的路径(Dijkstra)
 bool DecisionMaker::getBoatDetourPath(int boatID1, int boatID2)
 {
-    int queueCount = 0;
-    int queueIndex = 0;
-    int x = boat[boatID2].curX, y = boat[boatID2].curY, dire = boat[boatID2].dire;
-    Node* now = &nodes[queueCount++];
-    Node* target = nullptr; // 用于存储找到的目标节点
-    Node* child = nullptr;
-    now->setNode(x, y, 0, nullptr, dire);
-    memset(visBoat, 0, sizeof(visBoat));
-    priority_queue<Node> candidate;
-    candidate.push(*now);
-    visBoat[boat[boatID1].dire][boat[boatID1].curX][boat[boatID1].curY] = true; // 不经过要避让的boat此刻所在的位置
 
+    int x = boat[boatID2].curX, y = boat[boatID2].curY, dire = boat[boatID2].dire;
+     memset(visBoat, 0, sizeof(visBoat)); // 这里visBoat起确定最短路径集合的作用
+    priority_queue<Node> candidate;
+    int queueCount = 0;
+    int firstDis = 0;
+    Node *now = &nodes[queueCount++];
+    Node *target = nullptr;
+    Node *child = nullptr;
+    now->setNode(x, y, 0, nullptr,dire);
+    candidate.push(*now);
     int tmpX, tmpY, tmpDire;
     for (int i = 0; i < boat[boatID1].jamDetectBufferLen - 1; ++i)
     {   // 构建寻路屏障，不让避让路径与boatID1的路径有冲突
@@ -349,9 +348,9 @@ bool DecisionMaker::getBoatDetourPath(int boatID1, int boatID2)
 
     bool pointAvailable = true; // 用于标识找到的避让点是否可行
 
-    while (queueCount > queueIndex)
+    while (!target && !candidate.empty())
     {
-        now = &nodes[queueIndex++];
+        now = &nodes[queueCount++];
         *now = candidate.top(); // 取出最短的节点now
         candidate.pop();
         if (visBoat[now->dir][now->x][now->y] == 1) // 如果已经是最短路径集合，跳过
@@ -368,7 +367,7 @@ bool DecisionMaker::getBoatDetourPath(int boatID1, int boatID2)
             break;
         }
 
-        for (int i = 0; i < 3; i++) // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
+       for (int i = 0; i < 3; i++) // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
         {
             int nx = now->x + dirBoatDx[i][now->dir];
             int ny = now->y + dirBoatDy[i][now->dir];
@@ -376,7 +375,7 @@ bool DecisionMaker::getBoatDetourPath(int boatID1, int boatID2)
             int curDir = i == 2 ? now->dir : clockWiseDir[i][now->dir];
             if (boatTimeForDifDir[curDir][nx][ny] == 0 || visBoat[curDir][nx][ny])
                 continue;
-            child = &nodes[queueCount++];
+            child = &nodes[queueCount++]; // 这里只是为了用申请的空间
             child->setNode(nx, ny, boatTimeForDifDir[now->dir][now->x][now->y] + now->dis, now, curDir);
             candidate.push(*child);
         }
@@ -408,7 +407,6 @@ bool DecisionMaker::getBoatDetourPath(int boatID1, int boatID2)
     }
     return true;
 }
-
 // 检测是否可以解除堵塞状态
 void DecisionMaker::boatUnJam()
 {
