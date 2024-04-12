@@ -424,6 +424,9 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint
                 else
                     factor = 1.0;
 
+                if (phase == 2 && (frame + now->dis + nearBerthDis[now->x][now->y] + berth[goodsNearBerthID].transportTime >= 15000))
+                    factor = 0.00001;
+
                 if (firstDis == 0)
                     // if (cnt == 0)
                 { // 第一次找到货物
