@@ -72,7 +72,7 @@ void Init()
     }
     else if (oriMap[0][0] == '.' && oriMap[4][19] == '~')
     {
-        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 2, 12, 12, 5.5, 1);
+        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 1, 12, 12, 5.5, 1);
     }
     else
     {

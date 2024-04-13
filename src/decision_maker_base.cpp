@@ -715,7 +715,7 @@ void DecisionMaker::purchaseDecision()
         for (int i = 0; i < robotShop.size(); i++)
         {
             for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit2); ++j) {
-                if (robotNum + i * 2 + j <= robotNumLimit1)
+                if (robotNum + i * 2 + j < robotNumLimit1)
                 {
                     printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 0);
                     robotType.emplace_back(0);

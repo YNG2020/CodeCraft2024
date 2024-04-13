@@ -380,7 +380,13 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint
     if (robot[botID].avoidBotID != -1) // 避让状态中找不到路，找新路时则避免路过曾经要避让但避让失败的对象
         vis[robot[robot[botID].avoidBotID].curX][robot[robot[botID].avoidBotID].curY] = true;
 
-    int botInberthID = getBerthId(x, y);
+    int botInberthID;
+
+    if (robot[botID].carryGoods == 0)
+        botInberthID = getBerthId(x, y);
+    else
+        botInberthID = nearBerthID[now->x][now->y];
+
     double factor = 2.0;
     double gainForCalling = 100.0;
 
