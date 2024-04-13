@@ -509,7 +509,8 @@ void DecisionMaker::getMapDisTrade()
                 candidate.pop();
                 if (visBoat[DirRev[now->dir]][now->x][now->y] == 1) // 如果已经是最短路径集合，跳过
                     continue;
-                tradeDis[i][DirRev[now->dir]][now->x][now->y] = max(now->dis, tradeDis[i][DirRev[now->dir]][now->x][now->y]);
+                //tradeDis[i][DirRev[now->dir]][now->x][now->y] = max(now->dis, tradeDis[i][DirRev[now->dir]][now->x][now->y]);
+                tradeDis[i][DirRev[now->dir]][now->x][now->y] =tradeDis[i][DirRev[now->dir]][now->x][now->y] ==0?now->dis:min(now->dis, tradeDis[i][DirRev[now->dir]][now->x][now->y]);
                 visBoat[DirRev[now->dir]][now->x][now->y] = 1; // 确定为最短路径集合
                 for (int j = 0; j < 3; j++)                    // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
                 {
