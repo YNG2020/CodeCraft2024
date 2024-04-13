@@ -704,12 +704,19 @@ void DecisionMaker::phaseDecision()
 
 void DecisionMaker::purchaseDecision()
 {
+    if (frame == 1)
+    {
+        printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
+    }
+
     if (phase == 0 && money >= 2000)
     {
         for (int i = 0; i < robotShop.size(); i++)
         {
-            for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit); ++j)
-                printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 0);
+            for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit); ++j) {
+                printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 1);
+                robotType.emplace_back(1);
+            }
         }
 
         //int numRobotBuyInFirstTime = std::min(8, robotNumLimit);        // 第一批次购买机器人的数目
@@ -764,11 +771,6 @@ void DecisionMaker::purchaseDecision()
         //        printf("lbot %d %d\n", robotShop[buyFromRobotShopID].x, robotShop[buyFromRobotShopID].y);
         //    }
         //}
-    }
-
-    if (frame == 1)
-    {
-        printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
 
     if (phase > 0 && boatNum < boatNumLimit)

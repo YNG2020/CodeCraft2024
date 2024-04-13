@@ -35,6 +35,7 @@ extern int dirBoatDxRev[3][4]; // 第一个index：0顺时针 1逆时针 2前进
 extern int dirBoatDyRev[3][4];
 extern int clockWiseDirRev[2][4]; // 0顺时针,1逆时针映射
 extern int DirRev[4];
+extern vector<int> robotType;                  // 记录机器人类型
 /* 分析用 */
 extern int goods_num;                            // 分析用，地图生成的货物总量
 extern int pick_goods_num;                        // 分析用，机器人捡起的货物总量

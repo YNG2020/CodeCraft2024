@@ -162,6 +162,7 @@ void Input()
     else
         scanf("%d", &robotNum);
     robot.resize(robotNum);
+    robotType.resize(robotNum);
     for (int i = 0; i < robotNum; i++)
     {
         if (Debug)
