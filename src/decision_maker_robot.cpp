@@ -155,7 +155,7 @@ void DecisionMaker::robotDecision()
 
         if (bot.botMoveState == WAITING || bot.botPathState == NO_PATH)
         { // 没有目标，分配目标，之前没找到路，更新路（适用于中途变更路径，但失败的情况）
-            if (bot.carryGoods == 0)
+            if (bot.carryGoods == 0 || (robotType[i] == 1 && bot.carryGoods == 1))
             { // 未持有货物
                 bool findPathFlag = getNearestGoods(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i, false, callingBerthID, callingGoodsID);
                 if (findPathFlag)
@@ -229,7 +229,7 @@ void DecisionMaker::refreshRobotState(int botID)
         bot.lastY = bot.curY;
     }
 
-    if ((/*goodsInMap[bot.curX][bot.curY] > 0 || */ goodsInMap[bot.curX][bot.curY] == -(botID + 1)) && bot.carryGoods == 0)
+    if ((/*goodsInMap[bot.curX][bot.curY] > 0 || */ goodsInMap[bot.curX][bot.curY] == -(botID + 1)) && bot.carryGoods <= 1)
     { // 自己本身没有货物，且遇上了货物（自己的目标或无主货物）
         bot.botMoveState = ARRIVEGOODS;
     }
