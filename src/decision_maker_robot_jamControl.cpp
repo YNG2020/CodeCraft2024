@@ -13,7 +13,7 @@ void DecisionMaker::setPriority()
         if (robot[i].carryGoods == 0)
             robot[i].avoidPriority = i;
         else
-            robot[i].avoidPriority = robotNum + robot[i].goodsVal;
+            robot[i].avoidPriority = robotNum + robot[i].sumGoodsVal;
     }
     // 使用 lambda 表达式定义比较函数并对索引进行排序
     // std::sort(priority.begin(), priority.end(), [&](int a, int b) {
