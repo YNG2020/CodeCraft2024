@@ -17,6 +17,7 @@ public:
     int tarX, tarY;                   // 目标位置
     int lastX, lastY;                 // 上一个位置
     int goodsVal;                     // 货物价值
+    int sumGoodsVal;
     int secondGoodsVal;               // 第二货物价值
     int idxInPth = 0;                 // 当前走到路径的第几个点
     
@@ -47,7 +48,7 @@ public:
         lastX(0), lastY(0), goodsVal(0), secondGoodsVal(0), idxInPth(0), avoidPriority(0), avoidBotID(-1),
         tmpTarX(0), tmpTarY(0), curPropotion(0), meanPropotion(0), sumPropotion(0),
         cntPropotion(0), botMoveState(WAITING),
-        botPathState(NO_PATH), botAvoidState(NO_AVOIDING), pullBerthID(-1)
+        botPathState(NO_PATH), botAvoidState(NO_AVOIDING), pullBerthID(-1), sumGoodsVal(0)
     {}
 };
 

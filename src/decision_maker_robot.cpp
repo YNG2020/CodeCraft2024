@@ -16,7 +16,7 @@ void DecisionMaker::robotDecision()
         if (bot.botMoveState == ARRIVEGOODS)
         {
             printf("get %d\n", i);
-            bot.carryGoods = 1;          // 手动更新为持有货物的状态
+            ++bot.carryGoods;          // 手动更新为持有货物的状态
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
             bot.botPathState = NO_PATH;
             bot.idxInPth = 0;
@@ -30,27 +30,43 @@ void DecisionMaker::robotDecision()
             pick_goods_num++;
             bot.lastX = -1;
             bot.lastY = -1;
+            bot.sumGoodsVal += bot.goodsVal;
         }
         else if (bot.botMoveState == ARRIVEBERTH)
         {
             printf("pull %d\n", i);
 
             int berthID = getBerthId(bot.curX, bot.curY);
-            berth[berthID].numBerthGoods++;
-            berth[berthID].berthGoodsValueList.push_back(bot.goodsVal);
-            berth[berthID].totGetGoodsGap += (frameId - berth[berthID].lastTimeGetGoods);
-            berth[berthID].lastTimeGetGoods = frameId;
-            ++berth[berthID].numGetGoods;
-            berth[berthID].timeOfGoodsToBerth = berth[berthID].totGetGoodsGap / berth[berthID].numGetGoods;
-            berth[berthID].totGetGoodsRatio += robot[i].curPropotion;
-            berth[berthID].meanGetGoodsRatio = berth[berthID].totGetGoodsRatio / berth[berthID].numGetGoods;
+            if (bot.carryGoods == 1)
+            {
+                berth[berthID].numBerthGoods++;
+                berth[berthID].berthGoodsValueList.push_back(bot.goodsVal);
+                berth[berthID].totGetGoodsGap += (frameId - berth[berthID].lastTimeGetGoods);
+                berth[berthID].lastTimeGetGoods = frameId;
+                ++berth[berthID].numGetGoods;
+                berth[berthID].timeOfGoodsToBerth = berth[berthID].totGetGoodsGap / berth[berthID].numGetGoods;
+                berth[berthID].totGetGoodsRatio += robot[i].curPropotion;
+                berth[berthID].meanGetGoodsRatio = berth[berthID].totGetGoodsRatio / berth[berthID].numGetGoods;
+            }
+            else
+            {
+                berth[berthID].numBerthGoods += 2;
+                berth[berthID].berthGoodsValueList.push_back(bot.goodsVal);
+                berth[berthID].berthGoodsValueList.push_back(bot.sumGoodsVal - bot.goodsVal);
+                berth[berthID].totGetGoodsGap += (frameId - berth[berthID].lastTimeGetGoods);
+                berth[berthID].lastTimeGetGoods = frameId;
+                berth[berthID].numGetGoods += 2;
+                berth[berthID].timeOfGoodsToBerth = berth[berthID].totGetGoodsGap / berth[berthID].numGetGoods;
+                berth[berthID].totGetGoodsRatio += robot[i].curPropotion;
+                berth[berthID].meanGetGoodsRatio = berth[berthID].totGetGoodsRatio / berth[berthID].numGetGoods;
+            }
                 
             /* */
             goods_pull_frame.push_back(frameId);
             goods_pull_value.push_back(bot.goodsVal);
             goods_pull_region.push_back(berthID);
             /* */
-            bot.total_goods_val += bot.goodsVal;
+            bot.total_goods_val += bot.sumGoodsVal;
             bot.curPropotion = -1;      
             bot.goodsVal = 0;            // 将目前所拥有的或准备拥有的货物价值清0
             bot.carryGoods = 0;          // 手动更新为不持有货物的状态
@@ -59,6 +75,7 @@ void DecisionMaker::robotDecision()
             bot.idxInPth = 0;
             bot.lastX = -1;
             bot.lastY = -1;
+            bot.sumGoodsVal = 0;
         }
         else if (bot.botMoveState == TOGOODS)
         {   
