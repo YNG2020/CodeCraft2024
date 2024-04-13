@@ -268,7 +268,6 @@ void DecisionMaker::refreshRobotState(int botID)
 
     if (bot.botMoveState == TOGOODS && goodsInMap[bot.tarX][bot.tarY] == 0)
     {                                // 货物消失，及时更新自身状态
-        bot.carryGoods = 0;          // 手动更新为不持有货物的状态
         bot.botMoveState = WAITING;
         bot.botPathState = NO_PATH;
         bot.curPropotion = -1;
