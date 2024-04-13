@@ -7,10 +7,6 @@
 // 更新robot的避让优先级
 void DecisionMaker::setPriority()
 {
-    // for (int i = 0; i < robotNum; ++i) {
-    //     priorityFactor[i][0] = i;   // 第一列放编号
-    //     priorityFactor[i][1] = robot[i].goodsVal;   // 第二列放货物的价值
-    // }
     for (int i = 0; i < robotNum; ++i)
     {
         // robot[i].avoidPriority = i;
