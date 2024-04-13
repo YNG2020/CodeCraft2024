@@ -73,6 +73,7 @@ private:
     bool inBerthSea(int x, int y);
     int getBerthIdSea(int x, int y);
     bool getNearestGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID, int callingGoodsID);
+    bool getNearestTwoGoods(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID, bool tryChangePath, int callingBerthID, int callingGoodsID);
     bool getNearestBerth(int x, int y, vector<SimplePoint> &pathPoint, vector<int> &pathDir, int botID);
     bool getToTarPath(int botID, bool calFromJam);
     bool getDetourPath(int botID1, int botID2);
