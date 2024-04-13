@@ -709,7 +709,7 @@ void DecisionMaker::purchaseDecision()
         for (int i = 0; i < robotShop.size(); i++)
         {
             for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit); ++j)
-                printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
+                printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 0);
         }
 
         //int numRobotBuyInFirstTime = std::min(8, robotNumLimit);        // 第一批次购买机器人的数目
