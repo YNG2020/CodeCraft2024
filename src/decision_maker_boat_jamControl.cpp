@@ -220,12 +220,13 @@ void DecisionMaker::boatJamResolve(int boatID1, int boatID2, int jamPos)
 bool DecisionMaker::boatGetAvoidPath(int boatID1, int boatID2)
 {
     int queueCount = 0;
-    int queueIndex = 0;
     int x = boat[boatID2].curX, y = boat[boatID2].curY, dire = boat[boatID2].dire;
+    priority_queue<Node> candidate;
     Node* now = &nodes[queueCount++];
     Node* target = nullptr; // 用于存储找到的目标节点
     Node* child = nullptr;
     now->setNode(x, y, 0, nullptr, dire);
+    candidate.push(*now);
     memset(visBoat, 0, sizeof(visBoat));
     visBoat[dire][x][y] = true;
     visBoat[boat[boatID1].dire][boat[boatID1].curX][boat[boatID1].curY] = true; // 不经过要避让的boat此刻所在的位置
@@ -247,9 +248,14 @@ bool DecisionMaker::boatGetAvoidPath(int boatID1, int boatID2)
 
     bool pointAvailable = true; // 用于标识找到的避让点是否可行
 
-    while (queueCount > queueIndex)
+    while ( !candidate.empty())
     {
-        now = &nodes[queueIndex++];
+        now = &nodes[queueCount++];
+        *now = candidate.top(); // 取出最短的节点now
+        candidate.pop();
+        if (visBoat[now->dir][now->x][now->y] == 1) // 如果已经是最短路径集合，跳过
+            continue;
+        visBoat[now->dir][now->x][now->y] = 1; // 确定为最短路径集合
 
         pointAvailable = true;
         for (int i = boat[boatID1].idxInPth; i < boat[boatID1].pathPoint.size(); ++i)
@@ -284,9 +290,9 @@ bool DecisionMaker::boatGetAvoidPath(int boatID1, int boatID2)
             int curDir = i == 2 ? now->dir : clockWiseDir[i][now->dir];
             if (boatTimeForDifDir[curDir][nx][ny] == 0 || visBoat[curDir][nx][ny])
                 continue;
-            visBoat[curDir][nx][ny] = true;
-            child = &nodes[queueCount++];
-            child->setNode(nx, ny, 0, now, curDir);
+            child = &nodes[queueCount++]; // 这里只是为了用申请的空间
+            child->setNode(nx, ny, boatTimeForDifDir[now->dir][now->x][now->y] + now->dis, now, curDir);
+            candidate.push(*child);
         }
     }
 
