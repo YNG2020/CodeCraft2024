@@ -16,7 +16,7 @@ void DecisionMaker::robotDecision()
         if (bot.botMoveState == ARRIVEGOODS)
         {
             printf("get %d\n", i);
-            bot.carryGoods = 1;          // 手动更新为持有货物的状态
+            bot.carryGoods++;          // 手动更新为持有货物的状态
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
             bot.botPathState = NO_PATH;
             bot.idxInPth = 0;
