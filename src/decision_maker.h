@@ -43,7 +43,8 @@ private:
     int blockBerthTime;                           // 提前屏蔽berth的时间
     int phase;                                    // 根据租赁情况判断当前阶段
     int boatNumLimit;                             // 船只数量限制
-    int robotNumLimit;                            // 机器人数量限制
+    int robotNumLimit1;                           // 机器人数量限制
+    int robotNumLimit2;                           // 机器人数量限制
     double gainForSameBerth;                      // 本区增益
     double globalMeanGoodsRatio;                  // 全场泊位接收的货物的平均性价比
     double berthCallingFactor;                    // 泊位向邻区发出召唤的参数
@@ -117,7 +118,7 @@ private:
 
 public:
     DecisionMaker();
-    void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, double lastTimeFactor, double gainForSameBerth, int boatNumLimit, int robotNumLimit, double berthCallingFactor, int recursionDepthInBerthSelect);
+    void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, double lastTimeFactor, double gainForSameBerth, int boatNumLimit, int robotNumLimit1, int robotNumLimit2, double berthCallingFactor, int recursionDepthInBerthSelect);
     void analyzeMap();
     void getMapInfoBoat();   // 得到船运动的地图信息
     void getMapDisBerth();   // 得到泊位的海上距离map

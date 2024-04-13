@@ -178,7 +178,7 @@ void DecisionMaker::getConnectedBerth(int berthID)
 
 void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods, 
     int extraSearchTime, double lastTimeFactor, double gainForSameBerth,
-    int boatNumLimit, int robotNumLimit, double berthCallingFactor, int recursionDepthInBerthSelect)
+    int boatNumLimit, int robotNumLimit1, int robotNumLimit2, double berthCallingFactor, int recursionDepthInBerthSelect)
 {
     this->limToTryChangeGoods = limToTryChangeGoods;
     this->limToChangeGoods = limToChangeGoods;
@@ -186,7 +186,8 @@ void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGood
     this->lastTimeFactor = lastTimeFactor;
     this->gainForSameBerth = gainForSameBerth;
     this->boatNumLimit = boatNumLimit;
-    this->robotNumLimit = robotNumLimit;
+    this->robotNumLimit1 = robotNumLimit1;
+    this->robotNumLimit2 = robotNumLimit2;
     this->berthCallingFactor = berthCallingFactor;
     this->recursionDepthInBerthSelect = recursionDepthInBerthSelect;
 }
@@ -643,7 +644,7 @@ int DecisionMaker::BoatAvailable(int x, int y, int dir) // 返回船在x,y处移
 
 void DecisionMaker::phaseDecision()
 {
-    if (phase == 0 && robotNum >= robotNumLimit)
+    if (phase == 0 && robotNum >= robotNumLimit2)
     {
         phase = 1;
     }
@@ -713,9 +714,17 @@ void DecisionMaker::purchaseDecision()
     {
         for (int i = 0; i < robotShop.size(); i++)
         {
-            for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit); ++j) {
-                printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 1);
-                robotType.emplace_back(1);
+            for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit2); ++j) {
+                if (robotNum + i * 2 + j <= robotNumLimit1)
+                {
+                    printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 0);
+                    robotType.emplace_back(0);
+                }
+                else
+                {
+                    printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 1);
+                    robotType.emplace_back(1);
+                }
             }
         }
     }

@@ -66,14 +66,14 @@ void Init()
     else
         scanf("%d", &boatCapacity);
 
-    if (oriMap[100][101] == 'T')
-    {
-        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 1, 16, 5.5, 1);
-    }
-    else
-    {
-        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 2, 16, 5.5, 1);
-    }
+    // if (oriMap[100][101] == 'T')
+    // {
+        // decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 1, 16, 5.5, 1);
+    // }
+    // else
+    // {
+        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 2, 12, 12, 5.5, 1);
+    // }
 
     // ifstream paramFile("param.txt");
     // double param;
