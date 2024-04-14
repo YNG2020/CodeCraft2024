@@ -2,5 +2,4 @@
 /replay
 *.csv
 *.rep
-*.txt
 /.vscode
