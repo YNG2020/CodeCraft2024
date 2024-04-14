@@ -1,2 +1,2 @@
-# CodeCraft2024-preliminary-contest
-2024华为软件精英挑战赛初赛
+# CodeCraft2024
+我们需要更加大胆和更富想象力的策略
