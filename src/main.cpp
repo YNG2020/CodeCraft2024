@@ -15,7 +15,7 @@
 using namespace std;
 
 std::ifstream myCin;
-bool Debug = false;
+bool Debug = true;
 bool Record = false;
 void printData();
 DecisionMaker decisionMaker;
@@ -66,13 +66,17 @@ void Init()
     else
         scanf("%d", &boatCapacity);
 
-    if (oriMap[100][101] == 'T')
+    if (oriMap[0][0] == '~' && oriMap[2][2] == 'S')
     {
-        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 1, 16, 5.5, 1);
+        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 2, 12, 12, 5.5, 1);
+    }
+    else if (oriMap[0][0] == '.' && oriMap[4][19] == '~')
+    {
+        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 1, 11, 12, 5.5, 1);
     }
     else
     {
-        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 2, 16, 5.5, 1);
+        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 2, 12, 12, 5.5, 1);
     }
 
     // ifstream paramFile("param.txt");
@@ -162,6 +166,7 @@ void Input()
     else
         scanf("%d", &robotNum);
     robot.resize(robotNum);
+    robotType.resize(robotNum);
     for (int i = 0; i < robotNum; i++)
     {
         if (Debug)

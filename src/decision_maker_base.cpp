@@ -178,7 +178,7 @@ void DecisionMaker::getConnectedBerth(int berthID)
 
 void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods, 
     int extraSearchTime, double lastTimeFactor, double gainForSameBerth,
-    int boatNumLimit, int robotNumLimit, double berthCallingFactor, int recursionDepthInBerthSelect)
+    int boatNumLimit, int robotNumLimit1, int robotNumLimit2, double berthCallingFactor, int recursionDepthInBerthSelect)
 {
     this->limToTryChangeGoods = limToTryChangeGoods;
     this->limToChangeGoods = limToChangeGoods;
@@ -186,7 +186,8 @@ void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGood
     this->lastTimeFactor = lastTimeFactor;
     this->gainForSameBerth = gainForSameBerth;
     this->boatNumLimit = boatNumLimit;
-    this->robotNumLimit = robotNumLimit;
+    this->robotNumLimit1 = robotNumLimit1;
+    this->robotNumLimit2 = robotNumLimit2;
     this->berthCallingFactor = berthCallingFactor;
     this->recursionDepthInBerthSelect = recursionDepthInBerthSelect;
 }
@@ -643,7 +644,7 @@ int DecisionMaker::BoatAvailable(int x, int y, int dir) // 返回船在x,y处移
 
 void DecisionMaker::phaseDecision()
 {
-    if (phase == 0 && robotNum >= robotNumLimit)
+    if (phase == 0 && robotNum >= robotNumLimit2)
     {
         phase = 1;
     }
@@ -704,71 +705,28 @@ void DecisionMaker::phaseDecision()
 
 void DecisionMaker::purchaseDecision()
 {
+    if (frame == 1)
+    {
+        printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
+    }
+
     if (phase == 0 && money >= 2000)
     {
         for (int i = 0; i < robotShop.size(); i++)
         {
-            for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit); ++j)
-                printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 0);
+            for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit2); ++j) {
+                if (robotNum + i * 2 + j < robotNumLimit1)
+                {
+                    printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 0);
+                    robotType.emplace_back(0);
+                }
+                else
+                {
+                    printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 1);
+                    robotType.emplace_back(1);
+                }
+            }
         }
-
-        //int numRobotBuyInFirstTime = std::min(8, robotNumLimit);        // 第一批次购买机器人的数目
-        //if (robotNum < numRobotBuyInFirstTime)
-        //{
-        //    int maxBuyRobotNum = std::min((int)ceil((double)numRobotBuyInFirstTime / robotShop.size()), 2);
-        //    for (int i = 0; i < robotShop.size(); ++i)
-        //        for (int j = 0; j < maxBuyRobotNum; ++j)
-        //            printf("lbot %d %d\n", robotShop[i].x, robotShop[i].y);
-        //}
-        //else
-        //{
-        //    int addRobotNum = money / 2000;
-        //    vector<int>buyRobotNum(robotShop.size(), 0);
-        //    for (int i = 0; i < addRobotNum; ++i)
-        //    {
-        //        int buyFromRobotShopID = 0;
-        //        double maxPriority = 0;
-        //        for (int j = 0; j < robotShop.size(); ++j)
-        //        {
-        //            double thisPriority;
-        //            double totGoodsVal = 0;
-        //            int totServingRobot = 0;
-        //            for (int berthID = 0; berthID < berthNum; ++berthID)
-        //            {
-        //                if (berth[berthID].nearestRobotShop == j)
-        //                    for (auto it = berth[berthID].goodsInBerthInfo.begin(); it != berth[berthID].goodsInBerthInfo.end(); ++it)
-        //                        totGoodsVal += it->second.goodsVal;
-        //                else
-        //                    continue;
-        //                for (int l = 0; l < robotNum; ++l)
-        //                {
-        //                    Robot& bot = robot[l];
-        //                    int servingBerthID = -1;
-        //                    if (bot.botMoveState == TOGOODS)
-        //                        servingBerthID = nearBerthID[bot.tarX][bot.tarY];
-        //                    else if (bot.botMoveState == TOBERTH)
-        //                        servingBerthID = getBerthId(bot.tarX, bot.tarY);
-        //                    if (servingBerthID == berthID)
-        //                        ++totServingRobot;
-        //                }
-        //            }
-        //            totServingRobot += buyRobotNum[j];
-        //            thisPriority = totGoodsVal / totServingRobot;
-        //            if (thisPriority > maxPriority)
-        //            {
-        //                maxPriority = thisPriority;
-        //                buyFromRobotShopID = j;
-        //            }
-        //        }
-        //        ++buyRobotNum[buyFromRobotShopID];
-        //        printf("lbot %d %d\n", robotShop[buyFromRobotShopID].x, robotShop[buyFromRobotShopID].y);
-        //    }
-        //}
-    }
-
-    if (frame == 1)
-    {
-        printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
 
     if (phase > 0 && boatNum < boatNumLimit)

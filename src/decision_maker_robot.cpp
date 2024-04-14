@@ -16,7 +16,7 @@ void DecisionMaker::robotDecision()
         if (bot.botMoveState == ARRIVEGOODS)
         {
             printf("get %d\n", i);
-            bot.carryGoods = 1;          // 手动更新为持有货物的状态
+            ++bot.carryGoods;          // 手动更新为持有货物的状态
             bot.botMoveState = WAITING;  // 手动更新为原地等待的状态（等路径分配）
             bot.botPathState = NO_PATH;
             bot.idxInPth = 0;
@@ -30,27 +30,43 @@ void DecisionMaker::robotDecision()
             pick_goods_num++;
             bot.lastX = -1;
             bot.lastY = -1;
+            bot.sumGoodsVal += bot.goodsVal;
         }
         else if (bot.botMoveState == ARRIVEBERTH)
         {
             printf("pull %d\n", i);
 
             int berthID = getBerthId(bot.curX, bot.curY);
-            berth[berthID].numBerthGoods++;
-            berth[berthID].berthGoodsValueList.push_back(bot.goodsVal);
-            berth[berthID].totGetGoodsGap += (frameId - berth[berthID].lastTimeGetGoods);
-            berth[berthID].lastTimeGetGoods = frameId;
-            ++berth[berthID].numGetGoods;
-            berth[berthID].timeOfGoodsToBerth = berth[berthID].totGetGoodsGap / berth[berthID].numGetGoods;
-            berth[berthID].totGetGoodsRatio += robot[i].curPropotion;
-            berth[berthID].meanGetGoodsRatio = berth[berthID].totGetGoodsRatio / berth[berthID].numGetGoods;
+            if (bot.carryGoods == 1)
+            {
+                berth[berthID].numBerthGoods++;
+                berth[berthID].berthGoodsValueList.push_back(bot.goodsVal);
+                berth[berthID].totGetGoodsGap += (frameId - berth[berthID].lastTimeGetGoods);
+                berth[berthID].lastTimeGetGoods = frameId;
+                ++berth[berthID].numGetGoods;
+                berth[berthID].timeOfGoodsToBerth = berth[berthID].totGetGoodsGap / berth[berthID].numGetGoods;
+                berth[berthID].totGetGoodsRatio += robot[i].curPropotion;
+                berth[berthID].meanGetGoodsRatio = berth[berthID].totGetGoodsRatio / berth[berthID].numGetGoods;
+            }
+            else
+            {
+                berth[berthID].numBerthGoods += 2;
+                berth[berthID].berthGoodsValueList.push_back(bot.goodsVal);
+                berth[berthID].berthGoodsValueList.push_back(bot.sumGoodsVal - bot.goodsVal);
+                berth[berthID].totGetGoodsGap += (frameId - berth[berthID].lastTimeGetGoods);
+                berth[berthID].lastTimeGetGoods = frameId;
+                berth[berthID].numGetGoods += 2;
+                berth[berthID].timeOfGoodsToBerth = berth[berthID].totGetGoodsGap / berth[berthID].numGetGoods;
+                berth[berthID].totGetGoodsRatio += robot[i].curPropotion;
+                berth[berthID].meanGetGoodsRatio = berth[berthID].totGetGoodsRatio / berth[berthID].numGetGoods;
+            }
                 
             /* */
             goods_pull_frame.push_back(frameId);
             goods_pull_value.push_back(bot.goodsVal);
             goods_pull_region.push_back(berthID);
             /* */
-            bot.total_goods_val += bot.goodsVal;
+            bot.total_goods_val += bot.sumGoodsVal;
             bot.curPropotion = -1;      
             bot.goodsVal = 0;            // 将目前所拥有的或准备拥有的货物价值清0
             bot.carryGoods = 0;          // 手动更新为不持有货物的状态
@@ -59,6 +75,7 @@ void DecisionMaker::robotDecision()
             bot.idxInPth = 0;
             bot.lastX = -1;
             bot.lastY = -1;
+            bot.sumGoodsVal = 0;
         }
         else if (bot.botMoveState == TOGOODS)
         {   
@@ -155,7 +172,7 @@ void DecisionMaker::robotDecision()
 
         if (bot.botMoveState == WAITING || bot.botPathState == NO_PATH)
         { // 没有目标，分配目标，之前没找到路，更新路（适用于中途变更路径，但失败的情况）
-            if (bot.carryGoods == 0)
+            if (bot.carryGoods == 0 || (robotType[i] == 1 && bot.carryGoods == 1))
             { // 未持有货物
                 bool findPathFlag = getNearestGoods(bot.curX, bot.curY, bot.pathPoint, bot.pathDir, i, false, callingBerthID, callingGoodsID);
                 if (findPathFlag)
@@ -229,7 +246,7 @@ void DecisionMaker::refreshRobotState(int botID)
         bot.lastY = bot.curY;
     }
 
-    if ((/*goodsInMap[bot.curX][bot.curY] > 0 || */ goodsInMap[bot.curX][bot.curY] == -(botID + 1)) && bot.carryGoods == 0)
+    if ((/*goodsInMap[bot.curX][bot.curY] > 0 || */ goodsInMap[bot.curX][bot.curY] == -(botID + 1)) && bot.carryGoods <= 2)
     { // 自己本身没有货物，且遇上了货物（自己的目标或无主货物）
         bot.botMoveState = ARRIVEGOODS;
     }
@@ -251,7 +268,6 @@ void DecisionMaker::refreshRobotState(int botID)
 
     if (bot.botMoveState == TOGOODS && goodsInMap[bot.tarX][bot.tarY] == 0)
     {                                // 货物消失，及时更新自身状态
-        bot.carryGoods = 0;          // 手动更新为不持有货物的状态
         bot.botMoveState = WAITING;
         bot.botPathState = NO_PATH;
         bot.curPropotion = -1;
@@ -364,7 +380,13 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint
     if (robot[botID].avoidBotID != -1) // 避让状态中找不到路，找新路时则避免路过曾经要避让但避让失败的对象
         vis[robot[robot[botID].avoidBotID].curX][robot[robot[botID].avoidBotID].curY] = true;
 
-    int botInberthID = getBerthId(x, y);
+    int botInberthID;
+
+    if (robot[botID].carryGoods == 0)
+        botInberthID = getBerthId(x, y);
+    else
+        botInberthID = nearBerthID[now->x][now->y];
+
     double factor = 2.0;
     double gainForCalling = 100.0;
 
@@ -498,6 +520,205 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint
     }
     return true;
 }
+
+bool DecisionMaker::getNearestTwoGoods(int x, int y, vector<SimplePoint>& pathPoint, vector<int>& pathDir, int botID, bool tryChangePath, int callingBerthID, int callingGoodsID)
+{
+    int queueCount = 0;
+    int queueIndex = 0;
+    if (numCurGoods <= 0)
+        return false;
+    double propotion = 0;
+    if (tryChangePath)
+        propotion = robot[botID].curPropotion;
+    int firstDis = 0;
+    // int cnt = 0;
+
+    Node* now = &nodes[queueCount++];
+    Node* target = nullptr; // 用于存储找到的目标节点
+    Node* child = nullptr;
+    now->setNode(x, y, 0, nullptr);
+
+    memset(vis, 0, sizeof(vis));
+    for (int i = 0; i < robotNum; i++)
+    {
+        if (robot[i].robotStatus == 0 && (abs(robot[i].curX - x) + abs(robot[i].curY - y) < BOT_EXRECOVER_DIST))
+            vis[robot[i].curX][robot[i].curY] = true;
+    }
+    vis[x][y] = true;
+    if (robot[botID].avoidBotID != -1) // 避让状态中找不到路，找新路时则避免路过曾经要避让但避让失败的对象
+        vis[robot[robot[botID].avoidBotID].curX][robot[robot[botID].avoidBotID].curY] = true;
+
+    int botInberthID;
+
+    if (robot[botID].carryGoods == 0)
+        botInberthID = getBerthId(x, y);
+    else
+        botInberthID = nearBerthID[now->x][now->y];
+
+    double factor = 2.0;
+    double gainForCalling = 100.0;
+
+    while (queueCount > queueIndex)
+    {
+        now = &nodes[queueIndex++];
+
+        if (goodsInMap[now->x][now->y] > 0)
+        {
+            if (now->dis < goodsLeftTime[now->x][now->y])
+            { // 赶得及在货物消失之前把货物运走
+                int goodsNearBerthID = nearBerthID[now->x][now->y];
+                if (botInberthID == goodsNearBerthID)
+                    if (callingGoodsID == (now->x * MAP_SIZE + now->y))
+                        factor = gainForCalling;
+                    else
+                        factor = gainForSameBerth;
+                else if (callingBerthID == goodsNearBerthID)
+                    factor = gainForCalling;
+                else
+                    factor = 1.0;
+
+                if (phase == 2 && (frame + now->dis + nearBerthDis[now->x][now->y] + berth[goodsNearBerthID].transportTime >= 15000))
+                    factor = 0.00001;
+
+                if (firstDis == 0)
+                    // if (cnt == 0)
+                { // 第一次找到货物
+                    if (!tryChangePath)
+                    {
+                        if (robot[botID].carryGoods == 0)
+                        {
+                            int totGoodsVal = goodsInMap[now->x][now->y];
+                            int totDis = now->dis;
+                            int secondDis = 0;
+                            double bestProrpotion = 0;
+                            double curProportion = 0.0;
+                            for (auto it = berth[goodsNearBerthID].goodsInBerthInfo.begin(); it != berth[goodsNearBerthID].goodsInBerthInfo.end(); ++it)
+                            {
+                                totDis = now->dis;
+                                totGoodsVal = goodsInMap[now->x][now->y];
+                                singleGoodsInfo goodsInfo = it->second;
+                                if (now->x == goodsInfo.x && now->y == goodsInfo.y)
+                                    continue;
+                                secondDis = std::abs(now->x - goodsInfo.x) + std::abs(now->y - goodsInfo.y);
+                                secondDis += nearBerthDis[goodsInfo.x][goodsInfo.y];
+                                totDis += secondDis;
+                                totGoodsVal += goodsInMap[goodsInfo.x][goodsInfo.x];
+                                curProportion = totGoodsVal / totDis;
+                                if (curProportion > bestProrpotion)
+                                {
+                                    bestProrpotion = curProportion;
+                                }
+                            }
+
+                        }
+                        propotion = factor * (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                    }
+                    else // 尝试变更要搬运的货物的目标
+                    {
+                        propotion = factor * (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+                    }
+                    target = now;
+                    firstDis = now->dis;
+                    //++cnt;
+                }
+                else
+                { // 尝试寻找性价比更高的货物
+                    double newPropotion;
+                    if (!tryChangePath)
+                        newPropotion = factor * (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                    else // 尝试变更要搬运的货物的目标
+                        newPropotion = factor * (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+
+                    if (newPropotion > propotion)
+                    {
+                        propotion = newPropotion;
+                        target = now;
+                    }
+                }
+            }
+        }
+        if (firstDis > 0)
+            // if (cnt > 0)
+        {
+            if (now->dis - firstDis > extraSearchTime) // 最多额外搜索extraSearchTime步
+                // if (cnt > extraSearchTime) // 最多额外搜索extraSearchTime步
+                break;
+            //++cnt;
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = now->x + dx[i];
+            int ny = now->y + dy[i];
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
+                continue;
+            vis[nx][ny] = true;
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now->dis + 1, now);
+        }
+    }
+
+    if (target)
+    {
+        int goodsNearBerthID = nearBerthID[target->x][target->y];
+        if (botInberthID == goodsNearBerthID)
+            propotion = propotion / gainForSameBerth;
+        if (callingBerthID == goodsNearBerthID)
+            propotion = propotion / gainForCalling;
+        if (callingGoodsID == (target->x * MAP_SIZE + target->y))
+            propotion = propotion / gainForCalling;
+    }
+
+    if (propotion <= limToChangeGoods * robot[botID].curPropotion)
+        target = nullptr;
+
+    if (target == nullptr) // 找不到路直接返回
+        return false;
+
+    robot[botID].goodsVal = goodsInMap[target->x][target->y];                           // 先存储
+    robot[botID].idxInPth = 0;                                                          // 更新路径点序列
+    robot[botID].curPropotion = propotion;                                              // 更新性价比
+    robot[botID].sumPropotion += propotion;                                             // 更新历史性价比之和
+    ++robot[botID].cntPropotion;                                                        // 更新性价比被改变的总次数
+    robot[botID].meanPropotion = robot[botID].sumPropotion / robot[botID].cntPropotion; // 更新历史平均性价比
+    goodsInMap[target->x][target->y] = -(botID + 1);                                    // 打上标记
+
+    vector<int>().swap(pathDir); // 清空
+    if (target != nullptr)
+    {
+        // 从目标节点回溯到起始节点，构建路径
+        for (Node* p = target; p->parent != nullptr; p = p->parent)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (p->x == p->parent->x + dx[i] && p->y == p->parent->y + dy[i])
+                {
+                    pathDir.push_back(i);
+                    break;
+                }
+            }
+        }
+        reverse(pathDir.begin(), pathDir.end()); // 反转路径，使其从起始节点开始
+
+        pathPoint.resize(pathDir.size() + 1);
+        int curX = x, curY = y;
+        pathPoint[0] = SimplePoint(curX, curY);
+        for (int i = 0; i < pathDir.size(); ++i)
+        {
+            curX += dx[pathDir[i]];
+            curY += dy[pathDir[i]];
+            pathPoint[i + 1] = SimplePoint(curX, curY);
+        }
+    }
+
+    if (robot[botID].avoidBotID != -1)
+    { // 避让状态中找不到路，找新路时则避免路过曾经要避让但避让失败的对象，货物消失也会进入这个条件
+        robot[botID].botAvoidState = NO_AVOIDING;
+        robot[botID].avoidBotID = -1;
+    }
+    return true;
+}
+
 
 bool DecisionMaker::getNearestBerth(int x, int y, vector<SimplePoint>& pathPoint, vector<int>& pathDir, int botID)
 {
