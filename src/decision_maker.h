@@ -52,6 +52,7 @@ private:
     vector<int> sortBerthsByTransportTime;        // 依据泊位到交货点的距离对泊位ID进行升序排序
     double lastTimeFactor;
     int recursionDepthInBerthSelect;    // 穷举所有泊位组合时的最大递归深度
+    double amplifier;
 
     Node *nodes;
     Node boatMapDis[MAP_SIZE][MAP_SIZE];
@@ -119,7 +120,7 @@ private:
 
 public:
     DecisionMaker();
-    void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, double lastTimeFactor, double gainForSameBerth, int boatNumLimit, int robotNumLimit1, int robotNumLimit2, double berthCallingFactor, int recursionDepthInBerthSelect);
+    void setParams(double limToTryChangeGoods, double limToChangeGoods, int extraSearchTime, double lastTimeFactor, double gainForSameBerth, int boatNumLimit, int robotNumLimit1, int robotNumLimit2, double berthCallingFactor, int recursionDepthInBerthSelect, double amplifier);
     void analyzeMap();
     void getMapInfoBoat();   // 得到船运动的地图信息
     void getMapDisBerth();   // 得到泊位的海上距离map

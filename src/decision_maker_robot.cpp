@@ -156,7 +156,7 @@ void DecisionMaker::robotDecision()
             }
         }
 
-        // callingBerthID = -1;
+        //callingBerthID = -1;
         int callingGoodsID = -1;
         //if (callingBerthID == -1 && bot.pullBerthID != -1)
         //{   // 探测是否有货物是即将消失的，如果时间允许，且其价值够高，则优先去运这个即将消失的货物
@@ -416,9 +416,20 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint
                     // if (cnt == 0)
                 { // 第一次找到货物
                     if (!tryChangePath)
-                        propotion = factor * (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                    {
+                        if (robotNum < robotNumLimit2)
+                            propotion = factor * (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                        else
+                            propotion = factor * pow((double)goodsInMap[now->x][now->y], amplifier) / (now->dis + nearBerthDis[now->x][now->y]);
+                    }
                     else // 尝试变更要搬运的货物的目标
-                        propotion = factor * (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+                    {
+                        if (robotNum < robotNumLimit2)
+                            propotion = factor * (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+                        else
+                            propotion = factor * pow((double)goodsInMap[now->x][now->y], amplifier) / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+                    }
+                        
                     target = now;
                     firstDis = now->dis;
                     //++cnt;
@@ -427,10 +438,19 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint
                 { // 尝试寻找性价比更高的货物
                     double newPropotion;
                     if (!tryChangePath)
-                        newPropotion = factor * (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                    {
+                        if (robotNum < robotNumLimit2)
+                            newPropotion = factor * (double)goodsInMap[now->x][now->y] / (now->dis + nearBerthDis[now->x][now->y]);
+                        else
+                            newPropotion = factor * pow((double)goodsInMap[now->x][now->y], amplifier) / (now->dis + nearBerthDis[now->x][now->y]);
+                    }
                     else // 尝试变更要搬运的货物的目标
-                        newPropotion = factor * (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
-
+                    {
+                        if (robotNum < robotNumLimit2)
+                            newPropotion = factor * (double)goodsInMap[now->x][now->y] / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+                        else
+                            newPropotion = factor * pow((double)goodsInMap[now->x][now->y], amplifier) / (robot[botID].idxInPth + now->dis + nearBerthDis[now->x][now->y]);
+                    }
                     if (newPropotion > propotion)
                     {
                         propotion = newPropotion;
@@ -469,6 +489,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint
             propotion = propotion / gainForCalling;
         if (callingGoodsID == (target->x * MAP_SIZE + target->y))
             propotion = propotion / gainForCalling;
+        propotion = (double)goodsInMap[target->x][target->y] / (robot[botID].idxInPth + target->dis + nearBerthDis[target->x][target->y]);
     }
 
     if (propotion <= limToChangeGoods * robot[botID].curPropotion)
@@ -718,7 +739,6 @@ bool DecisionMaker::getNearestTwoGoods(int x, int y, vector<SimplePoint>& pathPo
     }
     return true;
 }
-
 
 bool DecisionMaker::getNearestBerth(int x, int y, vector<SimplePoint>& pathPoint, vector<int>& pathDir, int botID)
 {

@@ -178,7 +178,8 @@ void DecisionMaker::getConnectedBerth(int berthID)
 
 void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods, 
     int extraSearchTime, double lastTimeFactor, double gainForSameBerth,
-    int boatNumLimit, int robotNumLimit1, int robotNumLimit2, double berthCallingFactor, int recursionDepthInBerthSelect)
+    int boatNumLimit, int robotNumLimit1, int robotNumLimit2, double berthCallingFactor, 
+    int recursionDepthInBerthSelect, double amplifier)
 {
     this->limToTryChangeGoods = limToTryChangeGoods;
     this->limToChangeGoods = limToChangeGoods;
@@ -190,6 +191,7 @@ void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGood
     this->robotNumLimit2 = robotNumLimit2;
     this->berthCallingFactor = berthCallingFactor;
     this->recursionDepthInBerthSelect = recursionDepthInBerthSelect;
+    this->amplifier = amplifier;
 }
 
 void DecisionMaker::paintBerth(int berthID)
@@ -710,26 +712,7 @@ void DecisionMaker::purchaseDecision()
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
 
-    if (phase == 0 && money >= 2000)
-    {
-        for (int i = 0; i < robotShop.size(); i++)
-        {
-            for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit2); ++j) {
-                if (robotNum + i * 2 + j < robotNumLimit1)
-                {
-                    printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 0);
-                    robotType.emplace_back(0);
-                }
-                else
-                {
-                    printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 1);
-                    robotType.emplace_back(1);
-                }
-            }
-        }
-    }
-
-    if (phase > 0 && boatNum < boatNumLimit)
+    if (robotNum >= 8 && boatNum < boatNumLimit)
     {
         // int tmpSum = 0;
         // for (int i = 0; i < berthNum; ++i)
@@ -742,6 +725,27 @@ void DecisionMaker::purchaseDecision()
         // }
         printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
     }
+
+    if (phase == 0 && money >= 2000)
+    {
+        for (int i = 0; i < robotShop.size(); i++)
+        {
+            for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit2); ++j) {
+                if (robotNum + i * 2 + j < robotNumLimit1)
+                {
+                    printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 1);
+                    robotType.emplace_back(1);
+                }
+                else
+                {
+                    printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 0);
+                    robotType.emplace_back(0);
+                }
+            }
+        }
+    }
+
+
 }
 
 bool DecisionMaker::getNearRobotShop(int robotShopID)

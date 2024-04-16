@@ -15,7 +15,7 @@
 using namespace std;
 
 std::ifstream myCin;
-bool Debug = true;
+bool Debug = false;
 bool Record = false;
 void printData();
 DecisionMaker decisionMaker;
@@ -68,15 +68,15 @@ void Init()
 
     if (oriMap[0][0] == '~' && oriMap[2][2] == 'S')
     {
-        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 2, 12, 12, 5.5, 1);
+        decisionMaker.setParams(0.5, 1.5, 150, 6.0, 4.6, 2, 0, 13, 4.5, 1, 1.5);  // 91803
     }
     else if (oriMap[0][0] == '.' && oriMap[4][19] == '~')
     {
-        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 1, 11, 12, 5.5, 1);
+        decisionMaker.setParams(0.6, 1.5, 200, 4.5, 4.0, 1, 0, 13, 6.0, 1, 1.2);  // 86933
     }
     else
     {
-        decisionMaker.setParams(0.4, 1.5, 100, 4.5, 4.0, 2, 12, 12, 5.5, 1);
+        decisionMaker.setParams(0.6, 1.5, 100, 4.5, 4.3, 1, 1, 11, 4.5, 1, 1.0); // 90191
     }
 
     // ifstream paramFile("param.txt");
