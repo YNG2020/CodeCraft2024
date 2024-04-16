@@ -68,7 +68,7 @@ void Init()
 
     if (oriMap[0][0] == '~' && oriMap[2][2] == 'S')
     {
-        decisionMaker.setParams(0.5, 1.5, 150, 6.0, 4.6, 2, 0, 13, 4.5, 1, 1.5);  // 91803
+        decisionMaker.setParams(0.5, 1.5, 200, 6.0, 4.6, 2, 0, 13, 4.5, 1, 1.5);  // 91803
     }
     else if (oriMap[0][0] == '.' && oriMap[4][19] == '~')
     {
