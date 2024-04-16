@@ -481,14 +481,7 @@ bool DecisionMaker::getNearestGoods(int x, int y, vector<SimplePoint>& pathPoint
     }
 
     if (target)
-    {
-        int goodsNearBerthID = nearBerthID[target->x][target->y];
-        if (botInberthID == goodsNearBerthID)
-            propotion = propotion / gainForSameBerth;
-        if (callingBerthID == goodsNearBerthID)
-            propotion = propotion / gainForCalling;
-        if (callingGoodsID == (target->x * MAP_SIZE + target->y))
-            propotion = propotion / gainForCalling;
+    {   // 复原对货物性价比的估计
         propotion = (double)goodsInMap[target->x][target->y] / (robot[botID].idxInPth + target->dis + nearBerthDis[target->x][target->y]);
     }
 
