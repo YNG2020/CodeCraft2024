@@ -1,0 +1,804 @@
+#include "decision_maker.h"
+#include "global_vars.h"
+#include "global_struct.h"
+#include <cstring>
+#include <map>
+#include <cmath>
+#include <fstream>
+
+DecisionMaker::DecisionMaker() : priority(robotNum, 0)
+{
+    memset(vis, 0, sizeof(vis));
+    memset(berthMap, -1, sizeof(berthMap));
+    memset(nearBerthID, -1, sizeof(nearBerthID));
+    nodes = new Node[100 * MAP_SIZE * MAP_SIZE];
+    phase = 0;
+    efficientBerthID = 0;
+}
+
+void DecisionMaker::makeDecision()
+{
+    phaseDecision();
+    robotDecision();
+    shipDecision();
+    purchaseDecision();
+    updateGoodsInfo();
+}
+
+void DecisionMaker::updateGoodsInfo()
+{
+    for (int i = 0, x = 0, y = 0, idx = 0; i < 1000; ++i)
+        { // 维护货物的剩余存在时间
+            for (auto iter = goodsInfo[i].begin(); iter != goodsInfo[i].end(); ++iter)
+            {
+                if (iter->second > 0)
+                {
+                    --iter->second;
+                    idx = iter->first;
+                    x = idx / MAP_SIZE;
+                    y = idx - x * MAP_SIZE;
+                    if (goodsInMap[x][y] != 0) // 说明该位置在此刻有货物存在（货物生成了，且暂时没被机器人取走）
+                    {
+                        goodsLeftTime[x][y] = iter->second;
+                        if (goodsLeftTime[x][y] == 0)
+                        { // 货物消失，货物价值归零
+                            if (goodsInMap[x][y] > 0)
+                            { // 该货物未被机器人选定为目标（选定为目标的话，场上货物数目已经减去一次1了）
+                                if (nearBerthDis[x][y] != 0)
+                                { // if条件不成立，说明该货物对于所有泊位都不可达
+                                    --numCurGoods;
+                                    int berthID = nearBerthID[x][y];
+                                    int goodsID = goodsIDInBerthZone[x][y];
+                                    berth[berthID].goodsInBerthInfo.erase(goodsID);
+                                }
+                            }
+                            goodsInMap[x][y] = 0;
+                        }
+                    }
+                    if (goodsInMap[x][y] == 0)
+                    { // 货物在当前帧被机器人拿走或剩余存在时间刚好被归零，直接将货物剩余存在时间归零
+                        iter->second = 0;
+                        goodsLeftTime[x][y] = iter->second;
+                    }
+                }
+            }
+        }
+}
+
+bool DecisionMaker::invalidForRobot(int x, int y)
+{
+    return x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE || gridMap[x][y] > ROAD_MIX;
+}
+
+bool DecisionMaker::inBerth(int x, int y)
+{
+    return gridMap[x][y] == BERTH;
+}
+
+int DecisionMaker::getBerthId(int x, int y)
+{
+    return berthMap[x][y];
+}
+
+bool DecisionMaker::inBerthSea(int x, int y)
+{
+    return gridMap[x][y] == BERTH;
+}
+
+int DecisionMaker::getBerthIdSea(int x, int y)
+{
+    return berthMap[x][y];
+}
+
+void DecisionMaker::getNearBerthDis(int x, int y)
+{
+    int queueCount = 0;
+    int queueIndex = 0;
+    Node *now = &nodes[queueCount++];
+    Node *target = nullptr; // 用于存储找到的目标节点
+    Node *child = nullptr;
+    now->setNode(x, y, 0, nullptr);
+    memset(vis, 0, sizeof(vis));
+
+    while (queueCount > queueIndex)
+    {
+        now = &nodes[queueIndex++];
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = now->x + dx[i];
+            int ny = now->y + dy[i];
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
+                continue;
+            vis[nx][ny] = true;
+            if (inBerth(nx, ny))
+            {
+                int berthID = getBerthId(nx, ny);
+                if (berth[berthID].isBlocked)
+                    continue;
+                nearBerthDis[x][y] = now->dis + 1;
+                nearBerthID[x][y] = berthID;
+                ++berth[berthID].totGoodsInBerthZone;
+                goodsIDInBerthZone[x][y] = berth[berthID].totGoodsInBerthZone;
+                berth[berthID].goodsInBerthInfo.emplace(berth[berthID].totGoodsInBerthZone, singleGoodsInfo(goodsInMap[x][y], 2 * nearBerthDis[x][y], x, y));
+                // cerr << "nearBerthDis[" << x << "][" << y << "] = " << now.dis << endl;
+                ++numCurGoods;
+                return;
+            }
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now->dis + 1, now);
+        }
+    }
+}
+
+void DecisionMaker::getConnectedBerth(int berthID)
+{
+    int nearestBerthDis = 1000000000; // 最近邻泊位的距离
+    int queueCount = 0;
+    int queueIndex = 0;
+    Node *now = &nodes[queueCount++];
+    Node *target = nullptr; // 用于存储找到的目标节点
+    Node *child = nullptr;
+    int x = berth[berthID].x, y = berth[berthID].y;
+    now->setNode(x, y, 0, nullptr);
+    memset(vis, 0, sizeof(vis));
+    int numFoundedBerth = 0;
+
+    while (queueCount > queueIndex && numFoundedBerth < berthNum)
+    {
+        now = &nodes[queueIndex++];
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = now->x + dx[i];
+            int ny = now->y + dy[i];
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
+                continue;
+            vis[nx][ny] = true;
+            if (inBerth(nx, ny))
+            {
+                int connectedBerthID = getBerthId(nx, ny);
+                if (berth[connectedBerthID].isBlocked)
+                    continue;
+                if (!berth[berthID].connectedBerth[connectedBerthID])
+                    ++numFoundedBerth;
+                berth[berthID].connectedBerth[connectedBerthID] = true;
+                if (connectedBerthID != berthID && now->dis + 1 < nearestBerthDis)
+                {
+                    nearestBerthDis = now->dis + 1;
+                    berth[berthID].nearestBerth = connectedBerthID;
+                }
+            }
+
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now->dis + 1, now);
+        }
+    }
+}
+
+void DecisionMaker::setParams(double limToTryChangeGoods, double limToChangeGoods, 
+    int extraSearchTime, double lastTimeFactor, double gainForSameBerth,
+    int boatNumLimit, int robotNumLimit1, int robotNumLimit2, double berthCallingFactor, 
+    int recursionDepthInBerthSelect, double amplifier)
+{
+    this->limToTryChangeGoods = limToTryChangeGoods;
+    this->limToChangeGoods = limToChangeGoods;
+    this->extraSearchTime = extraSearchTime;
+    this->lastTimeFactor = lastTimeFactor;
+    this->gainForSameBerth = gainForSameBerth;
+    this->boatNumLimit = boatNumLimit;
+    this->robotNumLimit1 = robotNumLimit1;
+    this->robotNumLimit2 = robotNumLimit2;
+    this->berthCallingFactor = berthCallingFactor;
+    this->recursionDepthInBerthSelect = recursionDepthInBerthSelect;
+    this->amplifier = amplifier;
+}
+
+void DecisionMaker::paintBerth(int berthID)
+{
+    queue<SimplePoint> q;
+    int x = berth[berthID].x, y = berth[berthID].y;
+    q.push(SimplePoint(x, y));
+    berthMap[x][y] = berthID;
+    while (!q.empty())
+    {
+        SimplePoint now = q.front();
+        q.pop();
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = now.x + dx[i];
+            int ny = now.y + dy[i];
+            if (nx < 0 || nx >= MAP_SIZE || ny < 0 || ny >= MAP_SIZE || (gridMap[nx][ny] != BERTH && gridMap[nx][ny] != ANCHORAGE) || berthMap[nx][ny] != -1)
+                continue;
+            q.push(SimplePoint(nx, ny));
+            berthMap[nx][ny] = berthID;
+        }
+    }
+}
+
+void DecisionMaker::findTrade(int berthID)
+{
+    int minDis = 0x7fffffff;
+    int minTradeID = -1;
+    for (int i = 0; i < tradeNum; ++i)
+    {
+        int dis = berthTradeDis[berthID][berthNum + i];
+        if (dis < minDis)
+        {
+            minDis = dis;
+            minTradeID = i;
+        }
+    }
+    berth[berthID].transportTime = minDis;
+    berth[berthID].transportTarget = minTradeID;
+}
+
+// 找到与泊位berthID最近的泊位（自身不算）
+void DecisionMaker::findNearestBerth(int berthID)
+{
+    int minDis = 0x7fffffff;
+    int minBerthID = berthID;
+    for (int i = 0; i < berthNum; ++i)
+    {
+        if (i == berthID)
+            continue;
+        int dis = berthTradeDis[berthID][i];
+        if (dis < minDis)
+        {
+            minDis = dis;
+            minBerthID = i;
+        }
+    }
+    berth[berthID].nearestBerthTime = minDis;
+    berth[berthID].nearestBerthID = minBerthID;
+}
+
+void DecisionMaker::analyzeMap()
+{
+
+    for (int i = 0; i < MAP_SIZE; i++)
+    {
+        for (int j = 0; j < MAP_SIZE; j++)
+        {
+            if (oriMap[i][j] == 'R')
+            {
+                robotShop.emplace_back(i, j);
+            }
+            if (oriMap[i][j] == 'S')
+            {
+                boatShop.emplace_back(i, j);
+            }
+            if (oriMap[i][j] == 'T')
+            {
+                tradePoint.emplace_back(i, j);
+            }
+            switch (oriMap[i][j])
+            {
+            case 'B':
+                gridMap[i][j] = BERTH;
+                break;
+            case 'K':
+                gridMap[i][j] = ANCHORAGE;
+                break;
+            case 'S':
+                gridMap[i][j] = BOAT_SHOP;
+                break;
+            case 'T':
+                gridMap[i][j] = TRADE;
+                break;
+            case 'R':
+                gridMap[i][j] = ROBOT_SHOP;
+                break;
+            case '#':
+                gridMap[i][j] = BLOCK;
+                break;
+            case '*':
+                gridMap[i][j] = WATER;
+                break;
+            case '~':
+                gridMap[i][j] = ROAD_WATER;
+                break;
+            case '.':
+                gridMap[i][j] = LAND;
+                break;
+            case '>':
+                gridMap[i][j] = ROAD_LAND;
+                break;
+            case 'C':
+                gridMap[i][j] = MIX;
+                break;
+            case 'c':
+                gridMap[i][j] = ROAD_MIX;
+                break;
+            default:
+                break;
+            }
+        }
+    }
+    tradeNum = tradePoint.size();
+
+    getMapInfoBoat();        // 得到船运动的地图信息
+    getMapDisBerth();        // 得到泊位的海上距离map
+    getMapDisTrade();        // 得到交货点的海上距离map
+    getNearBerthInfo();      // 得到地图上的点最近泊位
+    getNearTradeInfo();      // 得到地图上的点最近交货点
+    tradeAvailable();        // 判定船购买点是否为封闭区域，如果不可达则删除此购买点
+    berthAvailable();        // 泊位是否能到交易点，不能则封禁该泊位
+    generateBerthTradeDis(); // 生成泊位交货点距离邻接矩阵
+    for (int i = 0; i < berthNum; i++)
+    {
+        paintBerth(i);
+        findTrade(i);
+        findNearestBerth(i);
+    }
+    int minTransportTime = 0x7fffffff;
+    for (int i = 0; i < berthNum; ++i)
+    {
+        if (berth[i].transportTime < minTransportTime)
+        {
+            efficientBerthID = i;
+            minTransportTime = berth[i].transportTime;
+        }
+    }
+
+    // 依据泊位到交货点的距离对泊位ID进行升序排序
+    sortBerthsByTransportTime.resize(berthNum);
+    for (int i = 0; i < berthNum; ++i)
+    {
+        sortBerthsByTransportTime[i] = i; // 初始化序号为0, 1, 2, ..., berthNum-1
+    }
+    std::sort(sortBerthsByTransportTime.begin(), sortBerthsByTransportTime.end(), [&](int a, int b)
+              { return berth[a].transportTime < berth[b].transportTime; });
+    
+    vector<bool> findBerthFlag(robotShop.size(), false);
+    for (int i = 0; i < robotShop.size(); ++i)
+    {
+        findBerthFlag[i] = getNearRobotShop(i);
+    }
+
+    // 检验机器人租赁点有无可达的泊位，没有就erase掉
+    for (int i = 0; i < robotShop.size(); ++i)
+    {
+        if (!findBerthFlag[i])
+        {
+            robotShop.erase(robotShop.begin() + i);
+            findBerthFlag.erase(findBerthFlag.begin() + i);
+            --i;
+        }
+    }
+}
+
+void DecisionMaker::tradeAvailable()
+{
+    for (int i = 0; i < boatShop.size(); ++i)
+    {
+        int dir;
+        for (dir = 0; dir < 4; ++dir)
+        {
+            if (berthMapSea[dir][boatShop[i].x][boatShop[i].y] >= 0)
+                break;
+        }
+        if (dir == 4)
+        {
+            boatShop.erase(boatShop.begin() + i);
+            --i;
+        }
+    }
+}
+
+void DecisionMaker::berthAvailable()
+{
+    for (int i = 0; i < berthNum; ++i)
+    {
+        int tradeID = -1;
+        for (int dir = 0; dir < 4; ++dir)
+            tradeID = tradeID == -1 ? tradeMapSea[dir][berth[i].x][berth[i].y] : tradeID;
+        if (tradeID == -1) // 如果这个泊位找不到相连的交货点，跳过
+        {
+            blockBerth(i);
+        }
+    }
+}
+
+// 得到船运动的地图信息
+void DecisionMaker::getMapInfoBoat()
+{
+    for (int i = 0; i < MAP_SIZE; i++)
+    {
+        for (int j = 0; j < MAP_SIZE; j++)
+        {
+            char s = oriMap[i][j];
+            if (s == '.' || s == '>' || s == '#' || s == 'R') // 不在船能走的区域
+                continue;
+            else
+                for (int dir = 0; dir < 4; ++dir)
+                    boatTimeForDifDir[dir][i][j] = BoatAvailable(i, j, dir);
+        }
+    }
+}
+
+void DecisionMaker::generateBerthTradeDis()
+{
+    // 调整berthTradeDis大小
+    berthTradeDis.resize(berthNum + tradeNum);
+    for (auto &row : berthTradeDis)
+    {
+        row.resize(berthNum + tradeNum);
+    }
+    for (int i = 0; i < berthNum; ++i)
+    {
+        for (int j = i + 1; j < berthNum; ++j)
+        {
+            for (int dir = 0; dir < 4; ++dir)
+            {
+                berthTradeDis[i][j] = max(berthTradeDis[i][j], berthDis[i][dir][berth[j].x][berth[j].y]);
+                berthTradeDis[j][i] = max(berthTradeDis[j][i], berthDis[j][dir][berth[i].x][berth[i].y]);
+            }
+        }
+    }
+    for (int i = 0; i < tradeNum; ++i)
+    {
+        for (int j = 0; j < berthNum; ++j)
+        {
+            for (int dir = 0; dir < 4; ++dir)
+            {
+                berthTradeDis[berthNum + i][j] = max(berthTradeDis[berthNum + i][j], tradeDis[i][dir][berth[j].x][berth[j].y]);
+                berthTradeDis[j][berthNum + i] = max(berthTradeDis[j][berthNum + i], tradeDis[i][dir][berth[j].x][berth[j].y]);
+            }
+        }
+    }
+}
+
+void DecisionMaker::getMapDisBerth() // 此处船从泊位处开始倒着走
+{
+    for (int i = 0; i < berthNum; ++i)
+    {
+        for (int dir = 0; dir < 4; ++dir)
+        {
+            memset(visBoat, 0, sizeof(visBoat)); // 这里visBoat起确定最短路径集合的作用
+            priority_queue<Node> candidate;
+            int queueCount = 0;
+            int firstDis = 0;
+            Node *now = &nodes[queueCount++];
+            Node *target = nullptr;
+            Node *child = nullptr;
+            now->setNode(berth[i].x, berth[i].y, 0, nullptr, dir);
+            candidate.push(*now);
+            while (!candidate.empty()) // 如果没找到目标并且优先级队列不为空
+            {
+                now = &nodes[queueCount++];
+                *now = candidate.top(); // 取出最短的节点now
+                candidate.pop();
+                if (visBoat[DirRev[now->dir]][now->x][now->y] == 1) // 如果已经是最短路径集合，跳过
+                    continue;
+                berthDis[i][DirRev[now->dir]][now->x][now->y] = max(now->dis, berthDis[i][DirRev[now->dir]][now->x][now->y]);
+                visBoat[DirRev[now->dir]][now->x][now->y] = 1; // 确定为最短路径集合
+                for (int j = 0; j < 3; j++)                    // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
+                {
+                    int nx = now->x + dirBoatDxRev[j][now->dir];
+                    int ny = now->y + dirBoatDyRev[j][now->dir];
+
+                    int curDir = j == 2 ? now->dir : clockWiseDirRev[j][now->dir];
+                    if (boatTimeForDifDir[DirRev[curDir]][nx][ny] == 0 || visBoat[DirRev[curDir]][nx][ny])
+                        continue;
+                    child = &nodes[queueCount++]; // 这里只是为了用申请的空间
+                    child->setNode(nx, ny, boatTimeForDifDir[DirRev[curDir]][nx][ny] + now->dis, now, curDir);
+                    candidate.push(*child);
+                }
+            }
+        }
+    }
+}
+
+void DecisionMaker::getMapDisTrade()
+{
+    for (int i = 0; i < tradeNum; ++i)
+    {
+        for (int dir = 0; dir < 4; ++dir)
+        {
+            memset(visBoat, 0, sizeof(visBoat)); // 这里visBoat起确定最短路径集合的作用
+            priority_queue<Node> candidate;
+            int queueCount = 0;
+            int firstDis = 0;
+            Node *now = &nodes[queueCount++];
+            Node *target = nullptr;
+            Node *child = nullptr;
+            now->setNode(tradePoint[i].x, tradePoint[i].y, 0, nullptr, dir);
+            candidate.push(*now);
+            while (!candidate.empty()) // 如果没找到目标并且优先级队列不为空
+            {
+                now = &nodes[queueCount++];
+                *now = candidate.top(); // 取出最短的节点now
+                candidate.pop();
+                if (visBoat[DirRev[now->dir]][now->x][now->y] == 1) // 如果已经是最短路径集合，跳过
+                    continue;
+                tradeDis[i][DirRev[now->dir]][now->x][now->y] = max(now->dis, tradeDis[i][DirRev[now->dir]][now->x][now->y]);
+                visBoat[DirRev[now->dir]][now->x][now->y] = 1; // 确定为最短路径集合
+                for (int j = 0; j < 3; j++)                    // 这里轮船只有三个选择，0顺时针转，1逆时针转，2前进
+                {
+                    int nx = now->x + dirBoatDxRev[j][now->dir];
+                    int ny = now->y + dirBoatDyRev[j][now->dir];
+
+                    int curDir = j == 2 ? now->dir : clockWiseDirRev[j][now->dir];
+                    if (boatTimeForDifDir[DirRev[curDir]][nx][ny] == 0 || visBoat[DirRev[curDir]][nx][ny])
+                        continue;
+                    child = &nodes[queueCount++]; // 这里只是为了用申请的空间
+                    child->setNode(nx, ny, boatTimeForDifDir[DirRev[curDir]][nx][ny] + now->dis, now, curDir);
+                    candidate.push(*child);
+                }
+            }
+        }
+    }
+}
+
+void DecisionMaker::getNearBerthInfo()
+{
+    for (int x = 0; x < MAP_SIZE; ++x)
+    {
+        for (int y = 0; y < MAP_SIZE; ++y)
+        {
+            for (int dir = 0; dir < 4; ++dir)
+            {
+                int curID = -1;
+                int curDis = -1;
+                for (int i = 0; i < berthNum; ++i)
+                {
+                    if (curID == -1 && berthDis[i][dir][x][y] != 0)
+                    {
+                        curID = i;
+                        curDis = berthDis[i][dir][x][y];
+                    }
+                    else if (curDis > berthDis[i][dir][x][y] && berthDis[i][dir][x][y] != 0)
+                    {
+                        curID = i;
+                        curDis = berthDis[i][dir][x][y];
+                    }
+                }
+                berthMapSea[dir][x][y] = curID; // 使用前要判定合法boatTimeForDifDir
+            }
+        }
+    }
+}
+
+void DecisionMaker::getNearTradeInfo()
+{
+    for (int x = 0; x < MAP_SIZE; ++x)
+    {
+        for (int y = 0; y < MAP_SIZE; ++y)
+        {
+            for (int dir = 0; dir < 4; ++dir)
+            {
+                int curID = -1;
+                int curDis = -1;
+                for (int i = 0; i < berthNum; ++i)
+                {
+                    if (curID == -1 && tradeDis[i][dir][x][y] != 0)
+                    {
+                        curID = i;
+                        curDis = tradeDis[i][dir][x][y];
+                    }
+                    else if (curDis > tradeDis[i][dir][x][y] && tradeDis[i][dir][x][y] != 0)
+                    {
+                        curID = i;
+                        curDis = tradeDis[i][dir][x][y];
+                    }
+                }
+                tradeMapSea[dir][x][y] = curID; // 使用前要判定合法boatTimeForDifDir
+            }
+        }
+    }
+}
+
+int DecisionMaker::BoatAvailable(int x, int y, int dir) // 返回船在x,y处移动时间（1或2），不能放船则为0
+{
+    int row = 0, col = 0;
+    int revX = 1, revY = 1;
+    if (dir == 0 || dir == 1) // 0右  1左
+    {
+        row = 1;
+        col = 2;
+        if (dir == 0)
+        {
+            revX = 1;
+            revY = 1;
+        }
+        else
+        {
+            revX = -1;
+            revY = -1;
+        }
+    }
+    else if (dir == 2 || dir == 3) // 2上 3下
+    {
+        row = 2;
+        col = 1;
+        if (dir == 2)
+        {
+            revX = -1;
+            revY = 1;
+        }
+        else
+        {
+            revX = 1;
+            revY = -1;
+        }
+    }
+    int time = 1; // 默认需要1帧
+    for (int i = 0; i <= row; ++i)
+    {
+        for (int j = 0; j <= col; ++j)
+        {
+            int xx = x + i * revX;
+            int yy = y + j * revY;
+            if (xx < 0 || xx >= MAP_SIZE || yy < 0 || yy >= MAP_SIZE)
+                return 0;
+            char s = oriMap[xx][yy];
+            if (s == '.' || s == '>' || s == '#' || s == 'R') // 在陆地上，返回零
+                return 0;
+            else if (s != 'C' && s != '*') // 如果有某一部分进入了主航道、靠泊区、泊位等，则时间为2
+            {                              // 对于交货点暂时认为时间为2
+                time = 2;
+            }
+        }
+    }
+    return time;
+}
+
+void DecisionMaker::phaseDecision()
+{
+    if (phase == 0 && robotNum >= robotNumLimit2)
+    {
+        phase = 1;
+    }
+
+    if (frame + lastTimeFactor * berth[efficientBerthID].transportTime > 15000/* && phase <= 1*/)
+    {
+        phase = 2;
+        for (int j = 0; j < berthNum; ++j)
+        {
+            if (!berth[j].isBlocked)
+            {
+                int tradeID = -1;
+                for (int dir = 0; dir < 4; ++dir)
+                    tradeID = tradeID == -1 ? tradeMapSea[dir][berth[j].x][berth[j].y] : tradeID;
+                if (tradeID == -1) // 如果这个泊位找不到相连的交货点，跳过
+                {
+                    blockBerth(j);
+                    continue;
+                }
+                // 检验该泊位对所有船的可达性
+                bool flag = true;
+                for (int i = 0; i < boatNum; ++i)
+                {
+                    int curBerth = getBerthIdSea(boat[i].curX, boat[i].curY);
+                    int moveTimeToBerth = berthDis[j][boat[i].dire][boat[i].curX][boat[i].curY];
+                    if (moveTimeToBerth != 0 || j == curBerth)
+                    {
+                        flag = false;
+                        break;
+                    }
+                }
+                if (flag)
+                    blockBerth(j);
+            }
+        }
+        // 选出boatNum个泊位来作为最后时刻的泊位
+        int OKBerthNum = berthNum;
+        for (int i = 0; i < berthNum; ++i)
+            if (berth[i].isBlocked)
+                --OKBerthNum;
+
+        int counter = berthNum - 1;
+        while (OKBerthNum > boatNum && counter >= 0)
+        {
+            int berthID = sortBerthsByTransportTime[counter];
+            if (berth[berthID].isBlocked == false)
+            {
+                --OKBerthNum;
+                blockBerth(berthID);
+            }
+            --counter;
+        }
+        //for (int i = 0; i < berthNum; ++i)
+        //    if (berth[i].boatIDToBerth >= 0)
+        //        berth[i].isBlocked = false;
+    }
+}
+
+void DecisionMaker::purchaseDecision()
+{
+    if (frame == 1)
+    {
+        printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
+    }
+
+    if (robotNum >= 8 && boatNum < boatNumLimit)
+    {
+        // int tmpSum = 0;
+        // for (int i = 0; i < berthNum; ++i)
+        //     for (auto iter = berth[i].berthGoodsValueList.begin(); iter != berth[i].berthGoodsValueList.end(); ++iter)
+        //         tmpSum += *iter;
+        // if (berthNum <= 4)
+        // {
+            // boatNumLimit -= 1;
+            // return;
+        // }
+        printf("lboat %d %d\n", boatShop[0].x, boatShop[0].y);
+    }
+
+    if (phase == 0 && money >= 2000)
+    {
+        for (int i = 0; i < robotShop.size(); i++)
+        {
+            for (int j = 0; j < 2 && (robotNum + i * 2 + j < robotNumLimit2); ++j) {
+                if (robotNum + i * 2 + j < robotNumLimit1)
+                {
+                    printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 1);
+                    robotType.emplace_back(1);
+                }
+                else
+                {
+                    printf("lbot %d %d %d\n", robotShop[i].x, robotShop[i].y, 0);
+                    robotType.emplace_back(0);
+                }
+            }
+        }
+    }
+
+
+}
+
+bool DecisionMaker::getNearRobotShop(int robotShopID)
+{
+    int x = robotShop[robotShopID].x, y = robotShop[robotShopID].y;
+    int queueCount = 0;
+    int queueIndex = 0;
+    Node* now = &nodes[queueCount++];
+    Node* target = nullptr; // 用于存储找到的目标节点
+    Node* child = nullptr;
+    now->setNode(x, y, 0, nullptr);
+    memset(vis, 0, sizeof(vis));
+    bool findBerthFlag = false;
+
+    while (queueCount > queueIndex)
+    {
+        now = &nodes[queueIndex++];
+
+        for (int i = 0; i < 4; i++)
+        {
+            int nx = now->x + dx[i];
+            int ny = now->y + dy[i];
+            if (invalidForRobot(nx, ny) || vis[nx][ny])
+                continue;
+            vis[nx][ny] = true;
+            if (inBerth(nx, ny))
+            {
+                int berthID = getBerthId(nx, ny);
+                if (berth[berthID].isBlocked)
+                    continue;
+                findBerthFlag = true;
+                if (now->dis + 1 < berth[berthID].nearestRobotShopDis)
+                {
+                    berth[berthID].nearestRobotShopDis = now->dis + 1;
+                    berth[berthID].nearestRobotShop = robotShopID;
+                }
+            }
+            child = &nodes[queueCount++];
+            child->setNode(nx, ny, now->dis + 1, now);
+        }
+    }
+    return findBerthFlag;
+}
+
+
+void DecisionMaker::blockBerth(int berthID)
+{
+    berth[berthID].isBlocked = true;
+    // for (int i = 0; i < MAP_SIZE; i++) {
+    //     for (int j = 0; j < MAP_SIZE; j++) {
+    //         if (nearBerthID[i][j] == berthID) {
+    //             getNearBerthDis(i, j);
+    //         }
+    //     }
+    // }
+}
