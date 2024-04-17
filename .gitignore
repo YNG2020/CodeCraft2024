@@ -1,0 +1,6 @@
+/build
+*.csv
+/.vscode
+/replay
+/out
+.vs
