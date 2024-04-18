@@ -1,1 +1,1 @@
-./SemiFinalJudge_official -m ./maps/maps_second_official_round/map1.txt "./build/Linux-GCC-Release/main" -l ERR
+./SemiFinalJudge_official -m ./maps/maps_second_official_round/map1.txt "./build/Linux-GCC-Release/main" -l ERR -d output.txt
