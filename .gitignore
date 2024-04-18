@@ -2,3 +2,5 @@
 *.csv
 /.vscode
 /replay
+/out
+.vs
