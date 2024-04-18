@@ -15,7 +15,7 @@
 using namespace std;
 
 std::ifstream myCin;
-bool Debug = false;
+bool Debug = true;
 bool Record = false;
 void printData();
 DecisionMaker decisionMaker;
@@ -23,7 +23,11 @@ DecisionMaker decisionMaker;
 void Init()
 {
     if (Debug)
-        myCin.open("output.txt");
+    {
+        myCin.open("../../output.txt");   // Linux系统中
+        //myCin.open("output.txt");   // windows系统中
+    }
+        
 
     for (int i = 0; i < MAP_SIZE; i++)
     {
