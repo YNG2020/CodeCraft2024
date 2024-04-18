@@ -1,4 +1,1 @@
-@echo off
-.\SemiFinalJudge.exe -m ./maps/map1.txt "./build/Release/main.exe" -l NONE
-
-move .\replay\* .\replayer\
+SemiFinalJudge_official.exe -f 0 -l ERR -m ./maps/maps_second_official_round/map1.txt "./build/x64-Release/main.exe" -d output.txt

@@ -1,1 +1,0 @@
-./SemiFinalJudge -f 0 -l ERR -m ./maps/maps_second_official_round/map1.txt "./build/main"
