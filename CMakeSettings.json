@@ -3,7 +3,7 @@
     {
       "name": "x64-Debug",
       "generator": "Ninja",
-      "configurationType": "Debug",
+      "configurationType": "RelWithDebInfo",
       "inheritEnvironments": [ "msvc_x64_x64" ],
       "buildRoot": "${projectDir}\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
@@ -14,7 +14,7 @@
     {
       "name": "Linux-GCC-Debug",
       "generator": "Ninja",
-      "configurationType": "Debug",
+      "configurationType": "RelWithDebInfo",
       "cmakeExecutable": "cmake",
       "remoteCopySourcesExclusionList": [ ".vs", ".git", "out" ],
       "cmakeCommandArgs": "",
@@ -28,12 +28,13 @@
       "remoteCopySources": true,
       "rsyncCommandArgs": "-t --delete",
       "remoteCopyBuildOutput": false,
-      "remoteCopySourcesMethod": "rsync"
+      "remoteCopySourcesMethod": "rsync",
+      "addressSanitizerEnabled": false
     },
     {
       "name": "Linux-GCC-Release",
       "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
+      "configurationType": "Release",
       "cmakeExecutable": "cmake",
       "remoteCopySourcesExclusionList": [ ".vs", ".git", "out" ],
       "cmakeCommandArgs": "",
@@ -47,12 +48,20 @@
       "remoteCopySources": true,
       "rsyncCommandArgs": "-t --delete",
       "remoteCopyBuildOutput": false,
-      "remoteCopySourcesMethod": "rsync"
+      "remoteCopySourcesMethod": "rsync",
+      "addressSanitizerEnabled": false,
+      "variables": [
+        {
+          "name": "CMAKE_BUILD_TYPE",
+          "value": "Release",
+          "type": "STRING"
+        }
+      ]
     },
     {
       "name": "x64-Release",
       "generator": "Ninja",
-      "configurationType": "RelWithDebInfo",
+      "configurationType": "Release",
       "buildRoot": "${projectDir}\\build\\${name}",
       "installRoot": "${projectDir}\\out\\install\\${name}",
       "cmakeCommandArgs": "",
